@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadows in the Halls - Coming Soon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #0f0f1e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Flickering lights effect */
+    @keyframes flicker {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.4; }
+    }
+    
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 600px;
+      background: rgba(20, 20, 40, 0.9);
+      border-radius: 2rem;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+      z-index: 10;
+    }
+    
+    .title {
+      font-family: 'Creepster', cursive;
+      font-size: 3rem;
+      color: #f0f0f0;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      animation: flicker 3s infinite ease-in-out;
+    }
+    
+    .icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    }
+    
+    .subtitle {
+      font-size: 1.5rem;
+      color: #a5a5a5;
+      margin-bottom: 2rem;
+    }
+    
+    .description {
+      font-size: 1.1rem;
+      color: #d0d0d0;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+    
+    .coming-soon-badge {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    
+    .feature {
+      padding: 0.5rem 1rem;
+      background: rgba(139, 92, 246, 0.2);
+      border-radius: 0.5rem;
+      color: #c4b5fd;
+      font-size: 0.9rem;
+    }
+    
+    .back-button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(167, 139, 250, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    /* Shadow effects */
+    .shadow {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(0, 0, 0, 0.5), transparent);
+      border-radius: 50%;
+      animation: float 10s infinite ease-in-out;
+      opacity: 0.3;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(100px, 50px); }
+    }
+    
+    .shadow:nth-child(1) {
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+    
+    .shadow:nth-child(2) {
+      top: 60%;
+      right: 10%;
+      animation-delay: 3s;
+    }
+    
+    .shadow:nth-child(3) {
+      bottom: 10%;
+      left: 30%;
+      animation-delay: 6s;
+    }
+    
+    @media (max-width: 640px) {
+      .title {
+        font-size: 2rem;
+      }
+      
+      .icon {
+        font-size: 3rem;
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .description {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating shadows -->
+  <div class="shadow"></div>
+  <div class="shadow"></div>
+  <div class="shadow"></div>
+  
+  <div class="container">
+    <div class="icon">🏫👻</div>
+    <h1 class="title">Shadows in the Halls</h1>
+    <p class="subtitle">Survival Horror Lite</p>
+    
+    <div class="coming-soon-badge">🚧 Coming Soon 🚧</div>
+    
+    <p class="description">
+      You're trapped in an infinite school after dark. The hallways shift and stretch endlessly. 
+      Shadow creatures patrol the corridors. Your flashlight is dying. Can you find the exit before dawn?
+    </p>
+    
+    <div class="features">
+      <span class="feature">🔦 Resource Management</span>
+      <span class="feature">🧩 Logic Puzzles</span>
+      <span class="feature">🗺️ Procedural Generation</span>
+      <span class="feature">👻 Stealth Gameplay</span>
+      <span class="feature">📖 Story Mode</span>
+      <span class="feature">⚡ Permanent Upgrades</span>
+    </div>
+    
+    <a href="../index.html" class="back-button">⬅️ Back to Games</a>
+  </div>
+</body>
+</html>

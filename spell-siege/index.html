@@ -214,11 +214,11 @@
       'hero', 'prince', 'queen', 'guard', 'bridge', 'moat', 'wall', 'gate'
     ];
     
-    // Liam's default spelling words (contractions)
+    // Liam's default spelling words (contractions) - lowercase for matching
     const LIAM_DEFAULT_WORDS = [
       "won't", "aren't", "haven't", "he'd", "hasn't", "doesn't",
-      "we'd", "hadn't", "weren't", "they'd", "I'm", "shouldn't",
-      "they're", "I'd", "wouldn't", "should've", "would've", "couldn't"
+      "we'd", "hadn't", "weren't", "they'd", "i'm", "shouldn't",
+      "they're", "i'd", "wouldn't", "should've", "would've", "couldn't"
     ];
     
     const DIFFICULTY_SETTINGS = {
@@ -549,12 +549,14 @@
         if (availableWords.length === 0) return;
         
         const word = availableWords[Math.floor(Math.random() * availableWords.length)];
+        
+        // Simple random positioning
         const enemy = {
           id: ++enemyIdCounter.current,
           type,
           word,
           x: 5 + Math.random() * 10, // Start 5-15% from left
-          y: 20 + Math.random() * 40, // Random vertical position
+          y: 15 + Math.random() * 55, // Random Y between 15-70%
           hits: ENEMY_TYPES[type].hits,
           speed: settings.baseSpeed * (1 - upgrades.slowField * 0.15) * (1 + wave * 0.05)
         };
@@ -722,7 +724,11 @@
       
       // Handle input change
       const handleInputChange = useCallback((e) => {
-        const val = e.target.value.toLowerCase().replace(/[^a-z']/g, '');
+        // Normalize smart quotes to straight apostrophe, then filter
+        const val = e.target.value
+          .toLowerCase()
+          .replace(/[''`]/g, "'") // Convert smart quotes to straight apostrophe
+          .replace(/[^a-z']/g, '');
         setTypedWord(val);
         
         // Auto-target matching enemy
