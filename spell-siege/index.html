@@ -214,11 +214,18 @@
       'hero', 'prince', 'queen', 'guard', 'bridge', 'moat', 'wall', 'gate'
     ];
     
+    // Liam's default spelling words (contractions)
+    const LIAM_DEFAULT_WORDS = [
+      "won't", "aren't", "haven't", "he'd", "hasn't", "doesn't",
+      "we'd", "hadn't", "weren't", "they'd", "I'm", "shouldn't",
+      "they're", "I'd", "wouldn't", "should've", "would've", "couldn't"
+    ];
+    
     const DIFFICULTY_SETTINGS = {
       liam: {
         name: "Liam Mode",
         emoji: "🦁",
-        description: "Slower enemies, more forgiving",
+        description: "Contractions words, slower pace",
         baseSpeed: 0.25,
         spawnInterval: 4500,
         maxEnemies: 3,
@@ -715,7 +722,7 @@
       
       // Handle input change
       const handleInputChange = useCallback((e) => {
-        const val = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
+        const val = e.target.value.toLowerCase().replace(/[^a-z']/g, '');
         setTypedWord(val);
         
         // Auto-target matching enemy
@@ -788,14 +795,14 @@
         initAudio().then(() => {
           const settings = DIFFICULTY_SETTINGS[difficulty];
           
-          // Parse custom words
-          let gameWords = DEFAULT_WORDS;
+          // Parse custom words or use defaults based on difficulty
+          let gameWords = difficulty === 'liam' ? LIAM_DEFAULT_WORDS : DEFAULT_WORDS;
           if (customWordsInput.trim()) {
             const custom = customWordsInput
               .toLowerCase()
               .split(/[\s,]+/)
               .map(w => w.trim())
-              .filter(w => w.length >= 2 && /^[a-z]+$/.test(w));
+              .filter(w => w.length >= 2 && /^[a-z']+$/.test(w));
             if (custom.length >= 5) {
               gameWords = custom;
             }
