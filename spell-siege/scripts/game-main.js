@@ -866,7 +866,12 @@
           {gameState === 'gameover' && (
             <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-30">
               <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full mx-4 border-2 border-red-500/50 text-center">
-                <h2 className="font-title text-4xl text-red-400 mb-2">ðŸ’” GAME OVER</h2>
+                {playerProfile && (
+                  <div className="mb-3 text-slate-400 font-game text-sm">
+                    Playing as: <span className="text-purple-400">{playerName}</span>
+                  </div>
+                )}
+                <h2 className="font-title text-4xl text-red-400 mb-2">💔 GAME OVER</h2>
                 <p className="font-game text-slate-400 mb-6">The castle has fallen...</p>
                 
                 <div className="bg-slate-800 rounded-xl p-4 mb-6 text-left font-game">
