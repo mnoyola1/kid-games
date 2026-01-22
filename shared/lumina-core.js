@@ -145,8 +145,8 @@ const LuminaCore = (function() {
       version: VERSION,
       currentPlayer: null,
       profiles: {
-        emma: createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png'),
-        liam: createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png'),
+        emma: { id: 'emma', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
+        liam: { id: 'liam', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
       },
       familyQuest: {
         active: false,
@@ -210,7 +210,10 @@ const LuminaCore = (function() {
     if (oldData.profiles) {
       Object.keys(oldData.profiles).forEach(key => {
         if (newData.profiles[key]) {
-          newData.profiles[key] = { ...newData.profiles[key], ...oldData.profiles[key] };
+          // Ensure profile has id field
+          const oldProfile = oldData.profiles[key];
+          if (!oldProfile.id) oldProfile.id = key;
+          newData.profiles[key] = { ...newData.profiles[key], ...oldProfile };
         }
       });
     }
