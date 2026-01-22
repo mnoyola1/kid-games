@@ -100,15 +100,25 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │
 └── [game-folders]/               # Individual games
     ├── spell-siege/
-    │   └── index.html           # Word spelling tower defense
-    ├── canada-adventure/
-    │   └── index.html           # Canada geography RPG
+    │   └── index.html           # Word spelling tower defense (1,343 lines - monolithic)
+    │
+    ├── canada-adventure/        # Canada geography RPG (REFACTORED)
+    │   ├── index.html           # Main entry point (40 lines - clean HTML only)
+    │   ├── styles/
+    │   │   └── game-base.css    # Base styles & animations (37 lines)
+    │   └── scripts/
+    │       ├── game-data.js     # Questions, regions, monsters (77 lines)
+    │       ├── game-sprites.js  # Pixel art sprite data (162 lines)
+    │       ├── game-components.js # React components (119 lines)
+    │       ├── game-main.js     # Main game logic (497 lines)
+    │       └── game-init.js     # Initialization (4 lines)
+    │
     ├── lumina-racer/
-    │   └── index.html           # Racing game
+    │   └── index.html           # Racing game (monolithic)
     ├── word-forge/
-    │   └── index.html           # Word crafting game
+    │   └── index.html           # Word crafting game (monolithic)
     └── shadows-in-the-halls/
-        └── index.html           # Mystery adventure
+        └── index.html           # Mystery adventure (monolithic)
 ```
 
 ## Architecture Overview
@@ -188,6 +198,31 @@ To add a new game to the hub:
 - **From game folder**: `../assets/audio/spell-siege/music/`
 - **Shared scripts**: `../shared/scripts/[filename].js`
 - **Shared styles**: `../shared/styles/[filename].css`
+
+### Game Refactoring Pattern (Canada Adventure Example)
+
+Individual games can follow the same modular pattern as the hub:
+
+**Before Refactoring:**
+- Single `index.html` file: 915 lines (all HTML, CSS, and JavaScript inline)
+
+**After Refactoring:**
+- `index.html`: 40 lines (clean HTML with external links)
+- `styles/game-base.css`: 37 lines (base styles & animations)
+- `scripts/game-data.js`: 77 lines (game data & configuration)
+- `scripts/game-sprites.js`: 162 lines (pixel art sprite data)
+- `scripts/game-components.js`: 119 lines (React components)
+- `scripts/game-main.js`: 497 lines (main game logic)
+- `scripts/game-init.js`: 4 lines (initialization)
+
+**Total:** 936 lines (21 more than original due to headers/comments, but vastly more maintainable)
+
+**Benefits:**
+- Clear separation of concerns
+- Easy to find and edit specific functionality
+- Better browser caching
+- Reusable components across games
+- Easier debugging and testing
 
 ## LuminaCore Module API
 
