@@ -236,6 +236,7 @@ const LuminaCore = (function() {
     if (data.profiles[playerId]) {
       data.currentPlayer = playerId;
       save();
+      notifySubscribers();
       return data.profiles[playerId];
     }
     return null;
@@ -681,6 +682,34 @@ const LuminaCore = (function() {
     return LEVEL_TITLES;
   }
   
+  function getLevelTitle(level) {
+    const levelData = LEVEL_TITLES.find(l => l.level === level);
+    return levelData ? levelData.title : 'Apprentice';
+  }
+  
+  function getXPProgress() {
+    const player = getCurrentPlayer();
+    if (!player) return { current: 0, required: 100, percentage: 0 };
+    
+    const currentLevelData = LEVEL_TITLES.find(l => l.level === player.level);
+    const nextLevelData = LEVEL_TITLES.find(l => l.level === player.level + 1);
+    
+    if (!nextLevelData) {
+      // Max level reached
+      return {
+        current: player.totalXP - currentLevelData.minXP,
+        required: player.totalXP - currentLevelData.minXP,
+        percentage: 100
+      };
+    }
+    
+    const current = player.totalXP - currentLevelData.minXP;
+    const required = nextLevelData.minXP - currentLevelData.minXP;
+    const percentage = Math.floor((current / required) * 100);
+    
+    return { current, required, percentage };
+  }
+  
   function exportData() {
     return JSON.stringify(getData(), null, 2);
   }
@@ -695,6 +724,30 @@ const LuminaCore = (function() {
       console.error('LuminaCore: Failed to import data', e);
       return false;
     }
+  }
+  
+  // ==================== EVENT SYSTEM ====================
+  
+  let _subscribers = [];
+  
+  function subscribe(callback) {
+    if (typeof callback === 'function') {
+      _subscribers.push(callback);
+    }
+  }
+  
+  function unsubscribe(callback) {
+    _subscribers = _subscribers.filter(cb => cb !== callback);
+  }
+  
+  function notifySubscribers() {
+    _subscribers.forEach(callback => {
+      try {
+        callback();
+      } catch (e) {
+        console.error('LuminaCore: Subscriber callback error', e);
+      }
+    });
   }
   
   // ==================== PUBLIC API ====================
@@ -713,11 +766,18 @@ const LuminaCore = (function() {
     getPlayer,
     getAllPlayers,
     
+    // Aliases for hub compatibility
+    setActiveProfile: setCurrentPlayer,
+    getActiveProfile: getCurrentPlayer,
+    getActiveProfileKey: getCurrentPlayerId,
+    
     // XP & Leveling
     addXP,
     calculateLevel,
     getXPForNextLevel,
     getLevelTitles,
+    getLevelTitle,
+    getXPProgress,
     
     // Coins
     addCoins,
@@ -761,9 +821,12 @@ const LuminaCore = (function() {
     // Utility
     exportData,
     importData,
+    subscribe,
+    unsubscribe,
     
     // Constants
     REWARDS,
+    REWARDS_CATALOG: REWARDS, // Alias for hub compatibility
     ACHIEVEMENTS,
     GAMES,
     LEVEL_TITLES,
