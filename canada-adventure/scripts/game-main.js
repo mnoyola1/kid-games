@@ -62,7 +62,7 @@
           if (nextRegion !== -1 && !unlockedRegions.includes(nextRegion)) {
             setUnlockedRegions(prev => [...prev, nextRegion]);
           }
-          setMessage(`â¬†ï¸ LEVEL UP! Now Level ${level + 1}!`);
+          setMessage(`⬆️ LEVEL UP! Now Level ${level + 1}!`);
         }
         setXp(newXP);
       };
@@ -102,7 +102,7 @@
           setMessage('Answer correctly to attack!');
         } else if (action === 'defend') {
           setIsDefending(true);
-          setMessage('You raise your shield! ðŸ›¡ï¸');
+          setMessage('You raise your shield! 🛡️');
           setTimeout(() => enemyTurn(), 1000);
         } else if (action === 'item') {
           setPhase('item');
@@ -120,7 +120,7 @@
           
           setPhase('attack');
           setHeroAttacking(true);
-          setMessage(`âœ… CORRECT! ${newCombo > 2 ? `ðŸ”¥ ${newCombo}x COMBO! ` : ''}${dmg} damage!`);
+          setMessage(`✅ CORRECT! ${newCombo > 2 ? `🔥 ${newCombo}x COMBO! ` : ''}${dmg} damage!`);
           
           setTimeout(() => {
             setHeroAttacking(false);
@@ -139,7 +139,7 @@
           }, 400);
         } else {
           setCombo(0);
-          setMessage(`âŒ Wrong! Answer: ${question.a}`);
+          setMessage(`❌ Wrong! Answer: ${question.a}`);
           setTimeout(() => enemyTurn(), 1500);
         }
       };
@@ -161,7 +161,7 @@
             setHeroHit(false);
             if (newHP <= 0) {
               setPhase('defeat');
-              setMessage('ðŸ’€ Defeated...');
+              setMessage('💀 Defeated...');
               setTimeout(() => setScreen('gameover'), 2000);
             } else {
               setPhase('player');
@@ -178,7 +178,7 @@
         setCoins(c => c + coinReward);
         gainXP(xpReward);
         setTotalDefeated(t => t + 1);
-        setMessage(`ðŸŽ‰ VICTORY! +${coinReward}ðŸª™ +${xpReward}XP`);
+        setMessage(`🎉 VICTORY! +${coinReward}🪙 +${xpReward}XP`);
         
         setTimeout(() => {
           setPhase('map');
@@ -193,13 +193,13 @@
         if (item === 'potion') {
           const heal = 5;
           setHp(h => Math.min(h + heal, maxHp));
-          setMessage(`ðŸ§ª +${heal} HP!`);
+          setMessage(`🧪 +${heal} HP!`);
         } else if (item === 'bomb') {
           const dmg = 3;
           const newHP = Math.max(0, monsterHp - dmg);
           setMonsterHp(newHP);
           setMonsterHit(true);
-          setMessage(`ðŸ’£ BOOM! ${dmg} damage!`);
+          setMessage(`💣 BOOM! ${dmg} damage!`);
           setTimeout(() => setMonsterHit(false), 300);
           
           if (newHP <= 0) {
@@ -245,7 +245,7 @@
                 onClick={() => { setPhase('map'); setScreen('game'); }}
                 className="w-full py-4 bg-gradient-to-b from-green-500 to-green-700 text-white rounded-2xl text-xl font-black border-b-4 border-green-900 active:translate-y-1"
               >
-                âš”ï¸ START GAME âš”ï¸
+                🎯 START GAME 🎯
               </button>
             </div>
           </div>
@@ -257,7 +257,7 @@
         return (
           <div className="min-h-screen bg-gradient-to-b from-gray-800 to-black flex items-center justify-center p-4">
             <div className="bg-gray-900 rounded-3xl p-6 max-w-sm w-full text-center border-4 border-gray-700">
-              <div className="text-6xl mb-4">ðŸ’€</div>
+              <div className="text-6xl mb-4">💀</div>
               <h1 className="text-3xl font-black text-red-500 mb-4">GAME OVER</h1>
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-gray-800 p-3 rounded-xl">
@@ -270,7 +270,7 @@
                 </div>
               </div>
               <button onClick={restart} className="w-full py-4 bg-red-600 text-white rounded-xl text-xl font-black">
-                ðŸ”„ TRY AGAIN
+                🔄 TRY AGAIN
               </button>
             </div>
           </div>
@@ -289,7 +289,7 @@
                   </div>
                   <span className="text-white font-bold">{playerName}</span>
                 </div>
-                <span className="text-yellow-400 font-black">ðŸª™ {coins}</span>
+                <span className="text-yellow-400 font-black">🪙 {coins}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <HPBar current={hp} max={maxHp} color="red" />
@@ -309,14 +309,14 @@
             </div>
             
             <div className="text-center text-white font-bold mb-3">
-              âš”ï¸ Tap a region to battle! ({totalDefeated} defeated)
+              ⚔️ Tap a region to battle! ({totalDefeated} defeated)
             </div>
             
             <button
               onClick={() => setScreen('shop')}
               className="w-full py-4 bg-gradient-to-b from-amber-400 to-amber-600 text-white rounded-xl text-lg font-black border-b-4 border-amber-800"
             >
-              ðŸª™ SHOP
+              🪙 SHOP
             </button>
           </div>
         );
@@ -328,16 +328,16 @@
           <div className="min-h-screen bg-gradient-to-b from-amber-500 to-orange-600 p-4">
             <div className="max-w-sm mx-auto">
               <div className="flex justify-between mb-4">
-                <button onClick={() => setScreen('game')} className="bg-white px-4 py-2 rounded-full font-bold">â† Back</button>
-                <div className="bg-white px-4 py-2 rounded-full font-bold">ðŸª™ {coins}</div>
+                <button onClick={() => setScreen('game')} className="bg-white px-4 py-2 rounded-full font-bold">← Back</button>
+                <div className="bg-white px-4 py-2 rounded-full font-bold">🪙 {coins}</div>
               </div>
               
-              <h1 className="text-3xl font-black text-white text-center mb-4">ðŸª™ SHOP</h1>
+              <h1 className="text-3xl font-black text-white text-center mb-4">🪙 SHOP</h1>
               
               <div className="space-y-3">
                 {[
-                  { id: 'potion', name: 'Potion', desc: '+5 HP', cost: 20, icon: 'ðŸ§ª' },
-                  { id: 'bomb', name: 'Bomb', desc: '3 damage', cost: 35, icon: 'ðŸ’£' },
+                  { id: 'potion', name: 'Potion', desc: '+5 HP', cost: 20, icon: '🧪' },
+                  { id: 'bomb', name: 'Bomb', desc: '3 damage', cost: 35, icon: '💣' },
                 ].map(item => (
                   <div key={item.id} className="bg-white rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -357,14 +357,14 @@
                       disabled={coins < item.cost}
                       className={`px-4 py-2 rounded-lg font-bold ${coins >= item.cost ? 'bg-green-500 text-white' : 'bg-gray-300'}`}
                     >
-                      {item.cost}ðŸª™
+                      {item.cost}🪙
                     </button>
                   </div>
                 ))}
                 
                 <div className="bg-white rounded-xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">â¤ï¸â€ðŸ©¹</span>
+                    <span className="text-3xl">❤️‍🩹</span>
                     <div>
                       <div className="font-bold">Full Heal</div>
                       <div className="text-sm text-gray-500">All HP & MP</div>
@@ -381,7 +381,7 @@
                     disabled={coins < 50 || (hp >= maxHp && mp >= maxMp)}
                     className={`px-4 py-2 rounded-lg font-bold ${coins >= 50 && (hp < maxHp || mp < maxMp) ? 'bg-red-500 text-white' : 'bg-gray-300'}`}
                   >
-                    50ðŸª™
+                    50🪙
                   </button>
                 </div>
               </div>
@@ -410,7 +410,7 @@
             {combo > 1 && (
               <div className="text-center mb-2">
                 <span className="bg-orange-500 text-white px-3 py-1 rounded-full font-black animate-pulse">
-                  ðŸ”¥ {combo}x COMBO
+                  🔥 {combo}x COMBO
                 </span>
               </div>
             )}
@@ -419,7 +419,7 @@
               <div className="flex justify-end mb-6">
                 <div className="text-center">
                   <div className="mb-2">
-                    <HPBar current={monsterHp} max={monster.maxHp} label={monster.name + (monster.isBoss ? ' ðŸ‘‘' : '')} />
+                    <HPBar current={monsterHp} max={monster.maxHp} label={monster.name + (monster.isBoss ? ' 👑' : '')} />
                   </div>
                   <PixelSprite type={monster.sprite} scale={4} isHit={monsterHit} flip />
                 </div>
@@ -428,7 +428,7 @@
               <div className="flex justify-start">
                 <div className="relative">
                   <PixelSprite type="hero" scale={4} isHit={heroHit} isAttacking={heroAttacking} />
-                  {isDefending && <div className="absolute -top-2 -right-2 text-2xl">ðŸ›¡ï¸</div>}
+                  {isDefending && <div className="absolute -top-2 -right-2 text-2xl">🛡️</div>}
                 </div>
               </div>
             </div>
@@ -440,16 +440,16 @@
             {phase === 'player' && (
               <div className="grid grid-cols-4 gap-2">
                 <button onClick={() => pickAction('attack')} className="bg-red-500 p-3 rounded-xl text-white font-bold">
-                  <div className="text-xl">âš”ï¸</div><div className="text-xs">Attack</div>
+                  <div className="text-xl">⚔️</div><div className="text-xs">Attack</div>
                 </button>
                 <button onClick={() => pickAction('special')} disabled={mp < 2} className={`p-3 rounded-xl text-white font-bold ${mp >= 2 ? 'bg-yellow-500' : 'bg-gray-500'}`}>
-                  <div className="text-xl">âœ¨</div><div className="text-xs">Special</div>
+                  <div className="text-xl">✨</div><div className="text-xs">Special</div>
                 </button>
                 <button onClick={() => pickAction('defend')} className="bg-blue-500 p-3 rounded-xl text-white font-bold">
-                  <div className="text-xl">ðŸ›¡ï¸</div><div className="text-xs">Defend</div>
+                  <div className="text-xl">🛡️</div><div className="text-xs">Defend</div>
                 </button>
                 <button onClick={() => pickAction('item')} className="bg-green-500 p-3 rounded-xl text-white font-bold">
-                  <div className="text-xl">ðŸŽ’</div><div className="text-xs">Item</div>
+                  <div className="text-xl">🎒</div><div className="text-xs">Item</div>
                 </button>
               </div>
             )}
@@ -475,15 +475,15 @@
             {phase === 'item' && (
               <div className="grid grid-cols-3 gap-2">
                 <button onClick={() => useItem('potion')} disabled={inventory.potion <= 0} className={`p-3 rounded-xl text-center ${inventory.potion > 0 ? 'bg-green-500' : 'bg-gray-500'}`}>
-                  <div className="text-xl">ðŸ§ª</div>
+                  <div className="text-xl">🧪</div>
                   <div className="text-white text-xs font-bold">x{inventory.potion}</div>
                 </button>
                 <button onClick={() => useItem('bomb')} disabled={inventory.bomb <= 0} className={`p-3 rounded-xl text-center ${inventory.bomb > 0 ? 'bg-red-500' : 'bg-gray-500'}`}>
-                  <div className="text-xl">ðŸ’£</div>
+                  <div className="text-xl">💣</div>
                   <div className="text-white text-xs font-bold">x{inventory.bomb}</div>
                 </button>
                 <button onClick={() => { setPhase('player'); setMessage('Your turn!'); }} className="p-3 rounded-xl text-center bg-gray-600">
-                  <div className="text-xl">â†©ï¸</div>
+                  <div className="text-xl">↩️</div>
                   <div className="text-white text-xs font-bold">Back</div>
                 </button>
               </div>
