@@ -37,15 +37,24 @@ function createStars() {
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎮 Hub initializing...');
+  
+  // Initialize Lumina Core
+  LuminaCore.load();
+  
   initTheme();
   createStars();
   renderGames();
   
   // Check if profile is selected
   const activeProfile = LuminaCore.getActiveProfileKey();
+  console.log('👤 Active profile:', activeProfile);
+  
   if (!activeProfile) {
+    console.log('📋 No profile selected, showing profile select modal');
     showProfileSelect();
   } else {
+    console.log('✅ Profile selected, updating UI');
     updateUI();
   }
   
@@ -54,4 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Setup PIN input auto-advance
   setupPinInputs();
+  
+  console.log('✅ Hub initialization complete');
 });
