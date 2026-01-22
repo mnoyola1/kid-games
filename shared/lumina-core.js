@@ -770,6 +770,7 @@ const LuminaCore = (function() {
     setActiveProfile: setCurrentPlayer,
     getActiveProfile: getCurrentPlayer,
     getActiveProfileKey: getCurrentPlayerId,
+    getAllProfiles: getAllPlayers,
     
     // XP & Leveling
     addXP,
