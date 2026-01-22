@@ -6,8 +6,8 @@ const GAMES = [
     subtitle: 'Tower Defense Spelling',
     icon: '🏰',
     url: './spell-siege/index.html',
-    description: 'Defend your castle from monsters by spelling words! Cast spells and upgrade defenses.',
-    features: ['📝 Custom Words', '🔊 Text-to-Speech', '⬆️ Upgrades'],
+    description: 'Defend your castle from invading monsters by typing words correctly! Cast magical spells, earn coins, and upgrade your defenses.',
+    features: ['📝 Custom Words', '🔊 Text-to-Speech', '⬆️ Upgrades', '🎵 Epic Music'],
     active: true
   },
   {
@@ -16,8 +16,8 @@ const GAMES = [
     subtitle: 'Region Battle RPG',
     icon: '🍁',
     url: './canada-adventure/index.html',
-    description: 'Battle through Canada\'s regions by answering questions! Defeat enemies and level up.',
-    features: ['⚔️ RPG Battles', '🗺️ 7 Regions', '📈 Leveling'],
+    description: 'Battle through Canada\'s regions by answering questions! Defeat enemies, earn coins, and level up your explorer.',
+    features: ['⚔️ RPG Battles', '🗺️ 7 Regions', '🔋 Power-ups', '📈 Leveling'],
     active: true
   },
   {
@@ -26,8 +26,8 @@ const GAMES = [
     subtitle: 'Typing Racing',
     icon: '🏎️',
     url: './lumina-racer/index.html',
-    description: 'Race through magical kingdoms! Type words to boost your speed and win.',
-    features: ['🏁 Racing', '⌨️ Typing', '🏆 Combos'],
+    description: 'Race through magical kingdoms! Type words to boost your speed and compete against Aurora\'s friends.',
+    features: ['🏁 Racing', '⌨️ Typing', '🔥 Aurora', '🎯 Combos'],
     active: true
   },
   {
@@ -36,8 +36,8 @@ const GAMES = [
     subtitle: 'Crafting & Spelling',
     icon: '⚒️',
     url: './word-forge/index.html',
-    description: 'Become a master blacksmith! Forge magical items by spelling correctly.',
-    features: ['🗡️ Crafting', '📦 Collection', '⭐ 22 Items'],
+    description: 'Become a master blacksmith! Forge magical items and weapons by spelling correctly.',
+    features: ['🗡️ Crafting', '📦 Collection', '⭐ Items', '🎨 Pixel Art'],
     active: true
   },
   {
