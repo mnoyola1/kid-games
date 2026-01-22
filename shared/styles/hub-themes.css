@@ -1,0 +1,82 @@
+/* ==================== CSS VARIABLES ==================== */
+:root {
+  /* Fantasy Theme (Default) */
+  --font-display: 'Fredoka', sans-serif;
+  --font-body: 'Quicksand', sans-serif;
+  
+  --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  --bg-panel: linear-gradient(145deg, rgba(30, 27, 75, 0.9), rgba(49, 46, 129, 0.9));
+  --bg-card: linear-gradient(145deg, rgba(30, 27, 75, 0.9), rgba(49, 46, 129, 0.9));
+  --bg-button: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  --bg-button-hover: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%);
+  
+  --border-primary: rgba(139, 92, 246, 0.3);
+  --border-accent: rgba(139, 92, 246, 0.5);
+  --border-highlight: rgba(167, 139, 250, 0.6);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a5b4fc;
+  --text-muted: #94a3b8;
+  --text-accent: #fbbf24;
+  --text-title: #c4b5fd;
+  
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #a78bfa;
+  --accent-gold: #fbbf24;
+  --accent-green: #34d399;
+  --accent-orange: #f97316;
+  --accent-pink: #ec4899;
+  
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.3);
+  --shadow-card: 0 20px 40px rgba(139, 92, 246, 0.3);
+  
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  
+  --star-color: white;
+  --star-glow: rgba(255, 255, 255, 0.5);
+}
+
+/* Gaming Theme */
+[data-theme="gaming"] {
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+  
+  --bg-primary: linear-gradient(135deg, #0a0a0f 0%, #0d0d12 50%, #111118 100%);
+  --bg-panel: linear-gradient(145deg, rgba(15, 15, 20, 0.95), rgba(25, 25, 35, 0.95));
+  --bg-card: linear-gradient(145deg, rgba(15, 15, 20, 0.95), rgba(25, 25, 35, 0.95));
+  --bg-button: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%);
+  --bg-button-hover: linear-gradient(135deg, #00ffea 0%, #00d4ff 100%);
+  
+  --border-primary: rgba(0, 245, 212, 0.2);
+  --border-accent: rgba(0, 245, 212, 0.4);
+  --border-highlight: rgba(0, 245, 212, 0.6);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b4f5e8;
+  --text-muted: #6b7280;
+  --text-accent: #00f5d4;
+  --text-title: #ff00ff;
+  
+  --accent-primary: #00f5d4;
+  --accent-secondary: #00bbf9;
+  --accent-gold: #fee440;
+  --accent-green: #00ff88;
+  --accent-orange: #ff6b35;
+  --accent-pink: #ff00ff;
+  
+  --shadow-glow: 0 0 30px rgba(0, 245, 212, 0.3);
+  --shadow-card: 0 20px 40px rgba(0, 245, 212, 0.2);
+  
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  
+  --star-color: #00f5d4;
+  --star-glow: rgba(0, 245, 212, 0.5);
+}
