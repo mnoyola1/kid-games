@@ -168,5 +168,3 @@
       }
     }
     
-    const audioManager = new AudioManager();
-    

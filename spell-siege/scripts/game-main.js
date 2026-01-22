@@ -46,6 +46,9 @@
       const enemyIdCounter = useRef(0);
       const waveEnemiesSpawned = useRef(0);
       
+      // Audio Manager
+      const audioManager = useMemo(() => new AudioManager(), []);
+      
       // Initialize audio on first interaction
       const initAudio = useCallback(async () => {
         await audioManager.initTone();
