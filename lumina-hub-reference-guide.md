@@ -99,8 +99,16 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │               └── Game Over.wav
 │
 └── [game-folders]/               # Individual games
-    ├── spell-siege/
-    │   └── index.html           # Word spelling tower defense (1,343 lines - monolithic)
+    ├── spell-siege/             # Tower defense spelling game (REFACTORED)
+    │   ├── index.html           # Main entry point (101 lines - clean HTML only)
+    │   ├── styles/
+    │   │   └── game-base.css    # Base styles & animations (106 lines)
+    │   └── scripts/
+    │       ├── game-config.js   # Constants, words, settings (63 lines)
+    │       ├── game-audio.js    # AudioManager class (172 lines)
+    │       ├── game-speech.js   # Speech synthesis (11 lines)
+    │       ├── game-main.js     # Main SpellSiege component (896 lines)
+    │       └── game-init.js     # Initialization (2 lines)
     │
     ├── canada-adventure/        # Canada geography RPG (REFACTORED)
     │   ├── index.html           # Main entry point (40 lines - clean HTML only)
@@ -199,14 +207,15 @@ To add a new game to the hub:
 - **Shared scripts**: `../shared/scripts/[filename].js`
 - **Shared styles**: `../shared/styles/[filename].css`
 
-### Game Refactoring Pattern (Canada Adventure Example)
+### Game Refactoring Pattern
 
 Individual games can follow the same modular pattern as the hub:
 
-**Before Refactoring:**
-- Single `index.html` file: 915 lines (all HTML, CSS, and JavaScript inline)
+#### Canada Adventure Example
 
-**After Refactoring:**
+**Before:** 915 lines (monolithic)  
+**After:** 936 lines across 7 files (92.5% reduction in index.html)
+
 - `index.html`: 40 lines (clean HTML with external links)
 - `styles/game-base.css`: 37 lines (base styles & animations)
 - `scripts/game-data.js`: 77 lines (game data & configuration)
@@ -215,7 +224,18 @@ Individual games can follow the same modular pattern as the hub:
 - `scripts/game-main.js`: 497 lines (main game logic)
 - `scripts/game-init.js`: 4 lines (initialization)
 
-**Total:** 936 lines (21 more than original due to headers/comments, but vastly more maintainable)
+#### Spell Siege Example
+
+**Before:** 1,343 lines (monolithic)  
+**After:** 1,351 lines across 6 files (92.5% reduction in index.html)
+
+- `index.html`: 101 lines (clean HTML with external links + Tailwind config)
+- `styles/game-base.css`: 106 lines (base styles & animations)
+- `scripts/game-config.js`: 63 lines (constants, words, difficulty settings)
+- `scripts/game-audio.js`: 172 lines (AudioManager class for music/SFX)
+- `scripts/game-speech.js`: 11 lines (text-to-speech functions)
+- `scripts/game-main.js`: 896 lines (main SpellSiege component)
+- `scripts/game-init.js`: 2 lines (initialization)
 
 **Benefits:**
 - Clear separation of concerns
@@ -223,6 +243,7 @@ Individual games can follow the same modular pattern as the hub:
 - Better browser caching
 - Reusable components across games
 - Easier debugging and testing
+- Consistent architecture across all games
 
 ## LuminaCore Module API
 

@@ -1,0 +1,106 @@
+﻿/* ==================== GAME STYLES ==================== */
+
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+      font-family: 'Quicksand', sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* Gradient background */
+    .game-bg {
+      background: linear-gradient(180deg, 
+        #0f0c29 0%, 
+        #302b63 40%, 
+        #24243e 70%,
+        #1a1a2e 100%
+      );
+    }
+    
+    /* Starfield effect */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 230px 80px, #ddd, transparent),
+        radial-gradient(2px 2px at 300px 150px, #fff, transparent),
+        radial-gradient(1px 1px at 50px 180px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 180px 220px, #eee, transparent);
+      background-repeat: repeat;
+      background-size: 350px 250px;
+      animation: twinkle 5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes twinkle {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    /* Castle glow */
+    .castle-glow {
+      filter: drop-shadow(0 0 20px rgba(236, 201, 75, 0.5));
+    }
+    
+    /* Enemy glow */
+    .enemy-glow {
+      filter: drop-shadow(0 0 10px currentColor);
+    }
+    
+    /* Input styling */
+    .magic-input {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border: 2px solid rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1);
+    }
+    
+    .magic-input:focus {
+      outline: none;
+      border-color: rgba(167, 139, 250, 0.8);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 30px rgba(139, 92, 246, 0.2);
+    }
+    
+    /* Button hover effects */
+    .magic-btn {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .magic-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .magic-btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Word bubble */
+    .word-bubble {
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(49, 46, 129, 0.95));
+      border: 2px solid rgba(167, 139, 250, 0.6);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Health hearts */
+    .heart {
+      filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.5));
+    }
+    
+    /* Spell effect */
+    .spell-effect {
+      pointer-events: none;
+    }

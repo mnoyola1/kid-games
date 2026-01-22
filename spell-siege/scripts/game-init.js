@@ -1,0 +1,2 @@
+﻿    root.render(<SpellSiege />);
+  </script>
