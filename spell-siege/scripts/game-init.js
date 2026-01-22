@@ -1,2 +1,2 @@
-﻿    root.render(<SpellSiege />);
-  </script>
+﻿    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<SpellSiege />);
