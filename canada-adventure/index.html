@@ -16,6 +16,9 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Lumina Core Integration -->
+  <script src="../shared/lumina-core.js"></script>
+  
   <style>
     * { box-sizing: border-box; }
     body { 
@@ -55,7 +58,10 @@
   <div id="root"></div>
   
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
+    
+    // Lumina Core integration flag - set to true to sync with hub
+    const LUMINA_ENABLED = typeof LuminaCore !== 'undefined';
 
     // All questions from the study guide
     const allQuestions = [
@@ -437,7 +443,24 @@
       
       const [inventory, setInventory] = useState({ potion: 3, bomb: 1 });
       
+      // Stats tracking for Lumina integration
+      const [questionsCorrect, setQuestionsCorrect] = useState(0);
+      const [questionsTotal, setQuestionsTotal] = useState(0);
+      const [maxCombo, setMaxCombo] = useState(0);
+      const sessionStartRef = useRef(Date.now());
+      
       const xpNeeded = level * 100;
+      
+      // Initialize from LuminaCore on mount
+      useEffect(() => {
+        if (LUMINA_ENABLED) {
+          const player = LuminaCore.getCurrentPlayer();
+          if (player) {
+            setPlayerName(player.name);
+            console.log(`[Canada Adventure] Loaded player: ${player.name}`);
+          }
+        }
+      }, []);
 
       const gainXP = (amt) => {
         let newXP = xp + amt;
