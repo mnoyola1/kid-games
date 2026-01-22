@@ -57,9 +57,9 @@
       
       // Get music track for current wave
       const getMusicTrackForWave = useCallback((w) => {
-        if (w <= 3) return 'early';
-        if (w <= 7) return 'mid';
-        return 'final';
+        if (w <= 3) return 'gameplay_early';
+        if (w <= 7) return 'gameplay_mid';
+        return 'gameplay_final';
       }, []);
       
       // Add announcement
@@ -387,7 +387,7 @@
           waveEnemiesSpawned.current = 0;
           
           setGameState('playing');
-          audioManager.playMusic('early');
+          audioManager.playMusic('gameplay_early');
         });
       }, [difficulty, customWordsInput, initAudio]);
       
