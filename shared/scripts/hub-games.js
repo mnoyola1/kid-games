@@ -1,7 +1,23 @@
 // ==================== GAME RENDERING ====================
 function renderGames() {
+  console.log('🎮 renderGames() called');
+  console.log('📊 GAMES array:', GAMES);
+  
   const profile = LuminaCore.getActiveProfile();
   const container = document.getElementById('gamesGrid');
+  
+  if (!container) {
+    console.error('❌ gamesGrid container not found!');
+    return;
+  }
+  
+  if (!GAMES || GAMES.length === 0) {
+    console.error('❌ GAMES array is empty or undefined!');
+    container.innerHTML = '<p style="color: white; text-align: center;">No games available</p>';
+    return;
+  }
+  
+  console.log('✅ Rendering', GAMES.length, 'games');
   
   container.innerHTML = GAMES.map(game => {
     const gameStats = profile?.games?.[game.id] || { highScore: 0, sessionsPlayed: 0 };
@@ -32,4 +48,6 @@ function renderGames() {
       </a>
     `;
   }).join('');
+  
+  console.log('✅ Games rendered successfully');
 }
