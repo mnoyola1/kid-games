@@ -1,5 +1,9 @@
 ﻿    // ==================== MAIN GAME COMPONENT ====================
     function SpellSiege() {
+      // Player & Hub Integration
+      const [playerProfile, setPlayerProfile] = useState(null);
+      const [playerName, setPlayerName] = useState('Player');
+      
       // Game states
       const [gameState, setGameState] = useState('menu'); // menu, setup, playing, paused, gameover, victory
       const [difficulty, setDifficulty] = useState(null);
@@ -234,6 +238,77 @@
           audioManager.playMusic('gameover');
         }
       }, [castleHealth, gameState]);
+      
+      // Load player profile from LuminaCore on mount
+      useEffect(() => {
+        if (typeof LuminaCore !== 'undefined') {
+          const profile = LuminaCore.getActiveProfile();
+          if (profile) {
+            setPlayerProfile(profile);
+            setPlayerName(profile.name);
+            console.log('🎮 Spell Siege: Playing as', profile.name);
+          } else {
+            setPlayerName('Player');
+            console.log('⚠️ Spell Siege: No active profile, playing as guest');
+          }
+        }
+      }, []);
+      
+      // Award XP/Coins and record session on victory or game over
+      useEffect(() => {
+        if ((gameState === 'victory' || gameState === 'gameover') && playerProfile && typeof LuminaCore !== 'undefined') {
+          const profileId = LuminaCore.getActiveProfileKey();
+          if (!profileId) return;
+          
+          // Calculate rewards
+          const baseXP = wave * 10; // 10 XP per wave completed
+          const accuracyBonus = wordsTyped > 0 ? Math.floor((wordsTyped / (wordsTyped + mistakes)) * 50) : 0;
+          const comboBonus = maxCombo >= 5 ? 20 : 0;
+          const totalXP = baseXP + accuracyBonus + comboBonus;
+          
+          // Award rewards
+          if (gameState === 'victory') {
+            const xpResult = LuminaCore.addXP(profileId, totalXP, 'spell-siege');
+            LuminaCore.addCoins(profileId, coins);
+            LuminaCore.addRewardPoints(profileId, Math.floor(totalXP / 10));
+            
+            console.log('✨ Rewards earned:', {
+              xp: totalXP,
+              coins: coins,
+              rewardPoints: Math.floor(totalXP / 10),
+              leveledUp: xpResult?.leveledUp
+            });
+            
+            // Check achievements
+            if (!LuminaCore.hasAchievement(profileId, 'ss_first_win')) {
+              LuminaCore.awardAchievement(profileId, 'ss_first_win');
+            }
+            if (wave >= 10 && !LuminaCore.hasAchievement(profileId, 'ss_wave_10')) {
+              LuminaCore.awardAchievement(profileId, 'ss_wave_10');
+            }
+            if (mistakes === 0 && !LuminaCore.hasAchievement(profileId, 'ss_perfect')) {
+              LuminaCore.awardAchievement(profileId, 'ss_perfect');
+            }
+          }
+          
+          // Record game session
+          LuminaCore.recordGameEnd(profileId, 'spell-siege', {
+            score: wave * 100 + coins,
+            questionsCorrect: wordsTyped,
+            questionsTotal: wordsTyped + mistakes,
+            customStats: {
+              wave: wave,
+              enemiesDefeated: enemiesDefeated,
+              maxCombo: maxCombo,
+              coins: coins,
+              accuracy: wordsTyped > 0 ? ((wordsTyped / (wordsTyped + mistakes)) * 100).toFixed(1) : 0,
+              victory: gameState === 'victory'
+            }
+          });
+          
+          console.log('📊 Session recorded for', playerProfile.name);
+        }
+      }, [gameState, wave, wordsTyped, mistakes, maxCombo, coins, enemiesDefeated, playerProfile]);
       
       // Handle word completion
       const handleWordComplete = useCallback((completedWord) => {
@@ -794,7 +869,12 @@
           {gameState === 'gameover' && (
             <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-30">
               <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full mx-4 border-2 border-red-500/50 text-center">
-                <h2 className="font-title text-4xl text-red-400 mb-2">ðŸ’” GAME OVER</h2>
+                {playerProfile && (
+                  <div className="mb-3 text-slate-400 font-game text-sm">
+                    Playing as: <span className="text-purple-400">{playerName}</span>
+                  </div>
+                )}
+                <h2 className="font-title text-4xl text-red-400 mb-2">ðŸ'" GAME OVER</h2>
                 <p className="font-game text-slate-400 mb-6">The castle has fallen...</p>
                 
                 <div className="bg-slate-800 rounded-xl p-4 mb-6 text-left font-game">
@@ -841,6 +921,16 @@
                     ðŸ”„ Try Again
                   </button>
                 </div>
+                
+                {playerProfile && (
+                  <button
+                    onClick={() => window.location.href = '../index.html'}
+                    className="w-full py-3 mt-3 bg-gradient-to-r from-amber-600 to-orange-600 
+                             text-white font-game rounded-lg hover:scale-105 transition-all"
+                  >
+                    âœ¨ Return to Noyola Hub
+                  </button>
+                )}
               </div>
             </div>
           )}

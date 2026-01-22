@@ -586,6 +586,16 @@ const LuminaCore = (function() {
     }));
   }
   
+  function hasAchievement(playerId, achievementId) {
+    const player = getPlayer(playerId);
+    if (!player) return false;
+    return player.achievements.includes(achievementId);
+  }
+  
+  function awardAchievement(playerId, achievementId) {
+    return checkAchievement(playerId, achievementId);
+  }
+  
   function getAllAchievementDefinitions() {
     return ACHIEVEMENTS;
   }
@@ -802,6 +812,8 @@ const LuminaCore = (function() {
     
     // Achievements
     checkAchievement,
+    hasAchievement,
+    awardAchievement,
     getAchievements,
     getAllAchievementDefinitions,
     
