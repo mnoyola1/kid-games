@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.0.1'; // Bumped to force migration and add id field
+  const VERSION = '1.1.0'; // Added guest profile and profile PINs
   
   // ==================== CONSTANTS ====================
   
@@ -145,8 +145,9 @@ const LuminaCore = (function() {
       version: VERSION,
       currentPlayer: null,
       profiles: {
-        emma: { id: 'emma', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
-        liam: { id: 'liam', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
+        emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
+        liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
+        guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', '👤') },
       },
       familyQuest: {
         active: false,
@@ -695,6 +696,29 @@ const LuminaCore = (function() {
     return true;
   }
   
+  // ==================== PROFILE PIN MANAGEMENT ====================
+  
+  function verifyProfilePIN(playerId, pin) {
+    const profile = getPlayer(playerId);
+    if (!profile) return false;
+    // Guest profile has no PIN
+    if (playerId === 'guest') return true;
+    // Check if PIN matches
+    return profile.pin === pin;
+  }
+  
+  function changeProfilePIN(playerId, oldPIN, newPIN) {
+    const data = getData();
+    const profile = data.profiles[playerId];
+    if (!profile) return { success: false, error: 'Profile not found' };
+    if (playerId === 'guest') return { success: false, error: 'Guest profile cannot have a PIN' };
+    if (profile.pin !== oldPIN) return { success: false, error: 'Incorrect current PIN' };
+    
+    profile.pin = newPIN;
+    save();
+    return { success: true };
+  }
+  
   // ==================== UTILITY ====================
   
   function getGameDefinitions() {
@@ -843,6 +867,10 @@ const LuminaCore = (function() {
     updateSettings,
     verifyParentPIN,
     changeParentPIN,
+    
+    // Profile PIN Management
+    verifyProfilePIN,
+    changeProfilePIN,
     
     // Utility
     exportData,

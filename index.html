@@ -156,7 +156,26 @@
     </div>
   </div>
   
-  <!-- PIN Modal -->
+  <!-- Profile PIN Modal -->
+  <div class="modal-overlay" id="profilePinModal">
+    <div class="modal" style="max-width: 400px;">
+      <h2 id="profilePinTitle">🔐 Enter PIN</h2>
+      <p style="text-align: center; color: var(--text-secondary);">Enter your 4-digit PIN to access this profile</p>
+      <div class="pin-input-container">
+        <input type="password" maxlength="1" class="pin-digit" id="profilePin1">
+        <input type="password" maxlength="1" class="pin-digit" id="profilePin2">
+        <input type="password" maxlength="1" class="pin-digit" id="profilePin3">
+        <input type="password" maxlength="1" class="pin-digit" id="profilePin4">
+      </div>
+      <div class="pin-error" id="profilePinError" style="display: none;">Incorrect PIN</div>
+      <div class="modal-buttons">
+        <button class="modal-btn secondary" onclick="closeProfilePinModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="submitProfilePin()">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Parent PIN Modal (for rewards) -->
   <div class="modal-overlay" id="pinModal">
     <div class="modal" style="max-width: 400px;">
       <h2>🔐 Parent Approval</h2>

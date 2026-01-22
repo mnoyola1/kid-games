@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Setup PIN input auto-advance
   setupPinInputs();
+  setupProfilePinInputs();
   
   console.log('✅ Hub initialization complete');
 });
