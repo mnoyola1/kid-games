@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1'; // Bumped to force migration and add id field
   
   // ==================== CONSTANTS ====================
   
@@ -204,21 +204,31 @@ const LuminaCore = (function() {
   }
   
   function migrateData(oldData) {
-    // Future migration logic
-    const newData = getDefaultData();
+    console.log('🔄 Migrating data from version', oldData.version, 'to', VERSION);
+    
     // Merge old profiles if they exist
     if (oldData.profiles) {
       Object.keys(oldData.profiles).forEach(key => {
-        if (newData.profiles[key]) {
-          // Ensure profile has id field
-          const oldProfile = oldData.profiles[key];
-          if (!oldProfile.id) oldProfile.id = key;
-          newData.profiles[key] = { ...newData.profiles[key], ...oldProfile };
+        const oldProfile = oldData.profiles[key];
+        // Ensure profile has id field
+        if (!oldProfile.id) {
+          console.log('✅ Adding id field to profile:', key);
+          oldProfile.id = key;
         }
+        // Ensure all required fields exist
+        if (!oldProfile.gameStats) oldProfile.gameStats = {};
+        Object.keys(GAMES).forEach(gameKey => {
+          if (!oldProfile.gameStats[gameKey]) {
+            oldProfile.gameStats[gameKey] = { ...GAMES[gameKey].defaultStats };
+          }
+        });
       });
     }
-    newData.version = VERSION;
-    return newData;
+    
+    // Update version and preserve all data
+    oldData.version = VERSION;
+    console.log('✅ Migration complete');
+    return oldData;
   }
   
   function getData() {
