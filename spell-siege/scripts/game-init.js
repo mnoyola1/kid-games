@@ -1,2 +1,3 @@
-﻿    root.render(<SpellSiege />);
-  </script>
+﻿// ==================== INITIALIZATION ====================
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<SpellSiege />);
