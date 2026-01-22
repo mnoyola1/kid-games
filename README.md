@@ -21,8 +21,14 @@ kids-games/
 ├── index.html          (landing page)
 ├── manifest.json       (PWA support)
 ├── README.md           (this file)
-└── spell-siege/
-    └── index.html      (the game)
+├── assets/
+│   ├── images/         (avatars, banners)
+│   └── audio/          (game music & sound effects)
+│       └── spell-siege/
+│           └── music/
+├── spell-siege/
+│   └── index.html      (the game)
+└── ... (other games)
 ```
 
 Copy the files I provided into this structure.
@@ -49,14 +55,19 @@ In Vercel dashboard → Settings → Domains, you can add a custom domain.
 
 ---
 
-## Music Integration
+## Asset Organization
 
-The game loads music from your `game-assets` repo:
-```
-https://cdn.jsdelivr.net/gh/mnoyola1/game-assets@main/spell-siege/audio/music/
-```
+All game assets are stored locally in the `assets/` folder:
+- **Images:** `assets/images/` - avatars, banners, icons
+- **Audio:** `assets/audio/[game-name]/music/` - game music tracks
+- **SFX:** `assets/audio/[game-name]/sfx/` - sound effects (future)
 
-Make sure your `game-assets` repo is public and has these files:
+Games reference assets using relative paths:
+- From hub (`index.html`): `./assets/audio/spell-siege/music/`
+- From game folder (`spell-siege/index.html`): `../assets/audio/spell-siege/music/`
+
+### Spell Siege Music Files
+Located in `assets/audio/spell-siege/music/`:
 - `Main Menu Theme.wav`
 - `Gameplay - Early Waves 1-3.wav`
 - `Gameplay - Mid Waves 4-7.wav`
