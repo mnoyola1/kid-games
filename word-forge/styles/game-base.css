@@ -1,0 +1,104 @@
+/* ==================== BASE STYLES ==================== */
+* { box-sizing: border-box; }
+body { 
+  margin: 0; 
+  overflow: hidden; 
+  font-family: 'Quicksand', sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Forge background */
+.forge-bg {
+  background: linear-gradient(180deg, 
+    #0a0505 0%,
+    #1a0a0a 30%,
+    #2a1515 60%,
+    #1a0a0a 100%
+  );
+}
+
+/* Fire effect at bottom */
+.fire-pit {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(0deg, 
+    rgba(255, 107, 53, 0.8) 0%,
+    rgba(247, 147, 30, 0.4) 40%,
+    transparent 100%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Ember particles */
+.ember {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ff6b35;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff6b35, 0 0 20px #f7931e;
+  animation: emberRise 3s ease-out infinite;
+}
+
+@keyframes emberRise {
+  0% { 
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(-200px) translateX(var(--drift)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Input styling */
+.forge-input {
+  background: linear-gradient(135deg, rgba(26, 10, 10, 0.9), rgba(42, 21, 21, 0.9));
+  border: 3px solid #71797E;
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.forge-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 30px rgba(255, 215, 0, 0.1);
+}
+
+/* Anvil */
+.anvil {
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8));
+}
+
+/* Item rarity colors */
+.rarity-common { color: #9ca3af; text-shadow: 0 0 10px rgba(156, 163, 175, 0.5); }
+.rarity-uncommon { color: #22c55e; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+.rarity-rare { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+.rarity-epic { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+.rarity-legendary { color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
+
+.rarity-bg-common { background: linear-gradient(135deg, rgba(156, 163, 175, 0.2), rgba(156, 163, 175, 0.1)); border-color: rgba(156, 163, 175, 0.5); }
+.rarity-bg-uncommon { background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1)); border-color: rgba(34, 197, 94, 0.5); }
+.rarity-bg-rare { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1)); border-color: rgba(59, 130, 246, 0.5); }
+.rarity-bg-epic { background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.1)); border-color: rgba(168, 85, 247, 0.5); }
+.rarity-bg-legendary { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1)); border-color: rgba(245, 158, 11, 0.7); }
+
+/* Collection grid */
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Hide scrollbar but allow scroll */
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
