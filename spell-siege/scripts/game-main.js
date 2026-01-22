@@ -103,7 +103,7 @@
           // Last enemy of wave 5+ is a boss
           type = 'boss';
           audioManager.playBossSpawn();
-          addAnnouncement('ðŸ”¥ BOSS INCOMING! ðŸ”¥', 'boss');
+          addAnnouncement('🔥 BOSS INCOMING! 🔥', 'boss');
         }
         
         // Pick a word
@@ -157,7 +157,7 @@
                 if (hasShield && damage > 0) {
                   setHasShield(false);
                   damage--;
-                  addAnnouncement('ðŸ›¡ï¸ Shield blocked!', 'shield');
+                  addAnnouncement('🛡️ Shield blocked!', 'shield');
                 }
                 
                 if (damage > 0) {
@@ -165,7 +165,7 @@
                   audioManager.playCastleDamage();
                   setShakeScreen(true);
                   setTimeout(() => setShakeScreen(false), 500);
-                  addAnnouncement(`ðŸ’” -${damage} Heart${damage > 1 ? 's' : ''}!`, 'damage');
+                  addAnnouncement(`💔 -${damage} Heart${damage > 1 ? 's' : ''}!`, 'damage');
                   setCombo(0);
                 }
                 
@@ -335,7 +335,7 @@
             const newCombo = c + 1;
             setMaxCombo(m => Math.max(m, newCombo));
             if (newCombo > 0 && newCombo % 5 === 0) {
-              addAnnouncement(`ðŸ”¥ ${newCombo}x Combo!`, 'combo');
+              addAnnouncement(`🔥 ${newCombo}x Combo!`, 'combo');
               audioManager.playCombo(newCombo);
             }
             return newCombo;
@@ -414,11 +414,11 @@
         
         if (key === 'castleRepair') {
           setCastleHealth(h => Math.min(maxHealth, h + 1));
-          addAnnouncement('ðŸ’– +1 Heart!', 'heal');
+          addAnnouncement('💖 +1 Heart!', 'heal');
         } else if (key === 'shield') {
           setHasShield(true);
           setUpgrades(u => ({ ...u, [key]: u[key] + 1 }));
-          addAnnouncement('ðŸ›¡ï¸ Shield activated!', 'shield');
+          addAnnouncement('🛡️ Shield activated!', 'shield');
         } else {
           setUpgrades(u => ({ ...u, [key]: u[key] + 1 }));
         }
@@ -538,7 +538,7 @@
                            text-white font-game text-2xl rounded-xl shadow-lg hover:scale-105
                            border-2 border-purple-400/50"
                 >
-                  ðŸ° Start Quest
+🏠° Start Quest
                 </button>
                 
                 <div className="flex gap-4 justify-center mt-4">
@@ -547,14 +547,14 @@
                     className={`px-4 py-2 rounded-lg font-game text-sm transition-all
                               ${musicEnabled ? 'bg-green-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
-                    ðŸŽµ Music {musicEnabled ? 'ON' : 'OFF'}
+                    🎵 Music {musicEnabled ? 'ON' : 'OFF'}
                   </button>
                   <button
                     onClick={toggleSfx}
                     className={`px-4 py-2 rounded-lg font-game text-sm transition-all
                               ${sfxEnabled ? 'bg-green-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
-                    ðŸ”Š SFX {sfxEnabled ? 'ON' : 'OFF'}
+                    🔊 SFX {sfxEnabled ? 'ON' : 'OFF'}
                   </button>
                 </div>
               </div>
@@ -593,7 +593,7 @@
                 {/* Custom words */}
                 <div className="mb-6">
                   <label className="block text-purple-300 font-game mb-2 text-sm">
-                    ðŸ“ Custom Spelling Words (optional)
+                    📝 Custom Spelling Words (optional)
                   </label>
                   <textarea
                     value={customWordsInput}
@@ -651,18 +651,18 @@
                       key={i} 
                       className={`text-2xl heart transition-all ${i < castleHealth ? '' : 'opacity-30 grayscale'}`}
                     >
-                      {i < castleHealth ? 'â¤ï¸' : 'ðŸ–¤'}
+                      {i < castleHealth ? 'â¤ï¸' : '🖤'}
                     </span>
                   ))}
-                  {hasShield && <span className="text-2xl ml-2">ðŸ›¡ï¸</span>}
+                  {hasShield && <span className="text-2xl ml-2">🛡️</span>}
                 </div>
                 
                 {/* Right: Coins & Combo */}
                 <div className="bg-slate-900/80 rounded-xl p-3 border border-purple-500/30 text-right">
-                  <div className="font-game text-amber-400 text-xl">ðŸ’° {coins}</div>
+                  <div className="font-game text-amber-400 text-xl">💰 {coins}</div>
                   {combo > 0 && (
                     <div className={`font-game text-orange-400 text-sm ${combo % 5 === 0 ? 'animate-combo-pop' : ''}`}>
-                      ðŸ”¥ {combo}x Combo!
+                      🔥 {combo}x Combo!
                     </div>
                   )}
                 </div>
@@ -675,14 +675,14 @@
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-lg
                             ${musicEnabled ? 'bg-green-600' : 'bg-slate-700'}`}
                 >
-                  {musicEnabled ? 'ðŸŽµ' : 'ðŸ”‡'}
+                  {musicEnabled ? '🎵' : '🔇'}
                 </button>
                 <button
                   onClick={toggleSfx}
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-lg
                             ${sfxEnabled ? 'bg-green-600' : 'bg-slate-700'}`}
                 >
-                  {sfxEnabled ? 'ðŸ”Š' : 'ðŸ”ˆ'}
+                  {sfxEnabled ? '🔊' : '📈'}
                 </button>
               </div>
               
@@ -724,12 +724,12 @@
                           onClick={(e) => { e.stopPropagation(); speakWord(enemy.word); }}
                           className="text-purple-400 hover:text-purple-300 text-sm"
                         >
-                          ðŸ”Š
+                          🔊
                         </button>
                       </div>
                       {enemy.hits > 1 && (
                         <div className="text-xs text-purple-400">
-                          {'ðŸ’œ'.repeat(enemy.hits)}
+                          {'💜'.repeat(enemy.hits)}
                         </div>
                       )}
                     </div>
@@ -822,7 +822,7 @@
                       >
                         <div>{upgrade.name}</div>
                         <div className="text-xs">
-                          {maxed ? 'âœ“ MAX' : cantRepair ? 'âœ“ FULL' : `ðŸ’°${upgrade.cost}`}
+                          {maxed ? '✓ MAX' : cantRepair ? '✓ FULL' : `💰${upgrade.cost}`}
                           {key !== 'castleRepair' && key !== 'shield' && !maxed && ` (${currentLevel}/${upgrade.maxLevel})`}
                         </div>
                       </button>
@@ -853,7 +853,7 @@
                         className="px-8 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                                  hover:bg-slate-600 transition-all"
                       >
-                        ðŸ  Quit to Menu
+🏠  Quit to Menu
                       </button>
                     </div>
                   </div>
@@ -890,7 +890,7 @@
                   
                   {missedWords.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-slate-700">
-                      <div className="text-red-400 mb-2">ðŸ“ Words to Practice:</div>
+                      <div className="text-red-400 mb-2">📝 Words to Practice:</div>
                       <div className="flex flex-wrap gap-2">
                         {[...new Set(missedWords)].slice(0, 10).map((word, i) => (
                           <span key={i} className="px-2 py-1 bg-red-900/30 text-red-300 rounded text-xs">
@@ -908,16 +908,26 @@
                     className="flex-1 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                              hover:bg-slate-600 transition-all"
                   >
-                    ðŸ  Menu
+🏠  Menu
                   </button>
                   <button
                     onClick={startGame}
                     className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 
                              text-white font-game rounded-lg hover:scale-105 transition-all"
                   >
-                    ðŸ”„ Try Again
+                    🔄 Try Again
                   </button>
                 </div>
+                
+                {playerProfile && (
+                  <button
+                    onClick={() => window.location.href = '../index.html'}
+                    className="w-full py-3 mt-3 bg-gradient-to-r from-amber-600 to-orange-600 
+                             text-white font-game rounded-lg hover:scale-105 transition-all"
+                  >
+                    ✨ Return to Noyola Hub
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -940,7 +950,7 @@
                     <div className="text-slate-400">Best Combo:</div>
                     <div className="text-amber-400 text-right">{maxCombo}x</div>
                     <div className="text-slate-400">Total Coins:</div>
-                    <div className="text-amber-400 text-right">ðŸ’° {coins}</div>
+                    <div className="text-amber-400 text-right">💰 {coins}</div>
                     <div className="text-slate-400">Hearts Remaining:</div>
                     <div className="text-amber-400 text-right">{'â¤ï¸'.repeat(castleHealth)}</div>
                   </div>
@@ -952,16 +962,26 @@
                     className="flex-1 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                              hover:bg-slate-600 transition-all"
                   >
-                    ðŸ  Menu
+🏠  Menu
                   </button>
                   <button
                     onClick={startGame}
                     className="flex-1 py-3 bg-gradient-to-r from-amber-600 to-yellow-600 
                              text-white font-game rounded-lg hover:scale-105 transition-all"
                   >
-                    ðŸ”„ Play Again
+                    🔄 Play Again
                   </button>
                 </div>
+                
+                {playerProfile && (
+                  <button
+                    onClick={() => window.location.href = '../index.html'}
+                    className="w-full py-3 mt-3 bg-gradient-to-r from-amber-600 to-orange-600 
+                             text-white font-game rounded-lg hover:scale-105 transition-all"
+                  >
+                    ✨ Return to Noyola Hub
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -971,3 +991,5 @@
     
     // Render the app
     const root = ReactDOM.createRoot(document.getElementById('root'));
+
+
