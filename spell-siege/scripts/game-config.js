@@ -38,7 +38,7 @@
       },
       emma: {
         name: "Emma Mode",
-        emoji: "ðŸ¦‹",
+        emoji: "🦋",
         description: "Faster pace, more challenge",
         baseSpeed: 0.4,
         spawnInterval: 3000,
@@ -49,15 +49,15 @@
     };
     
     const ENEMY_TYPES = {
-      basic: { color: '#ef4444', hits: 1, coins: 10, emoji: 'ðŸ‘¹', name: 'Goblin' },
+      basic: { color: '#ef4444', hits: 1, coins: 10, emoji: '👹', name: 'Goblin' },
       armored: { color: '#6366f1', hits: 2, coins: 25, emoji: 'ðŸ›¡ï¸', name: 'Knight' },
-      boss: { color: '#9333ea', hits: 3, coins: 50, emoji: 'ðŸ‘¾', name: 'Demon' }
+      boss: { color: '#9333ea', hits: 3, coins: 50, emoji: '👾', name: 'Demon' }
     };
     
     const UPGRADES = {
       spellPower: { name: 'âš”ï¸ Spell Power', cost: 50, maxLevel: 3, description: '+1 damage per hit' },
       slowField: { name: 'â„ï¸ Slow Field', cost: 75, maxLevel: 2, description: 'Enemies move slower' },
       shield: { name: 'ðŸ›¡ï¸ Shield', cost: 100, maxLevel: 1, description: 'Block one hit' },
-      castleRepair: { name: 'ðŸ’– Repair', cost: 60, maxLevel: 99, description: 'Restore 1 heart' }
+      castleRepair: { name: '💖 Repair', cost: 60, maxLevel: 99, description: 'Restore 1 heart' }
     };
     
