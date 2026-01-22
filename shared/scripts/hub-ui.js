@@ -11,9 +11,9 @@ function updateUI() {
   document.getElementById('levelTitle').textContent = LuminaCore.getLevelTitle(profile.level);
   
   // Update stats
-  document.getElementById('coinsDisplay').textContent = profile.coins;
+  document.getElementById('coinsDisplay').textContent = profile.currentCoins;
   document.getElementById('pointsDisplay').textContent = profile.rewardPoints;
-  document.getElementById('streakDisplay').textContent = `${profile.streak.current}🔥`;
+  document.getElementById('streakDisplay').textContent = `${profile.streakDays}🔥`;
   
   // Update XP bar
   const xpProgress = LuminaCore.getXPProgress();
@@ -45,7 +45,7 @@ function renderLeaderboard() {
       <img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">
       <div class="leaderboard-info">
         <div class="leaderboard-name">${player.name}</div>
-        <div class="leaderboard-xp">${player.totalXp} XP • ${player.achievements} 🏅</div>
+        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅</div>
       </div>
       <div class="leaderboard-level">Lv.${player.level}</div>
     </div>
@@ -59,9 +59,9 @@ function renderFamilyQuest() {
   if (quest.active) {
     container.style.display = 'block';
     document.getElementById('familyQuestReward').textContent = quest.reward;
-    const percentage = Math.min((quest.current / quest.target) * 100, 100);
+    const percentage = Math.min((quest.current / quest.goal) * 100, 100);
     document.getElementById('familyQuestFill').style.width = `${percentage}%`;
-    document.getElementById('familyQuestText').textContent = `${quest.current} / ${quest.target} XP Together`;
+    document.getElementById('familyQuestText').textContent = `${quest.current} / ${quest.goal} XP Together`;
   } else {
     container.style.display = 'none';
   }
