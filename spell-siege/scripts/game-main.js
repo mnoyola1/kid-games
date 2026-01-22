@@ -1,9 +1,4 @@
-﻿    // ==================== MAIN GAME COMPONENT ====================
     function SpellSiege() {
-      // Player & Hub Integration
-      const [playerProfile, setPlayerProfile] = useState(null);
-      const [playerName, setPlayerName] = useState('Player');
-      
       // Game states
       const [gameState, setGameState] = useState('menu'); // menu, setup, playing, paused, gameover, victory
       const [difficulty, setDifficulty] = useState(null);
@@ -111,14 +106,12 @@
         if (availableWords.length === 0) return;
         
         const word = availableWords[Math.floor(Math.random() * availableWords.length)];
-        
-        // Simple random positioning
         const enemy = {
           id: ++enemyIdCounter.current,
           type,
           word,
           x: 5 + Math.random() * 10, // Start 5-15% from left
-          y: 15 + Math.random() * 55, // Random Y between 15-70%
+          y: 20 + Math.random() * 40, // Random vertical position
           hits: ENEMY_TYPES[type].hits,
           speed: settings.baseSpeed * (1 - upgrades.slowField * 0.15) * (1 + wave * 0.05)
         };
@@ -157,7 +150,7 @@
                 if (hasShield && damage > 0) {
                   setHasShield(false);
                   damage--;
-                  addAnnouncement('🛡️ Shield blocked!', 'shield');
+                  addAnnouncement('🛡️ Shield blocked!', 'shield');
                 }
                 
                 if (damage > 0) {
@@ -211,7 +204,7 @@
           } else {
             // Next wave
             audioManager.playWaveComplete();
-            addAnnouncement(`âœ¨ Wave ${wave} Complete! âœ¨`, 'wave');
+            addAnnouncement(`✨ Wave ${wave} Complete! ✨`, 'wave');
             
             setTimeout(() => {
               setWave(w => w + 1);
@@ -238,74 +231,6 @@
           audioManager.playMusic('gameover');
         }
       }, [castleHealth, gameState]);
-      
-      // Load player profile from LuminaCore on mount
-      useEffect(() => {
-        if (typeof LuminaCore !== 'undefined') {
-          const profile = LuminaCore.getActiveProfile();
-          if (profile) {
-            setPlayerProfile(profile);
-            setPlayerName(profile.name);
-            console.log('🎮 Spell Siege: Playing as', profile.name);
-          }
-        }
-      }, []);
-      
-      // Award XP/Coins and record session on victory or game over
-      useEffect(() => {
-        if ((gameState === 'victory' || gameState === 'gameover') && playerProfile && typeof LuminaCore !== 'undefined') {
-          const profileId = LuminaCore.getActiveProfileKey();
-          if (!profileId) return;
-          
-          // Calculate rewards
-          const baseXP = wave * 10;
-          const accuracyBonus = wordsTyped > 0 ? Math.floor((wordsTyped / (wordsTyped + mistakes)) * 50) : 0;
-          const comboBonus = maxCombo >= 5 ? 20 : 0;
-          const totalXP = baseXP + accuracyBonus + comboBonus;
-          
-          // Award rewards on victory
-          if (gameState === 'victory') {
-            const xpResult = LuminaCore.addXP(profileId, totalXP, 'spell-siege');
-            LuminaCore.addCoins(profileId, coins);
-            LuminaCore.addRewardPoints(profileId, Math.floor(totalXP / 10));
-            
-            console.log('✨ Rewards earned:', {
-              xp: totalXP,
-              coins: coins,
-              rewardPoints: Math.floor(totalXP / 10),
-              leveledUp: xpResult?.leveledUp
-            });
-            
-            // Check achievements
-            if (!LuminaCore.hasAchievement(profileId, 'ss_first_win')) {
-              LuminaCore.awardAchievement(profileId, 'ss_first_win');
-            }
-            if (wave >= 10 && !LuminaCore.hasAchievement(profileId, 'ss_wave_10')) {
-              LuminaCore.awardAchievement(profileId, 'ss_wave_10');
-            }
-            if (mistakes === 0 && !LuminaCore.hasAchievement(profileId, 'ss_perfect')) {
-              LuminaCore.awardAchievement(profileId, 'ss_perfect');
-            }
-          }
-          
-          // Record game session
-          LuminaCore.recordGameEnd(profileId, 'spell-siege', {
-            score: wave * 100 + coins,
-            questionsCorrect: wordsTyped,
-            questionsTotal: wordsTyped + mistakes,
-            customStats: {
-              wave: wave,
-              enemiesDefeated: enemiesDefeated,
-              maxCombo: maxCombo,
-              coins: coins,
-              accuracy: wordsTyped > 0 ? ((wordsTyped / (wordsTyped + mistakes)) * 100).toFixed(1) : 0,
-              victory: gameState === 'victory'
-            }
-          });
-          
-          console.log('📊 Session recorded for', playerProfile.name);
-        }
-      }, [gameState, wave, wordsTyped, mistakes, maxCombo, coins, enemiesDefeated, playerProfile]);
       
       // Handle word completion
       const handleWordComplete = useCallback((completedWord) => {
@@ -345,7 +270,7 @@
           setEnemies(prev => prev.map(e =>
             e.id === target.id ? { ...e, hits: newHits } : e
           ));
-          addAnnouncement('âš”ï¸ Armor cracked!', 'hit');
+          addAnnouncement('⚔️ Armor cracked!', 'hit');
           audioManager.playSpellCast();
         }
         
@@ -354,11 +279,7 @@
       
       // Handle input change
       const handleInputChange = useCallback((e) => {
-        // Normalize smart quotes to straight apostrophe, then filter
-        const val = e.target.value
-          .toLowerCase()
-          .replace(/[''`]/g, "'") // Convert smart quotes to straight apostrophe
-          .replace(/[^a-z']/g, '');
+        const val = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
         setTypedWord(val);
         
         // Auto-target matching enemy
@@ -418,7 +339,7 @@
         } else if (key === 'shield') {
           setHasShield(true);
           setUpgrades(u => ({ ...u, [key]: u[key] + 1 }));
-          addAnnouncement('🛡️ Shield activated!', 'shield');
+          addAnnouncement('🛡️ Shield activated!', 'shield');
         } else {
           setUpgrades(u => ({ ...u, [key]: u[key] + 1 }));
         }
@@ -431,14 +352,14 @@
         initAudio().then(() => {
           const settings = DIFFICULTY_SETTINGS[difficulty];
           
-          // Parse custom words or use defaults based on difficulty
-          let gameWords = difficulty === 'liam' ? LIAM_DEFAULT_WORDS : DEFAULT_WORDS;
+          // Parse custom words
+          let gameWords = DEFAULT_WORDS;
           if (customWordsInput.trim()) {
             const custom = customWordsInput
               .toLowerCase()
               .split(/[\s,]+/)
               .map(w => w.trim())
-              .filter(w => w.length >= 2 && /^[a-z']+$/.test(w));
+              .filter(w => w.length >= 2 && /^[a-z]+$/.test(w));
             if (custom.length >= 5) {
               gameWords = custom;
             }
@@ -527,7 +448,7 @@
                   SPELL SIEGE
                 </h1>
                 <p className="font-game text-xl text-purple-300 mb-12">
-                  âš”ï¸ Tower Defense Spelling Adventure âš”ï¸
+                  ⚔️ Tower Defense Spelling Adventure ⚔️
                 </p>
               </div>
               
@@ -538,7 +459,7 @@
                            text-white font-game text-2xl rounded-xl shadow-lg hover:scale-105
                            border-2 border-purple-400/50"
                 >
-🏠° Start Quest
+                  🏰 Start Quest
                 </button>
                 
                 <div className="flex gap-4 justify-center mt-4">
@@ -560,7 +481,7 @@
               </div>
               
               <div className="absolute bottom-8 text-purple-400/60 font-game text-sm">
-                Made with â¤ï¸ for Emma & Liam
+                Made with ❤️ for Emma & Liam
               </div>
             </div>
           )}
@@ -593,7 +514,7 @@
                 {/* Custom words */}
                 <div className="mb-6">
                   <label className="block text-purple-300 font-game mb-2 text-sm">
-                    📝 Custom Spelling Words (optional)
+                    📝 Custom Spelling Words (optional)
                   </label>
                   <textarea
                     value={customWordsInput}
@@ -614,7 +535,7 @@
                     className="px-6 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                              hover:bg-slate-600 transition-all"
                   >
-                    â† Back
+                    ← Back
                   </button>
                   <button
                     onClick={startGame}
@@ -624,7 +545,7 @@
                                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105' 
                                 : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
                   >
-                    âš”ï¸ Begin Battle!
+                    ⚔️ Begin Battle!
                   </button>
                 </div>
               </div>
@@ -651,10 +572,10 @@
                       key={i} 
                       className={`text-2xl heart transition-all ${i < castleHealth ? '' : 'opacity-30 grayscale'}`}
                     >
-                      {i < castleHealth ? 'â¤ï¸' : '🖤'}
+                      {i < castleHealth ? '❤️' : '🖤'}
                     </span>
                   ))}
-                  {hasShield && <span className="text-2xl ml-2">🛡️</span>}
+                  {hasShield && <span className="text-2xl ml-2">🛡️</span>}
                 </div>
                 
                 {/* Right: Coins & Combo */}
@@ -682,7 +603,7 @@
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-lg
                             ${sfxEnabled ? 'bg-green-600' : 'bg-slate-700'}`}
                 >
-                  {sfxEnabled ? '🔊' : '📈'}
+                  {sfxEnabled ? '🔊' : '🔈'}
                 </button>
               </div>
               
@@ -690,7 +611,7 @@
               <div className="absolute inset-0 overflow-hidden" onClick={() => inputRef.current?.focus()}>
                 {/* Castle (right side) */}
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 castle-glow">
-                  <div className="text-8xl">ðŸ°</div>
+                  <div className="text-8xl">🏰</div>
                 </div>
                 
                 {/* Enemies */}
@@ -755,7 +676,7 @@
                       transform: 'translate(-50%, -50%)'
                     }}
                   >
-                    <div className="text-6xl">âœ¨</div>
+                    <div className="text-6xl">✨</div>
                   </div>
                 ))}
                 
@@ -839,21 +760,21 @@
               {gameState === 'paused' && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-30">
                   <div className="bg-slate-900 rounded-2xl p-8 border-2 border-purple-500/50 text-center">
-                    <h2 className="font-title text-4xl text-amber-400 mb-6">â¸ï¸ PAUSED</h2>
+                    <h2 className="font-title text-4xl text-amber-400 mb-6">⏸️ PAUSED</h2>
                     <div className="flex flex-col gap-4">
                       <button
                         onClick={resumeGame}
                         className="px-8 py-3 bg-green-600 text-white font-game text-lg rounded-lg
                                  hover:bg-green-500 transition-all"
                       >
-                        â–¶ï¸ Resume
+                        ▶️ Resume
                       </button>
                       <button
                         onClick={quitToMenu}
                         className="px-8 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                                  hover:bg-slate-600 transition-all"
                       >
-🏠  Quit to Menu
+                        🏠 Quit to Menu
                       </button>
                     </div>
                   </div>
@@ -866,11 +787,6 @@
           {gameState === 'gameover' && (
             <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-30">
               <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full mx-4 border-2 border-red-500/50 text-center">
-                {playerProfile && (
-                  <div className="mb-3 text-slate-400 font-game text-sm">
-                    Playing as: <span className="text-purple-400">{playerName}</span>
-                  </div>
-                )}
                 <h2 className="font-title text-4xl text-red-400 mb-2">💔 GAME OVER</h2>
                 <p className="font-game text-slate-400 mb-6">The castle has fallen...</p>
                 
@@ -890,7 +806,7 @@
                   
                   {missedWords.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-slate-700">
-                      <div className="text-red-400 mb-2">📝 Words to Practice:</div>
+                      <div className="text-red-400 mb-2">📝 Words to Practice:</div>
                       <div className="flex flex-wrap gap-2">
                         {[...new Set(missedWords)].slice(0, 10).map((word, i) => (
                           <span key={i} className="px-2 py-1 bg-red-900/30 text-red-300 rounded text-xs">
@@ -908,7 +824,7 @@
                     className="flex-1 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                              hover:bg-slate-600 transition-all"
                   >
-🏠  Menu
+                    🏠 Menu
                   </button>
                   <button
                     onClick={startGame}
@@ -918,16 +834,6 @@
                     🔄 Try Again
                   </button>
                 </div>
-                
-                {playerProfile && (
-                  <button
-                    onClick={() => window.location.href = '../index.html'}
-                    className="w-full py-3 mt-3 bg-gradient-to-r from-amber-600 to-orange-600 
-                             text-white font-game rounded-lg hover:scale-105 transition-all"
-                  >
-                    ✨ Return to Noyola Hub
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -936,7 +842,7 @@
           {gameState === 'victory' && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-30">
               <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full mx-4 border-2 border-amber-500/50 text-center">
-                <h2 className="font-title text-4xl text-amber-400 mb-2 animate-float">ðŸ† VICTORY! ðŸ†</h2>
+                <h2 className="font-title text-4xl text-amber-400 mb-2 animate-float">🏆 VICTORY! 🏆</h2>
                 <p className="font-game text-green-400 mb-6">The kingdom is saved!</p>
                 
                 <div className="bg-slate-800 rounded-xl p-4 mb-6 text-left font-game">
@@ -952,7 +858,7 @@
                     <div className="text-slate-400">Total Coins:</div>
                     <div className="text-amber-400 text-right">💰 {coins}</div>
                     <div className="text-slate-400">Hearts Remaining:</div>
-                    <div className="text-amber-400 text-right">{'â¤ï¸'.repeat(castleHealth)}</div>
+                    <div className="text-amber-400 text-right">{'❤️'.repeat(castleHealth)}</div>
                   </div>
                 </div>
                 
@@ -962,7 +868,7 @@
                     className="flex-1 py-3 bg-slate-700 text-slate-300 font-game rounded-lg
                              hover:bg-slate-600 transition-all"
                   >
-🏠  Menu
+                    🏠 Menu
                   </button>
                   <button
                     onClick={startGame}
@@ -972,16 +878,6 @@
                     🔄 Play Again
                   </button>
                 </div>
-                
-                {playerProfile && (
-                  <button
-                    onClick={() => window.location.href = '../index.html'}
-                    className="w-full py-3 mt-3 bg-gradient-to-r from-amber-600 to-orange-600 
-                             text-white font-game rounded-lg hover:scale-105 transition-all"
-                  >
-                    ✨ Return to Noyola Hub
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -991,5 +887,5 @@
     
     // Render the app
     const root = ReactDOM.createRoot(document.getElementById('root'));
-
-
+    root.render(<SpellSiege />);
+  </script>
