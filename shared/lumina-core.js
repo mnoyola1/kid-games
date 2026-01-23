@@ -211,11 +211,25 @@ const LuminaCore = (function() {
     if (oldData.profiles) {
       Object.keys(oldData.profiles).forEach(key => {
         const oldProfile = oldData.profiles[key];
+        
         // Ensure profile has id field
         if (!oldProfile.id) {
           console.log('✅ Adding id field to profile:', key);
           oldProfile.id = key;
         }
+        
+        // Update guest profile avatar to SVG if it's still using emoji
+        if (key === 'guest' && oldProfile.avatar === '👤') {
+          console.log('✅ Updating guest avatar from emoji to SVG');
+          oldProfile.avatar = './assets/guest-avatar.svg';
+        }
+        
+        // Ensure profiles have PIN field (null for guest, default for others)
+        if (!oldProfile.hasOwnProperty('pin')) {
+          console.log('✅ Adding pin field to profile:', key);
+          oldProfile.pin = key === 'guest' ? null : (key === 'emma' ? '1008' : key === 'liam' ? '0830' : null);
+        }
+        
         // Ensure all required fields exist
         if (!oldProfile.gameStats) oldProfile.gameStats = {};
         Object.keys(GAMES).forEach(gameKey => {
@@ -224,6 +238,12 @@ const LuminaCore = (function() {
           }
         });
       });
+    }
+    
+    // Add guest profile if it doesn't exist
+    if (!oldData.profiles.guest) {
+      console.log('✅ Adding guest profile');
+      oldData.profiles.guest = { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') };
     }
     
     // Update version and preserve all data
