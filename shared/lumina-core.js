@@ -182,6 +182,16 @@ const LuminaCore = (function() {
         if (_data.version !== VERSION) {
           _data = migrateData(_data);
         }
+        
+        // HOTFIX: Ensure guest avatar is always correct
+        if (_data.profiles && _data.profiles.guest) {
+          const correctAvatar = './assets/guest-avatar.svg';
+          if (_data.profiles.guest.avatar !== correctAvatar) {
+            console.log('🔧 HOTFIX: Correcting guest avatar from', _data.profiles.guest.avatar, 'to', correctAvatar);
+            _data.profiles.guest.avatar = correctAvatar;
+            save();
+          }
+        }
       } else {
         _data = getDefaultData();
         save();
