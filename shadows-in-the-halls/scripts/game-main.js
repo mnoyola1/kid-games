@@ -629,8 +629,8 @@ const ShadowsInTheHalls = () => {
                     alt="Player"
                     className="w-full h-full object-contain"
                     style={{ 
-                      filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8))',
-                      mixBlendMode: 'multiply'
+                      filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8)) brightness(1.1) contrast(1.2)',
+                      mixBlendMode: 'darken'
                     }}
                   />
                 </div>
