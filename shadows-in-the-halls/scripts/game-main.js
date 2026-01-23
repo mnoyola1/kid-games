@@ -84,7 +84,16 @@ const ShadowsInTheHalls = () => {
       const row = [];
       for (let x = 0; x < GRID_SIZE; x++) {
         const isStart = x === 2 && y === 2;
-        const roomType = isStart ? 'safe_room' : ROOM_TYPES[Math.floor(Math.random() * ROOM_TYPES.length)];
+        // Assign room types with variety
+        let roomType;
+        if (isStart) {
+          roomType = 'safe_room';
+        } else {
+          const roll = Math.random();
+          if (roll < 0.5) roomType = 'hallway';
+          else if (roll < 0.8) roomType = 'classroom';
+          else roomType = 'office';
+        }
         row.push({
           type: roomType,
           hasNorthDoor: y > 0,
@@ -526,9 +535,27 @@ const ShadowsInTheHalls = () => {
           <div className="relative w-full h-full bg-black flex items-center justify-center">
             {/* Room */}
             <div className="relative" style={{ width: ROOM_SIZE, height: ROOM_SIZE }}>
-              <div className="absolute inset-0 bg-shadows-gray border-4 border-shadows-moonlight">
+              <div className="absolute inset-0 border-4 border-shadows-moonlight overflow-hidden">
+                {/* Room Background */}
+                {map.length > 0 && map[currentRoom.y] && map[currentRoom.y][currentRoom.x] && (
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('../assets/backgrounds/shadows-in-the-halls/${
+                        map[currentRoom.y][currentRoom.x].type === 'safe_room' ? 'safe_room' :
+                        map[currentRoom.y][currentRoom.x].type === 'classroom' ? 'classroom' :
+                        'hallway_dark'
+                      }.png')`,
+                      opacity: 0.7
+                    }}
+                  />
+                )}
+                
+                {/* Dark overlay for atmosphere */}
+                <div className="absolute inset-0 bg-black/40" />
+                
                 {/* Room content */}
-                <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-body">
+                <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-body opacity-50">
                   Room {currentRoom.x}-{currentRoom.y}
                   {exitRoom && currentRoom.x === exitRoom.x && currentRoom.y === exitRoom.y && (
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2">

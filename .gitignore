@@ -1,0 +1,29 @@
+# Environment variables (API keys) - IMPORTANT: Never commit these
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated assets (optional - uncomment if you want to exclude large generated files)
+# assets/sprites/
+# assets/backgrounds/
+# assets/audio/*/music/
+# assets/audio/*/sfx/

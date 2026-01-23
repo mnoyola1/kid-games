@@ -1,0 +1,254 @@
+# Noyola Hub - Development Rules for Cursor
+
+This is an educational game ecosystem for Emma (10, 5th grade) and Liam (8, 3rd grade). Games are deployed to Vercel as static sites with localStorage persistence.
+
+## Project Context
+
+- **Live URL:** https://kid-games-one.vercel.app/
+- **Core Module:** `shared/lumina-core.js` - Handles profiles, XP, coins, achievements, streaks
+- **Target Devices:** iPad Safari (primary), desktop browsers
+- **Design Philosophy:** Learning disguised as gameplay, real rewards for real effort
+
+## AI Asset Generation Tools
+
+Use the tools in `/tools/` to generate game assets automatically. API keys are loaded from `.env` file.
+
+### Images (sprites, backgrounds, UI)
+```bash
+python tools/generate_image.py --prompt "DESCRIPTION" --type sprite|background|ui --style STYLE --output assets/PATH
+```
+- **Styles:** `pixel-art`, `8-bit`, `16-bit`, `painterly`, `cartoon`, `flat`, `anime`
+- Add `--quality` flag for images with text (titles, UI labels)
+- Uses Google Gemini API
+
+### Sound Effects (ElevenLabs)
+```bash
+python tools/generate_sfx.py --prompt "DESCRIPTION" --duration SECONDS --output assets/audio/GAME_ID/sfx/FILE.mp3
+```
+- Duration: 0.5-22 seconds (omit for auto)
+- Great for: UI clicks, correct/wrong sounds, coin collect, level up
+
+### Voice Lines (Cartesia)
+```bash
+python tools/generate_voice.py --text "TEXT" --voice VOICE_PRESET --output assets/audio/GAME_ID/voice/FILE.mp3
+```
+- **Voice Presets:** `cheerful_female`, `calm_male`, `excited_child`
+- Great for: Feedback ("Great job!"), narration, character dialogue
+
+### Music (MANUAL - Generate Prompt File)
+Music is created manually. When a game needs music, generate a prompt file:
+
+**Create:** `assets/audio/GAME_ID/music/PROMPTS.md`
+
+```markdown
+# Music Prompts for [Game Name]
+
+Generate these tracks using Lyria 2 or Suno Pro:
+- Lyria 2: https://aitestkitchen.withgoogle.com/tools/music-fx (FREE)
+- Suno Pro: https://suno.com ($8/month)
+
+## Track 1: Menu Theme
+**Filename:** menu.wav
+**Prompt:** "educational game menu music, welcoming, magical, loopable, instrumental, 60 seconds"
+**Usage:** Main menu background
+
+## Track 2: Gameplay
+**Filename:** gameplay.wav  
+**Prompt:** "[genre] gameplay music, focused but fun, not distracting, loopable, instrumental"
+**Usage:** During active gameplay
+
+## Track 3: Victory
+**Filename:** victory.wav
+**Prompt:** "victory fanfare, achievement unlocked, triumphant, celebratory, 10 seconds"
+**Usage:** Level complete / win screen
+
+## Track 4: Game Over
+**Filename:** gameover.wav
+**Prompt:** "game over music, encouraging to try again, hopeful not sad, short, 8 seconds"
+**Usage:** Loss screen
+```
+
+After generating, save files to: `assets/audio/GAME_ID/music/`
+
+### Asset Output Paths
+```
+assets/
+├── audio/
+│   └── [game-id]/
+│       ├── music/     # .wav/.mp3 files (manually created)
+│       ├── sfx/       # .mp3 files (ElevenLabs)
+│       └── voice/     # .mp3 files (Cartesia)
+├── sprites/           # Character sprites, items, enemies (Gemini)
+├── backgrounds/       # Level backgrounds, menus (Gemini)
+└── [game-id]/         # Game-specific images if needed
+```
+
+## Game Architecture Pattern
+
+All games follow this modular structure:
+
+```
+[game-folder]/
+├── index.html              # Entry point (~100 lines, clean HTML)
+├── styles/
+│   └── game-base.css       # Styles & animations
+└── scripts/
+    ├── game-config.js      # Constants, word lists, settings
+    ├── game-audio.js       # AudioManager class (if needed)
+    ├── game-components.js  # React sub-components (if needed)
+    ├── game-main.js        # Main React component
+    └── game-init.js        # ReactDOM.render call (2-4 lines)
+```
+
+### Script Loading Order (in index.html)
+```html
+<!-- Before </body> -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="../shared/lumina-core.js"></script>  <!-- MUST load before game scripts -->
+<script type="text/babel" src="scripts/game-config.js"></script>
+<script type="text/babel" src="scripts/game-main.js"></script>
+<script type="text/babel" src="scripts/game-init.js"></script>
+```
+
+## LuminaCore Integration (REQUIRED for all games)
+
+### 1. Get Active Profile on Mount
+```javascript
+const [playerProfile, setPlayerProfile] = React.useState(null);
+
+React.useEffect(() => {
+  const profile = LuminaCore.getActiveProfile();
+  if (profile) {
+    setPlayerProfile(profile);
+    LuminaCore.recordGameStart(profile.id, 'game-id');
+  }
+}, []);
+```
+
+### 2. Award XP and Coins During Gameplay
+```javascript
+// XP: 10-50 per correct answer, scale by difficulty
+// Coins: 1-5 per correct answer
+// Reward Points: ~10% of XP earned
+
+if (playerProfile) {
+  LuminaCore.addXP(playerProfile.id, xpEarned, 'game-id');
+  LuminaCore.addCoins(playerProfile.id, coinsEarned, 'game-id');
+  LuminaCore.addRewardPoints(playerProfile.id, Math.floor(xpEarned * 0.1));
+}
+```
+
+### 3. Record Session on Game End
+```javascript
+if (playerProfile) {
+  LuminaCore.recordGameEnd(playerProfile.id, 'game-id', {
+    score: totalScore,
+    gamesWon: won ? 1 : 0,
+    // Custom stats for this game
+  });
+}
+```
+
+### 4. Check Achievements
+```javascript
+LuminaCore.checkAchievement(playerProfile.id, 'first_win');
+LuminaCore.checkAchievement(playerProfile.id, 'score_1000');
+```
+
+### 5. Return to Hub Button (always include)
+```javascript
+{playerProfile && (
+  <a href="../index.html" className="hub-return-link">
+    🏠 Return to Noyola Hub
+  </a>
+)}
+```
+
+## Adding a New Game to the Hub
+
+### Step 1: Create Game Folder
+```bash
+mkdir [game-id]
+mkdir [game-id]/styles
+mkdir [game-id]/scripts
+mkdir assets/audio/[game-id]/music
+mkdir assets/audio/[game-id]/sfx
+```
+
+### Step 2: Register in hub-config.js
+```javascript
+// In shared/scripts/hub-config.js, add to GAMES array:
+{
+  id: 'game-id',
+  title: 'Game Title',
+  description: 'Brief description',
+  icon: '🎮',
+  color: 'from-purple-500 to-pink-500',
+  path: './game-id/index.html',
+  subjects: ['math', 'spelling'],
+  status: 'active'
+}
+```
+
+### Step 3: Generate Assets
+```bash
+# Images and SFX (automated)
+python tools/generate_image.py -p "player character" -t sprite -s pixel-art -o assets/sprites/player.png
+python tools/generate_sfx.py -p "correct answer chime" -d 0.5 -o assets/audio/game-id/sfx/correct.mp3
+
+# Music (manual) - use Lyria 2 or Suno Pro, save to:
+# assets/audio/game-id/music/menu.wav
+# assets/audio/game-id/music/gameplay.wav
+# assets/audio/game-id/music/victory.wav
+```
+
+## Code Style Guidelines
+
+### React Components
+- Use functional components with hooks
+- Keep main component in `game-main.js`
+- Extract reusable UI to `game-components.js`
+- Use Tailwind CSS classes for styling
+
+### State Management
+- Game state in React useState
+- Player progress via LuminaCore (not local state)
+- Audio state in AudioManager class
+
+## Visual Design System
+
+### Colors (CSS Variables in hub-themes.css)
+```css
+--primary: #667eea → #764ba2 (purple gradient)
+--accent: #fbbf24, #f59e0b (gold/amber)
+--background: #1a1a2e, #16213e (dark purple)
+```
+
+### Fonts
+- Display: Fredoka (game titles, headers)
+- Body: Quicksand (readable text)
+
+### Responsive
+- Mobile-first, iPad optimized
+- Test at 768px and 1024px breakpoints
+
+## Deployment
+
+Changes auto-deploy via GitHub → Vercel:
+```bash
+git add .
+git commit -m "Description of changes"
+git push origin main
+```
+
+Live at: https://kid-games-one.vercel.app/
+
+## Target Audience Reminders
+
+- **Emma (10, 5th grade):** Strategic thinker, likes planning and puzzles
+- **Liam (8, 3rd grade):** Action-oriented, likes fast-paced gameplay
+- Content should be educational but feel like real games
+- Difficulty should scale appropriately for both age groups
+- Keep UI simple enough for 8-year-old, engaging enough for 10-year-old

@@ -1,7 +1,8 @@
 # NOYOLA HUB - Project Reference Guide
 ## Complete Technical & Design Documentation
-### Last Updated: January 22, 2026
+### Last Updated: January 23, 2026
 ### Architecture Fully Refactored: January 22, 2026
+### AI Asset Generation Tools Added: January 23, 2026
 
 ---
 
@@ -25,6 +26,12 @@ A unified game ecosystem called "Noyola Hub" that connects multiple educational 
   - ✅ Canada Adventure - Complete with LuminaCore integration
   - ✅ Lumina Racer - Complete with LuminaCore integration
   - ✅ Word Forge - Complete with LuminaCore integration
+- ✅ **AI Asset Generation Tools installed!**
+  - ✅ Image generation (Google Gemini API)
+  - ✅ Sound effects (ElevenLabs API)
+  - ✅ Voice synthesis (Cartesia API)
+  - ✅ Music generation (manual via Lyria 2 or Suno Pro)
+  - ✅ Batch asset generator for new games
 
 ---
 
@@ -65,6 +72,18 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 ├── manifest.json                   # PWA manifest
 ├── README.md                       # Project documentation
 ├── noyola-hub-reference-guide.md   # This file - complete reference
+├── .cursorrules                    # Cursor IDE instructions (AI dev tools)
+├── .env                            # API keys (gitignored - DO NOT COMMIT)
+├── .gitignore                      # Git ignore rules
+│
+├── tools/                           # AI Asset Generation Tools (dev only)
+│   ├── config.py                   # API config & .env loader
+│   ├── generate_image.py           # Google Gemini image generation
+│   ├── generate_sfx.py             # ElevenLabs sound effects
+│   ├── generate_voice.py           # Cartesia voice synthesis
+│   ├── generate_music.py           # Placeholder (use Lyria 2 or Suno Pro manually)
+│   ├── generate_game_assets.py     # Batch asset generator
+│   └── requirements.txt            # Python dependencies
 │
 ├── shared/                          # Shared resources
 │   ├── lumina-core.js              # Core state management module (848 lines)
@@ -89,8 +108,13 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │   ├── Liam_Lumina.png
 │   ├── Noyola_Games_Banner.png
 │   ├── Noyola_Hub_Banner.png
+│   ├── sprites/                     # Generated sprite images
+│   ├── backgrounds/                 # Generated background images
 │   │
 │   └── audio/                       # Game music & sound effects
+│       ├── shared/                  # Shared audio (correct.mp3, wrong.mp3, etc.)
+│       │   ├── sfx/
+│       │   └── voice/
 │       └── spell-siege/
 │           └── music/               # 7 WAV files
 │               ├── Main Menu Theme.wav
@@ -216,7 +240,10 @@ To add a new game to the hub:
      active: true
    }
    ```
-3. **Add assets** (if needed) - Place in `assets/audio/[game-name]/music/`
+3. **Generate assets** - Use AI tools (see Part 11):
+   ```bash
+   python tools/generate_game_assets.py --game TYPE --theme "THEME" --id new-game --dry-run
+   ```
 4. **Integrate LuminaCore** - Add script tag in game's `index.html`:
    ```html
    <script src="../shared/lumina-core.js"></script>
@@ -700,6 +727,32 @@ if (level >= 10) {
 
 # PART 9: RECENT UPDATES & CHANGES
 
+## January 23, 2026 - AI Asset Generation Tools Added ✅
+
+### New Tools
+- ✅ Added `/tools/` folder with Python-based asset generators
+- ✅ `generate_image.py` - Google Gemini API for sprites, backgrounds, UI
+- ✅ `generate_sfx.py` - ElevenLabs API for sound effects
+- ✅ `generate_voice.py` - Cartesia API for character voices/narration
+- ✅ `generate_music.py` - Placeholder (use Lyria 2 or Suno Pro manually)
+- ✅ `generate_game_assets.py` - Batch generator for new games
+
+### New Files
+- ✅ `.cursorrules` - Cursor IDE instructions for AI-assisted development
+- ✅ `.env` - API keys (gitignored for security)
+- ✅ `.gitignore` - Protects API keys from commits
+- ✅ `assets/sprites/` - New folder for generated sprites
+- ✅ `assets/backgrounds/` - New folder for generated backgrounds
+
+### API Integration
+| Tool | API | Cost per Unit |
+|------|-----|---------------|
+| Images | Google Gemini | ~$0.04/image |
+| Sound Effects | ElevenLabs | ~$0.02/effect |
+| Voice | Cartesia | ~$0.01/line |
+| Music | Lyria 2 (manual) | FREE |
+| Music | Suno Pro (manual) | ~$0.03/track |
+
 ## January 22, 2026 - Major Refactoring Complete ✅
 
 ### Hub Updates
@@ -761,6 +814,149 @@ All 4 main games fully refactored with:
 
 ---
 
+# PART 11: AI ASSET GENERATION TOOLS
+
+## Overview
+
+The `/tools/` folder contains Python scripts for generating game assets using AI APIs. These tools integrate with Cursor IDE via `.cursorrules` for seamless AI-assisted development.
+
+## Setup
+
+### 1. Install Dependencies
+```bash
+cd "C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games"
+pip install -r tools/requirements.txt
+```
+
+### 2. API Keys (stored in `.env`)
+```
+GOOGLE_API_KEY=xxx      # Google Gemini (images)
+GEMINI_API_KEY=xxx      # Same as above
+ELEVENLABS_API_KEY=xxx  # Sound effects
+CARTESIA_API_KEY=xxx    # Voice synthesis
+# Music: No API needed - use Lyria 2 or Suno Pro manually
+```
+
+## Tool Reference
+
+### Image Generation (Google Gemini)
+```bash
+# Sprite
+python tools/generate_image.py -p "golden coin, shiny" -t sprite -s pixel-art -o assets/sprites/coin.png
+
+# Background
+python tools/generate_image.py -p "magical forest" -t background -s painterly -o assets/backgrounds/forest.png
+
+# UI with text (use --quality for better text rendering)
+python tools/generate_image.py -p "Play Again button" -t ui --quality -o assets/ui/play_again.png
+```
+
+**Styles:** `pixel-art`, `8-bit`, `16-bit`, `painterly`, `realistic`, `cartoon`, `flat`, `anime`
+**Types:** `sprite`, `background`, `ui`, `icon`, `tileset`
+
+### Sound Effects (ElevenLabs)
+```bash
+# Short UI sounds
+python tools/generate_sfx.py -p "correct answer chime" -d 0.5 -o assets/audio/shared/sfx/correct.mp3
+python tools/generate_sfx.py -p "wrong answer buzz, gentle" -d 0.5 -o assets/audio/shared/sfx/wrong.mp3
+
+# Game effects
+python tools/generate_sfx.py -p "coin collect" -d 0.3 -o assets/audio/game/sfx/coin.mp3
+python tools/generate_sfx.py -p "level up fanfare" -d 1.5 -o assets/audio/game/sfx/levelup.mp3
+```
+
+**Duration:** 0.5-22 seconds (omit for automatic)
+
+### Voice Synthesis (Cartesia)
+```bash
+# Feedback voices
+python tools/generate_voice.py -t "Great job! You got it right!" -v cheerful_female -o assets/audio/shared/voice/correct.mp3
+python tools/generate_voice.py -t "Oops! Try again!" -v cheerful_female -o assets/audio/shared/voice/wrong.mp3
+
+# Narration
+python tools/generate_voice.py -t "Welcome to the magical world!" -v calm_male -o assets/audio/game/voice/intro.mp3
+
+# List available voices
+python tools/generate_voice.py --list-voices
+```
+
+**Voice Presets:** `cheerful_female`, `calm_male`, `excited_child`
+
+### Music Generation (MANUAL)
+Music is created manually using free/low-cost tools:
+
+- **Lyria 2:** https://aitestkitchen.withgoogle.com/tools/music-fx (FREE)
+- **Suno Pro:** https://suno.com ($8/month, commercial rights)
+
+Save files to: `assets/audio/[game-id]/music/`
+
+**Prompts that work well:**
+```
+"educational game menu music, welcoming, magical, loopable, instrumental"
+"adventure gameplay music, focused but fun, not distracting, instrumental"
+"victory fanfare, achievement unlocked, triumphant, 10 seconds"
+"game over music, encouraging to try again, hopeful, short"
+```
+
+**Why manual?** Suno has no official API, and third-party wrappers are unreliable. For ~5 tracks per game, manual generation takes 10-15 minutes total and is free with Lyria 2.
+
+### Batch Asset Generation
+```bash
+# Preview what will be generated (dry run)
+python tools/generate_game_assets.py --game spelling --theme "wizard school" --id spell-wizard --dry-run
+
+# Generate all assets for a new game
+python tools/generate_game_assets.py --game math --theme "space station" --id math-space --style flat
+
+# Skip specific types
+python tools/generate_game_assets.py --game adventure --theme "underwater" --id ocean-quest --skip-music --skip-voice
+```
+
+**Game Types:** `spelling`, `math`, `geography`, `typing`, `adventure`
+
+## Asset Output Structure
+```
+assets/
+├── sprites/           # Generated sprites (PNG)
+├── backgrounds/       # Generated backgrounds (PNG)
+└── audio/
+    ├── shared/        # Shared sounds across games
+    │   ├── sfx/       # Common sound effects
+    │   └── voice/     # Common voice lines
+    └── [game-id]/     # Game-specific audio
+        ├── music/     # Background music (WAV)
+        ├── sfx/       # Game sound effects (MP3)
+        └── voice/     # Game voice lines (MP3)
+```
+
+## Cost Estimates
+
+| Asset Type | Tool | Cost | Notes |
+|------------|------|------|-------|
+| 1 Image | Gemini API | ~$0.04 | Sprite or background |
+| 1 Sound Effect | ElevenLabs API | ~$0.02 | 0.5-2 second clip |
+| 1 Voice Line | Cartesia API | ~$0.01 | Short phrase |
+| 1 Music Track | Lyria 2 (manual) | FREE | ~2 min per track |
+| 1 Music Track | Suno Pro (manual) | ~$0.03 | $8/mo subscription |
+
+**Typical new game:** ~$2-4 total (50 images, 20 SFX, 10 voice lines) + FREE music via Lyria 2
+
+## Cursor IDE Integration
+
+The `.cursorrules` file tells Cursor how to use these tools automatically. When building a new game, Cursor will:
+
+1. Read the `.cursorrules` file for project context
+2. Generate assets as needed during development
+3. Follow the Noyola Hub architecture patterns
+4. Integrate with LuminaCore automatically
+
+**Example prompt to Cursor:**
+> "Create a new math game about space exploration. Generate pixel-art sprites for astronauts and planets, create sound effects for correct/wrong answers, and add voice feedback."
+
+**Note:** Music must be created manually using Lyria 2 or Suno Pro. Cursor will remind you to add music files after generating other assets.
+
+---
+
 # APPENDIX: KEY CONTEXT
 
 ## Family Details
@@ -796,10 +992,18 @@ All 4 main games fully refactored with:
 **Quick Commands:**
 ```bash
 cd "C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games"
+
+# Git commands
 git status
 git add .
 git commit -m "Your message"
 git push origin main
+
+# Asset generation (examples)
+python tools/generate_image.py -p "wizard character" -t sprite -s pixel-art -o assets/sprites/wizard.png
+python tools/generate_sfx.py -p "coin collect" -d 0.3 -o assets/audio/shared/sfx/coin.mp3
+python tools/generate_voice.py -t "Great job!" -v cheerful_female -o assets/audio/shared/voice/correct.mp3
+python tools/generate_game_assets.py --game spelling --theme "ocean" --id ocean-spell --dry-run
 ```
 
 *To continue this project in a new chat, share this file (noyola-hub-reference-guide.md) along with lumina-core.js and index.html.*

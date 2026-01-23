@@ -246,7 +246,21 @@ const VictoryScreen = ({ stats, onRestart, onExit, playerName }) => {
 // Title Screen
 const TitleScreen = ({ onStart, playerName }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-shadows-dark via-shadows-purple to-shadows-dark">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: "url('../assets/backgrounds/shadows-in-the-halls/menu_bg.png')",
+          filter: 'brightness(0.6)'
+        }}
+      />
+      
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-shadows-dark/70 via-shadows-purple/50 to-shadows-dark/70" />
+      
+      {/* Content */}
+      <div className="relative z-10">
       <div className="text-center max-w-3xl mx-4">
         <h1 className="text-7xl font-horror text-shadows-cyan mb-4 animate-pulse drop-shadow-[0_0_20px_rgba(0,188,212,0.8)]">
           🏫 SHADOWS IN THE HALLS 👻
@@ -291,6 +305,7 @@ const TitleScreen = ({ onStart, playerName }) => {
             </a>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
