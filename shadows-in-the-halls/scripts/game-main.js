@@ -531,8 +531,16 @@ const ShadowsInTheHalls = () => {
                 <div className="absolute inset-0 flex items-center justify-center text-white text-2xl font-body">
                   Room {currentRoom.x}-{currentRoom.y}
                   {exitRoom && currentRoom.x === exitRoom.x && currentRoom.y === exitRoom.y && (
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-green-400 text-6xl animate-pulse">
-                      🚪 EXIT
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2">
+                      <img 
+                        src="../assets/sprites/shadows-in-the-halls/exit_sign.png"
+                        alt="Exit"
+                        className="w-32 h-16 object-contain animate-pulse"
+                        style={{ filter: 'drop-shadow(0 0 20px rgba(34, 197, 94, 0.8))' }}
+                      />
+                      <div className="text-green-400 text-3xl font-bold animate-pulse">
+                        EXIT
+                      </div>
                     </div>
                   )}
                 </div>
@@ -541,10 +549,14 @@ const ShadowsInTheHalls = () => {
                 {items.filter(item => item.roomX === currentRoom.x && item.roomY === currentRoom.y).map((item, i) => (
                   <div
                     key={i}
-                    className="absolute w-8 h-8 bg-shadows-flashlight rounded-full animate-pulse flex items-center justify-center"
-                    style={{ left: item.x, top: item.y }}
+                    className="absolute animate-pulse"
+                    style={{ left: item.x - 16, top: item.y - 16, width: 32, height: 32 }}
                   >
-                    🔋
+                    <img 
+                      src="../assets/sprites/shadows-in-the-halls/battery_icon.png" 
+                      alt="Battery"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 ))}
 
@@ -552,21 +564,29 @@ const ShadowsInTheHalls = () => {
                 {enemies.filter(enemy => enemy.roomX === currentRoom.x && enemy.roomY === currentRoom.y).map((enemy) => (
                   <div
                     key={enemy.id}
-                    className="absolute w-12 h-12 bg-shadows-purple rounded-full opacity-80 animate-pulse flex items-center justify-center"
-                    style={{ left: enemy.x - 24, top: enemy.y - 24 }}
+                    className="absolute opacity-90"
+                    style={{ left: enemy.x - 24, top: enemy.y - 24, width: 48, height: 48 }}
                   >
-                    👻
+                    <img 
+                      src={`../assets/sprites/shadows-in-the-halls/shadow_${enemy.type}.png`}
+                      alt={`Shadow ${enemy.type}`}
+                      className="w-full h-full object-contain animate-pulse"
+                      style={{ filter: 'drop-shadow(0 0 8px rgba(74, 20, 140, 0.6))' }}
+                    />
                   </div>
                 ))}
 
                 {/* Player */}
                 <div
-                  className="absolute w-8 h-8 bg-shadows-cyan rounded-full transition-all"
-                  style={{ left: player.x - 16, top: player.y - 16 }}
+                  className="absolute transition-all"
+                  style={{ left: player.x - 32, top: player.y - 32, width: 64, height: 64 }}
                 >
-                  <div className="w-full h-full flex items-center justify-center">
-                    🔦
-                  </div>
+                  <img 
+                    src="../assets/sprites/shadows-in-the-halls/player.png"
+                    alt="Player"
+                    className="w-full h-full object-contain"
+                    style={{ filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8))' }}
+                  />
                 </div>
 
                 {/* Flashlight beam */}
