@@ -628,7 +628,10 @@ const ShadowsInTheHalls = () => {
                     src={getPlayerSprite()}
                     alt="Player"
                     className="w-full h-full object-contain"
-                    style={{ filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8))' }}
+                    style={{ 
+                      filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8))',
+                      mixBlendMode: 'multiply'
+                    }}
                   />
                 </div>
 
