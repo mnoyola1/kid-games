@@ -45,20 +45,20 @@ const ShadowsInTheHalls = () => {
   const [keys, setKeys] = React.useState({});
   const [lastBatteryWarning, setLastBatteryWarning] = React.useState(0);
 
-  // ==================== PLAYER SPRITE SELECTOR ====================
-  const getPlayerSprite = React.useCallback(() => {
+  // ==================== PLAYER EMOJI SELECTOR ====================
+  const getPlayerEmoji = React.useCallback(() => {
     if (!playerProfile) {
-      return '../assets/sprites/shadows-in-the-halls/player_guest.png'; // Default to guest
+      return '🤖'; // Default to guest (robot)
     }
     
-    // Map profile IDs to their respective sprites
-    const spriteMap = {
-      emma: '../assets/sprites/shadows-in-the-halls/player_emma.png',
-      liam: '../assets/sprites/shadows-in-the-halls/player_liam.png',
-      guest: '../assets/sprites/shadows-in-the-halls/player_guest.png',
+    // Map profile IDs to their respective emojis
+    const emojiMap = {
+      emma: '👧',
+      liam: '🧒',
+      guest: '🤖',
     };
 
-    return spriteMap[playerProfile.id] || '../assets/sprites/shadows-in-the-halls/player_guest.png';
+    return emojiMap[playerProfile.id] || '🤖';
   }, [playerProfile]);
 
   // ==================== LUMINACORE INTEGRATION ====================
@@ -478,7 +478,8 @@ const ShadowsInTheHalls = () => {
         const rewards = PUZZLE_REWARDS[difficulty];
         LuminaCore.addXP(playerProfile.id, rewards.xp, GAME_ID);
         LuminaCore.addCoins(playerProfile.id, rewards.coins, GAME_ID);
-        LuminaCore.addRewardPoints(playerProfile.id, Math.floor(rewards.xp * 0.1));
+        // Reduced reward points ratio from *0.1 (xp/10) to *0.05 (xp/20)
+        LuminaCore.addRewardPoints(playerProfile.id, Math.floor(rewards.xp * 0.05));
         console.log(`✨ Puzzle solved! +${rewards.xp} XP, +${rewards.coins} coins`);
       }
     }
@@ -500,10 +501,11 @@ const ShadowsInTheHalls = () => {
     
     // Award escape bonus
     if (escaped && playerProfile) {
-      const escapeBonus = 100 + (runStats.puzzlesSolved * 10);
+      // Reduced escape bonus for better progression balance
+      const escapeBonus = 40 + (runStats.puzzlesSolved * 5);  // Reduced from 100 + n*10 to 40 + n*5
       LuminaCore.addXP(playerProfile.id, escapeBonus, GAME_ID);
       LuminaCore.addCoins(playerProfile.id, 20, GAME_ID);
-      LuminaCore.addRewardPoints(playerProfile.id, 10);
+      LuminaCore.addRewardPoints(playerProfile.id, 4);  // Reduced from 10 to 4
       
       // Check achievements
       LuminaCore.checkAchievement(playerProfile.id, 'shadows_first_escape');
@@ -621,18 +623,17 @@ const ShadowsInTheHalls = () => {
 
                 {/* Player */}
                 <div
-                  className="absolute transition-all"
-                  style={{ left: player.x - 32, top: player.y - 32, width: 64, height: 64 }}
+                  className="absolute transition-all flex items-center justify-center"
+                  style={{ 
+                    left: player.x - 24, 
+                    top: player.y - 24, 
+                    width: 48, 
+                    height: 48,
+                    fontSize: '40px',
+                    filter: 'drop-shadow(0 0 8px rgba(0, 188, 212, 0.9))'
+                  }}
                 >
-                  <img 
-                    src={getPlayerSprite()}
-                    alt="Player"
-                    className="w-full h-full object-contain"
-                    style={{ 
-                      filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8)) brightness(1.1) contrast(1.2)',
-                      mixBlendMode: 'darken'
-                    }}
-                  />
+                  {getPlayerEmoji()}
                 </div>
 
                 {/* Flashlight beam */}
