@@ -55,6 +55,18 @@ const ShadowsInTheHalls = () => {
         console.log('🏫 Shadows in the Halls: Playing as', profile.name);
       }
     }
+
+    // Initialize audio on user interaction
+    const initAudio = async () => {
+      await audioManager.init();
+    };
+    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('keydown', initAudio, { once: true });
+
+    return () => {
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('keydown', initAudio);
+    };
   }, []);
 
   // ==================== INITIALIZE GAME ====================
@@ -230,6 +242,8 @@ const ShadowsInTheHalls = () => {
         // Battery warning
         if (newBattery <= LOW_BATTERY_THRESHOLD && Date.now() - lastBatteryWarning > 5000) {
           console.log('⚠️ Battery low!');
+          audioManager.play('batteryLow');
+          audioManager.play('flashlightDying');
           setLastBatteryWarning(Date.now());
         }
 
@@ -378,12 +392,14 @@ const ShadowsInTheHalls = () => {
         ...prev,
         batteriesCollected: prev.batteriesCollected + 1,
       }));
+      audioManager.play('batteryPickup');
       console.log('🔋 Battery collected!');
     } else if (player.inventory.length < 4) {
       setPlayer(prev => ({
         ...prev,
         inventory: [...prev.inventory, ITEMS[item.type]],
       }));
+      audioManager.play('batteryPickup'); // Reuse for key pickups
       console.log(`📦 Picked up ${ITEMS[item.type].name}`);
     }
     
@@ -414,6 +430,11 @@ const ShadowsInTheHalls = () => {
 
   const handlePuzzleSolved = (success) => {
     if (success) {
+      // Play sound effects
+      audioManager.play('puzzleSolve');
+      audioManager.play('puzzleCorrect');
+      audioManager.play('doorUnlock');
+      
       // Unlock door
       setLockedDoors(prev => 
         prev.map(d => 
@@ -444,6 +465,13 @@ const ShadowsInTheHalls = () => {
 
   const endGame = (escaped) => {
     console.log(escaped ? '✅ Escaped!' : '💀 Game Over');
+    
+    // Play appropriate sound
+    if (escaped) {
+      audioManager.play('escapeFound');
+    } else {
+      audioManager.play('caught');
+    }
     
     // Award escape bonus
     if (escaped && playerProfile) {
