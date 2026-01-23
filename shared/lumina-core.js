@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.1.1'; // Fixed guest avatar migration
+  const VERSION = '1.1.2'; // Force guest avatar update to SVG
   
   // ==================== CONSTANTS ====================
   
@@ -218,9 +218,9 @@ const LuminaCore = (function() {
           oldProfile.id = key;
         }
         
-        // Update guest profile avatar to SVG if it's still using emoji
-        if (key === 'guest' && oldProfile.avatar === '👤') {
-          console.log('✅ Updating guest avatar from emoji to SVG');
+        // Update guest profile avatar to SVG if it's not already using the SVG
+        if (key === 'guest' && !oldProfile.avatar.includes('guest-avatar.svg')) {
+          console.log('✅ Updating guest avatar to SVG (was:', oldProfile.avatar, ')');
           oldProfile.avatar = './assets/guest-avatar.svg';
         }
         
