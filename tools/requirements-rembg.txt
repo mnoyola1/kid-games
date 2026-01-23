@@ -1,0 +1,6 @@
+# Optional: background removal tools (requires Python 3.13.x or 3.12.x)
+# Why: onnxruntime wheels typically lag newest Python releases; Python 3.14 is not supported yet.
+
+rembg>=2.0.55
+onnxruntime>=1.17.0
+pillow>=10.0.0
