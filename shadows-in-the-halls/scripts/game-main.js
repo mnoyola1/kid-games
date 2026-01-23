@@ -62,7 +62,7 @@ const ShadowsInTheHalls = () => {
       if (profile) {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
-        console.log('ðŸ« Shadows in the Halls: Playing as', profile.name);
+        console.log('Ã°Å¸ÂÂ« Shadows in the Halls: Playing as', profile.name);
       }
     }
 
@@ -81,7 +81,7 @@ const ShadowsInTheHalls = () => {
 
   // ==================== INITIALIZE GAME ====================
   const initializeGame = React.useCallback(() => {
-    console.log('ðŸŽ® Initializing new run...');
+    console.log('Ã°Å¸Å½Â® Initializing new run...');
     
     // Record game start
     if (playerProfile) {
@@ -260,7 +260,7 @@ const ShadowsInTheHalls = () => {
         
         // Battery warning
         if (newBattery <= LOW_BATTERY_THRESHOLD && Date.now() - lastBatteryWarning > 5000) {
-          console.log('âš ï¸ Battery low!');
+          console.log('Ã¢Å¡Â Ã¯Â¸Â Battery low!');
           audioManager.play('batteryLow');
           audioManager.play('flashlightDying');
           setLastBatteryWarning(Date.now());
@@ -412,14 +412,14 @@ const ShadowsInTheHalls = () => {
         batteriesCollected: prev.batteriesCollected + 1,
       }));
       audioManager.play('batteryPickup');
-      console.log('ðŸ”‹ Battery collected!');
+      console.log('Ã°Å¸â€â€¹ Battery collected!');
     } else if (player.inventory.length < 4) {
       setPlayer(prev => ({
         ...prev,
         inventory: [...prev.inventory, ITEMS[item.type]],
       }));
       audioManager.play('batteryPickup'); // Reuse for key pickups
-      console.log(`ðŸ“¦ Picked up ${ITEMS[item.type].name}`);
+      console.log(`Ã°Å¸â€œÂ¦ Picked up ${ITEMS[item.type].name}`);
     }
     
     // Remove item from world
@@ -434,7 +434,7 @@ const ShadowsInTheHalls = () => {
         );
         
         if (distance < 40) {
-          console.log('ðŸ‘» Caught by shadow!');
+          console.log('Ã°Å¸â€˜Â» Caught by shadow!');
           endGame(false);
         }
       }
@@ -474,7 +474,7 @@ const ShadowsInTheHalls = () => {
         LuminaCore.addCoins(playerProfile.id, rewards.coins, GAME_ID);
         // Reduced reward points ratio from *0.1 (xp/10) to *0.05 (xp/20)
         LuminaCore.addRewardPoints(playerProfile.id, Math.floor(rewards.xp * 0.05));
-        console.log(`âœ¨ Puzzle solved! +${rewards.xp} XP, +${rewards.coins} coins`);
+        console.log(`Ã¢Å“Â¨ Puzzle solved! +${rewards.xp} XP, +${rewards.coins} coins`);
       }
     }
     
@@ -484,7 +484,7 @@ const ShadowsInTheHalls = () => {
   };
 
   const endGame = (escaped) => {
-    console.log(escaped ? 'âœ… Escaped!' : 'ðŸ’€ Game Over');
+    console.log(escaped ? 'Ã¢Å“â€¦ Escaped!' : 'Ã°Å¸â€™â‚¬ Game Over');
     
     // Play appropriate sound
     if (escaped) {
@@ -572,7 +572,7 @@ const ShadowsInTheHalls = () => {
                   {exitRoom && currentRoom.x === exitRoom.x && currentRoom.y === exitRoom.y && (
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2">
                       <img 
-                        src="../assets/sprites/shadows-in-the-halls/exit_sign.png"
+                        src="../assets/sprites/shadows-in-the-halls/exit_sign_rgba.png"
                         alt="Exit"
                         className="w-32 h-16 object-contain animate-pulse"
                         style={{ filter: 'drop-shadow(0 0 20px rgba(34, 197, 94, 0.8))' }}
@@ -592,7 +592,7 @@ const ShadowsInTheHalls = () => {
                     style={{ left: item.x - 16, top: item.y - 16, width: 32, height: 32 }}
                   >
                     <img 
-                      src="../assets/sprites/shadows-in-the-halls/battery_icon.png" 
+                      src="../assets/sprites/shadows-in-the-halls/battery_icon_rgba.png" 
                       alt="Battery"
                       className="w-full h-full object-contain"
                     />
