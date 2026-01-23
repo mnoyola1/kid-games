@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.1.0'; // Added guest profile and profile PINs
+  const VERSION = '1.1.1'; // Fixed guest avatar migration
   
   // ==================== CONSTANTS ====================
   
