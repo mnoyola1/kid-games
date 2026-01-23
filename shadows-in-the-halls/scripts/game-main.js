@@ -44,21 +44,15 @@ const ShadowsInTheHalls = () => {
   // Input State
   const [keys, setKeys] = React.useState({});
   const [lastBatteryWarning, setLastBatteryWarning] = React.useState(0);
-
-  // ==================== PLAYER EMOJI SELECTOR ====================
-  const getPlayerEmoji = React.useCallback(() => {
-    if (!playerProfile) {
-      return '🤖'; // Default to guest (robot)
-    }
-    
-    // Map profile IDs to their respective emojis
-    const emojiMap = {
-      emma: '👧',
-      liam: '🧒',
-      guest: '🤖',
+  // ==================== PLAYER SPRITE SELECTOR ====================
+  const getPlayerSprite = React.useCallback(() => {
+    const id = playerProfile?.id || 'guest';
+    const spriteMap = {
+      emma: '../assets/sprites/shadows-in-the-halls/player_emma_rgba.png',
+      liam: '../assets/sprites/shadows-in-the-halls/player_liam_rgba.png',
+      guest: '../assets/sprites/shadows-in-the-halls/player_guest_rgba.png',
     };
-
-    return emojiMap[playerProfile.id] || '🤖';
+    return spriteMap[id] || spriteMap.guest;
   }, [playerProfile]);
 
   // ==================== LUMINACORE INTEGRATION ====================
@@ -68,7 +62,7 @@ const ShadowsInTheHalls = () => {
       if (profile) {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
-        console.log('🏫 Shadows in the Halls: Playing as', profile.name);
+        console.log('ðŸ« Shadows in the Halls: Playing as', profile.name);
       }
     }
 
@@ -87,7 +81,7 @@ const ShadowsInTheHalls = () => {
 
   // ==================== INITIALIZE GAME ====================
   const initializeGame = React.useCallback(() => {
-    console.log('🎮 Initializing new run...');
+    console.log('ðŸŽ® Initializing new run...');
     
     // Record game start
     if (playerProfile) {
@@ -266,7 +260,7 @@ const ShadowsInTheHalls = () => {
         
         // Battery warning
         if (newBattery <= LOW_BATTERY_THRESHOLD && Date.now() - lastBatteryWarning > 5000) {
-          console.log('⚠️ Battery low!');
+          console.log('âš ï¸ Battery low!');
           audioManager.play('batteryLow');
           audioManager.play('flashlightDying');
           setLastBatteryWarning(Date.now());
@@ -418,14 +412,14 @@ const ShadowsInTheHalls = () => {
         batteriesCollected: prev.batteriesCollected + 1,
       }));
       audioManager.play('batteryPickup');
-      console.log('🔋 Battery collected!');
+      console.log('ðŸ”‹ Battery collected!');
     } else if (player.inventory.length < 4) {
       setPlayer(prev => ({
         ...prev,
         inventory: [...prev.inventory, ITEMS[item.type]],
       }));
       audioManager.play('batteryPickup'); // Reuse for key pickups
-      console.log(`📦 Picked up ${ITEMS[item.type].name}`);
+      console.log(`ðŸ“¦ Picked up ${ITEMS[item.type].name}`);
     }
     
     // Remove item from world
@@ -440,7 +434,7 @@ const ShadowsInTheHalls = () => {
         );
         
         if (distance < 40) {
-          console.log('👻 Caught by shadow!');
+          console.log('ðŸ‘» Caught by shadow!');
           endGame(false);
         }
       }
@@ -480,7 +474,7 @@ const ShadowsInTheHalls = () => {
         LuminaCore.addCoins(playerProfile.id, rewards.coins, GAME_ID);
         // Reduced reward points ratio from *0.1 (xp/10) to *0.05 (xp/20)
         LuminaCore.addRewardPoints(playerProfile.id, Math.floor(rewards.xp * 0.05));
-        console.log(`✨ Puzzle solved! +${rewards.xp} XP, +${rewards.coins} coins`);
+        console.log(`âœ¨ Puzzle solved! +${rewards.xp} XP, +${rewards.coins} coins`);
       }
     }
     
@@ -490,7 +484,7 @@ const ShadowsInTheHalls = () => {
   };
 
   const endGame = (escaped) => {
-    console.log(escaped ? '✅ Escaped!' : '💀 Game Over');
+    console.log(escaped ? 'âœ… Escaped!' : 'ðŸ’€ Game Over');
     
     // Play appropriate sound
     if (escaped) {
@@ -623,17 +617,15 @@ const ShadowsInTheHalls = () => {
 
                 {/* Player */}
                 <div
-                  className="absolute transition-all flex items-center justify-center"
-                  style={{ 
-                    left: player.x - 24, 
-                    top: player.y - 24, 
-                    width: 48, 
-                    height: 48,
-                    fontSize: '40px',
-                    filter: 'drop-shadow(0 0 8px rgba(0, 188, 212, 0.9))'
-                  }}
+                  className="absolute transition-all"
+                  style={{ left: player.x - 32, top: player.y - 32, width: 64, height: 64 }}
                 >
-                  {getPlayerEmoji()}
+                  <img
+                    src={getPlayerSprite()}
+                    alt="Player"
+                    className="w-full h-full object-contain"
+                    style={{ filter: 'drop-shadow(0 0 8px rgba(0, 188, 212, 0.9))' }}
+                  />
                 </div>
 
                 {/* Flashlight beam */}
