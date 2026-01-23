@@ -3,6 +3,8 @@ function updateUI() {
   const profile = LuminaCore.getActiveProfile();
   if (!profile) return;
   
+  console.log('🎨 Updating UI for profile:', profile.name, 'Avatar:', profile.avatar);
+  
   // Update player banner
   document.getElementById('playerAvatar').src = profile.avatar;
   document.getElementById('playerName').textContent = profile.name;

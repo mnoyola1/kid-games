@@ -7,9 +7,13 @@ function showProfileSelect() {
   const profiles = LuminaCore.getAllProfiles();
   const activeKey = LuminaCore.getActiveProfileKey();
   
+  console.log('👥 Showing profile select. Profiles:', profiles);
+  
   grid.innerHTML = Object.entries(profiles).map(([key, profile]) => {
     const needsPIN = key !== 'guest' && profile.pin;
     const lockIcon = needsPIN ? '🔒' : '';
+    
+    console.log(`Profile ${key} avatar:`, profile.avatar);
     
     return `
       <div class="profile-select-card ${key} ${key === activeKey ? 'selected' : ''}" onclick="selectProfile('${key}')">
