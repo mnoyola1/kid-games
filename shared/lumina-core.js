@@ -79,6 +79,12 @@ const LuminaCore = (function() {
     { id: 'lr_first_race', name: 'Speed Demon', desc: 'Complete your first race', icon: '🏎️', xpBonus: 15 },
     { id: 'lr_win_5', name: 'Racing Champion', desc: 'Win 5 races', icon: '🏆', xpBonus: 40 },
     
+    // Shadows in the Halls
+    { id: 'shadows_first_escape', name: 'First Escape', desc: 'Escape the school for the first time', icon: '🚪', xpBonus: 50 },
+    { id: 'shadows_puzzle_master', name: 'Puzzle Master', desc: 'Solve 50 puzzles in Shadows', icon: '🧩', xpBonus: 100 },
+    { id: 'shadows_explorer', name: 'Thorough Explorer', desc: 'Explore 100 rooms', icon: '🗺️', xpBonus: 75 },
+    { id: 'shadows_survivor', name: 'Battery Master', desc: 'Collect 20 batteries', icon: '🔋', xpBonus: 50 },
+    
     // Secret achievements
     { id: 'secret_night', name: 'Night Owl', desc: 'Play after 8 PM', icon: '🦉', xpBonus: 10, secret: true },
     { id: 'secret_weekend', name: 'Weekend Warrior', desc: 'Play on Saturday and Sunday', icon: '🎉', xpBonus: 15, secret: true },
@@ -108,6 +114,12 @@ const LuminaCore = (function() {
       name: 'Lumina Racer', 
       icon: '🏎️',
       defaultStats: { bestTime: null, gamesPlayed: 0, racesWon: 0, wordsTyped: 0 }
+    },
+    shadowsInTheHalls: {
+      id: 'shadowsInTheHalls',
+      name: 'Shadows in the Halls',
+      icon: '🏫',
+      defaultStats: { gamesPlayed: 0, gamesWon: 0, roomsExplored: 0, puzzlesSolved: 0, batteriesCollected: 0, bestTime: null }
     },
   };
   

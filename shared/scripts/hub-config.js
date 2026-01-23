@@ -41,14 +41,14 @@ const GAMES = [
     active: true
   },
   {
-    id: 'shadows-halls',
+    id: 'shadows-in-the-halls',
     name: 'Shadows in the Halls',
     subtitle: 'Survival Horror Lite',
     icon: '🏫',
     url: './shadows-in-the-halls/index.html',
-    description: 'Trapped in an infinite school after dark! Explore and escape the shadows.',
-    features: ['🔦 Survival', '🧩 Puzzles', '👻 Stealth'],
-    active: false
+    description: 'Escape the infinite school! Solve puzzles, avoid shadows, and survive before your flashlight dies.',
+    features: ['🔦 Battery Management', '🧩 Math & Word Puzzles', '👻 Stealth', '🗺️ Exploration'],
+    active: true
   },
   {
     id: 'world-of-lumina',
