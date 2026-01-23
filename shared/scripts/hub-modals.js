@@ -11,14 +11,9 @@ function showProfileSelect() {
     const needsPIN = key !== 'guest' && profile.pin;
     const lockIcon = needsPIN ? '🔒' : '';
     
-    // For guest profile, render emoji as text instead of image
-    const avatarHtml = key === 'guest' 
-      ? `<div class="profile-select-avatar" style="font-size: 64px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary);">${profile.avatar}</div>`
-      : `<img src="${profile.avatar}" alt="${profile.name}" class="profile-select-avatar">`;
-    
     return `
       <div class="profile-select-card ${key} ${key === activeKey ? 'selected' : ''}" onclick="selectProfile('${key}')">
-        ${avatarHtml}
+        <img src="${profile.avatar}" alt="${profile.name}" class="profile-select-avatar">
         <div class="profile-select-name">${profile.name} ${lockIcon}</div>
         <div class="profile-select-title">${profile.title}</div>
         <div class="profile-select-level">Level ${profile.level} • ${profile.totalXP} XP</div>

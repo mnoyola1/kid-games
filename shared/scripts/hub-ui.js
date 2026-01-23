@@ -4,28 +4,7 @@ function updateUI() {
   if (!profile) return;
   
   // Update player banner
-  const playerAvatar = document.getElementById('playerAvatar');
-  
-  // Handle guest profile emoji avatar
-  if (profile.id === 'guest') {
-    playerAvatar.style.fontSize = '48px';
-    playerAvatar.style.display = 'flex';
-    playerAvatar.style.alignItems = 'center';
-    playerAvatar.style.justifyContent = 'center';
-    playerAvatar.style.background = 'var(--bg-secondary)';
-    playerAvatar.alt = profile.avatar;
-    playerAvatar.textContent = profile.avatar;
-    playerAvatar.removeAttribute('src');
-  } else {
-    playerAvatar.style.fontSize = '';
-    playerAvatar.style.display = '';
-    playerAvatar.style.alignItems = '';
-    playerAvatar.style.justifyContent = '';
-    playerAvatar.style.background = '';
-    playerAvatar.textContent = '';
-    playerAvatar.src = profile.avatar;
-  }
-  
+  document.getElementById('playerAvatar').src = profile.avatar;
   document.getElementById('playerName').textContent = profile.name;
   document.getElementById('playerTitle').textContent = profile.title;
   document.getElementById('levelBadge').textContent = `Lv. ${profile.level}`;
@@ -58,25 +37,19 @@ function renderLeaderboard() {
   const leaderboard = LuminaCore.getLeaderboard();
   const container = document.getElementById('leaderboardContent');
   
-  container.innerHTML = leaderboard.map((player, index) => {
-    const avatarHtml = player.id === 'guest'
-      ? `<div class="leaderboard-avatar" style="font-size: 24px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary);">${player.avatar}</div>`
-      : `<img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">`;
-    
-    return `
-      <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
-        <div class="leaderboard-rank ${index === 0 ? 'first' : 'second'}">
-          ${index === 0 ? '👑' : '🥈'}
-        </div>
-        ${avatarHtml}
-        <div class="leaderboard-info">
-          <div class="leaderboard-name">${player.name}</div>
-          <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅</div>
-        </div>
-        <div class="leaderboard-level">Lv.${player.level}</div>
+  container.innerHTML = leaderboard.map((player, index) => `
+    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
+      <div class="leaderboard-rank ${index === 0 ? 'first' : 'second'}">
+        ${index === 0 ? '👑' : '🥈'}
       </div>
-    `;
-  }).join('');
+      <img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">
+      <div class="leaderboard-info">
+        <div class="leaderboard-name">${player.name}</div>
+        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅</div>
+      </div>
+      <div class="leaderboard-level">Lv.${player.level}</div>
+    </div>
+  `).join('');
 }
 
 function renderFamilyQuest() {

@@ -147,7 +147,7 @@ const LuminaCore = (function() {
       profiles: {
         emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
         liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
-        guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', '👤') },
+        guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') },
       },
       familyQuest: {
         active: false,
