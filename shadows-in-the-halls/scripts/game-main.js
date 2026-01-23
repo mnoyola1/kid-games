@@ -45,6 +45,22 @@ const ShadowsInTheHalls = () => {
   const [keys, setKeys] = React.useState({});
   const [lastBatteryWarning, setLastBatteryWarning] = React.useState(0);
 
+  // ==================== PLAYER SPRITE SELECTOR ====================
+  const getPlayerSprite = React.useCallback(() => {
+    if (!playerProfile) {
+      return '../assets/sprites/shadows-in-the-halls/player_guest.png'; // Default to guest
+    }
+    
+    // Map profile IDs to their respective sprites
+    const spriteMap = {
+      emma: '../assets/sprites/shadows-in-the-halls/player_emma.png',
+      liam: '../assets/sprites/shadows-in-the-halls/player_liam.png',
+      guest: '../assets/sprites/shadows-in-the-halls/player_guest.png',
+    };
+
+    return spriteMap[playerProfile.id] || '../assets/sprites/shadows-in-the-halls/player_guest.png';
+  }, [playerProfile]);
+
   // ==================== LUMINACORE INTEGRATION ====================
   React.useEffect(() => {
     if (typeof LuminaCore !== 'undefined') {
@@ -609,7 +625,7 @@ const ShadowsInTheHalls = () => {
                   style={{ left: player.x - 32, top: player.y - 32, width: 64, height: 64 }}
                 >
                   <img 
-                    src="../assets/sprites/shadows-in-the-halls/player.png"
+                    src={getPlayerSprite()}
                     alt="Player"
                     className="w-full h-full object-contain"
                     style={{ filter: 'drop-shadow(0 0 4px rgba(0, 188, 212, 0.8))' }}
