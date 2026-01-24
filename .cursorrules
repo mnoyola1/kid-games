@@ -107,6 +107,8 @@ All games follow this modular structure:
 <script type="text/babel" src="scripts/game-init.js"></script>
 ```
 
+**IMPORTANT:** When building games, always reference `GAME_DESIGN_STANDARDS.md` for juice implementation, progression systems, and polish requirements.
+
 ## LuminaCore Integration (REQUIRED for all games)
 
 ### 1. Get Active Profile on Mount
