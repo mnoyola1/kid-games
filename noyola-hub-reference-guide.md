@@ -1,9 +1,10 @@
 # NOYOLA HUB - Project Reference Guide
 ## Complete Technical & Design Documentation
-### Last Updated: January 23, 2026
+### Last Updated: January 24, 2026
 ### Architecture Fully Refactored: January 22, 2026
 ### AI Asset Generation Tools Added: January 23, 2026
 ### Cloud Sync (Supabase) Added: January 23, 2026
+### Daily Challenges & Enhancements Added: January 24, 2026
 
 ---
 
@@ -60,11 +61,13 @@ Create a "meta-game" layer that sits above individual educational games, making 
 2. **XP & Leveling** - Progressive XP system with 12 level titles
 3. **Coins** - In-game currency earned through gameplay
 4. **Reward Points** - Earned alongside XP, redeemable for real privileges
-5. **Achievements** - 26+ achievements across general, game-specific, and secret categories
+5. **Achievements** - 30+ achievements across general, game-specific, cross-game, and secret categories
 6. **Streaks** - Daily play tracking with streak bonuses
 7. **Family Quests** - Collaborative goals where both kids contribute
-8. **Leaderboard** - Friendly competition between siblings
-9. **Parent Controls** - PIN-protected reward redemption
+8. **Daily Challenges** - 5 daily challenges that reset each day with bonus rewards
+9. **Leaderboard** - Friendly competition with filtering (XP, achievements, coins, streak)
+10. **Tutorial System** - Interactive onboarding for first-time players
+11. **Parent Controls** - PIN-protected reward redemption
 
 ---
 
@@ -104,9 +107,10 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │   └── scripts/                     # Hub JavaScript (modular)
 │       ├── hub-config.js           # Game registry (GAMES array) & state
 │       ├── hub-theme.js            # Theme management functions
-│       ├── hub-ui.js               # UI updates (leaderboard, rewards, quest)
+│       ├── hub-ui.js               # UI updates (leaderboard, rewards, quest, daily challenges)
 │       ├── hub-games.js            # Game card rendering
 │       ├── hub-modals.js           # Modal management (profile, rewards, PIN, toast)
+│       ├── hub-tutorial.js         # Tutorial system for onboarding
 │       └── hub-init.js             # Initialization & background stars
 │
 ├── assets/                          # All game assets
@@ -398,10 +402,22 @@ LuminaCore.startFamilyQuest(goal, reward, days) // Start new quest
 LuminaCore.completeFamilyQuest()            // Complete active quest
 ```
 
+### Daily Challenges
+```javascript
+LuminaCore.getDailyChallenges()            // Get today's challenges (auto-resets daily)
+LuminaCore.updateDailyChallenge(id, progress) // Update challenge progress
+LuminaCore.checkDailyChallengeProgress(playerId, gameId, stats) // Auto-update from game activity
+```
+
+### Cross-Game Achievements
+```javascript
+LuminaCore.checkCrossGameAchievements(playerId) // Check cross-game achievement eligibility
+```
+
 ### Leaderboard
 ```javascript
-LuminaCore.getLeaderboard(category)         // Get sorted leaderboard
-// category: 'totalXP', 'lifetimeCoins', 'rewardPoints', etc.
+LuminaCore.getLeaderboard()                // Get sorted leaderboard (default: by XP)
+// Filtering handled in UI: filterLeaderboard('xp'|'achievements'|'coins'|'streak')
 ```
 
 ## Data Structure (localStorage)
@@ -860,6 +876,45 @@ if (level >= 10) {
 | Voice | Cartesia | ~$0.01/line |
 | Music | Lyria 2 (manual) | FREE |
 | Music | Suno Pro (manual) | ~$0.03/track |
+
+## January 24, 2026 - Daily Challenges & Enhancements Added ✅
+
+### New Features
+- ✅ **Daily Challenges System** - 5 daily challenges that reset each day
+  - Play Any Game, Game Explorer (3 games), XP Collector (100 XP), Achievement Hunter, Coin Collector (50 coins)
+  - Auto-tracks progress from gameplay
+  - Rewards: XP and coins bonuses
+- ✅ **Cross-Game Achievements** - 4 new achievements spanning all games
+  - Game Explorer (play 3 games), Game Master (play 5 games), Hub Champion (play all games), Marathon Gamer (all games in one day)
+- ✅ **Enhanced Leaderboard** - Filtering by XP, achievements, coins, or streak
+  - Shows top 3 with medals (👑🥈🥉)
+  - Displays comprehensive stats (XP, achievements, coins, streak)
+- ✅ **Tutorial System** - Interactive onboarding for first-time players
+  - 6-step tutorial covering profiles, games, rewards, challenges, leaderboard
+  - Auto-shows on first visit per profile
+  - Highlights UI elements during tutorial
+- ✅ **Visual Assets Generated** - Rhythm Academy and Pixel Quest now have proper sprites
+  - Character sprites with transparent backgrounds (rembg workflow)
+  - Background images for menus
+  - All assets integrated into games
+
+### Updated Files
+- ✅ `shared/lumina-core.js` - Added daily challenges, cross-game achievements (v1.3.0)
+- ✅ `shared/scripts/hub-ui.js` - Enhanced leaderboard with filtering
+- ✅ `shared/scripts/hub-tutorial.js` - New tutorial system
+- ✅ `shared/styles/hub-components.css` - Daily challenges styling, leaderboard filters
+- ✅ `index.html` - Added daily challenges panel, tutorial modal
+- ✅ `rhythm-academy/scripts/game-main.js` - Integrated sprite assets
+- ✅ `pixel-quest/scripts/game-main.js` - Integrated sprite assets
+- ✅ `.cursorrules` - Updated with transparent background workflow documentation
+
+### Asset Generation Workflow
+All new games now follow the complete asset generation workflow:
+1. Generate sprites with `generate_image.py` (Gemini API)
+2. Remove backgrounds with `remove_bg.py` (rembg library, Python 3.13)
+3. Use `*_rgba.png` files in game code
+4. Generate backgrounds for menus and levels
+5. Generate audio (music, SFX, voice) using ElevenLabs/Cartesia APIs
 
 ## January 22, 2026 - Major Refactoring Complete ✅
 

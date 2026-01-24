@@ -120,6 +120,16 @@
             </div>
             <div class="family-quest-text" id="familyQuestText">0 / 500 XP Together</div>
           </div>
+          
+          <!-- Daily Challenges -->
+          <div class="panel" style="margin-top: 1rem;">
+            <div class="panel-header">
+              <h3 class="panel-title">📅 Daily Challenges</h3>
+            </div>
+            <div id="dailyChallengesContent">
+              <!-- Populated by JS -->
+            </div>
+          </div>
         </div>
         
         <!-- Rewards Preview -->
@@ -138,10 +148,27 @@
       </aside>
     </div>
     
-    <!-- Footer -->
-    <footer>
-      <p>Made with ❤️ by Dad</p>
-    </footer>
+  <!-- Footer -->
+  <footer>
+    <p>Made with ❤️ by Dad</p>
+  </footer>
+  
+  <!-- Tutorial Modal -->
+  <div class="modal-overlay" id="tutorialModal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🎓 Welcome to Noyola Hub!</h2>
+        <button class="modal-close" onclick="closeTutorial()">×</button>
+      </div>
+      <div class="modal-content" id="tutorialContent">
+        <!-- Tutorial content will be populated by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeTutorial()">Skip Tutorial</button>
+        <button class="btn-primary" onclick="nextTutorialStep()">Next →</button>
+      </div>
+    </div>
+  </div>
   </div>
   
   <!-- Profile Select Modal -->

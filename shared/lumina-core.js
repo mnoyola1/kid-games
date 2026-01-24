@@ -114,6 +114,20 @@ const LuminaCore = (function() {
     { id: 'mq_level_5', name: 'Math Champion', desc: 'Reach level 5', icon: '⭐', xpBonus: 50 },
     { id: 'mq_boss_defeated', name: 'Boss Slayer', desc: 'Defeat the Math King', icon: '👑', xpBonus: 100 },
     
+    // Rhythm Academy
+    { id: 'ra_first_song', name: 'First Beat', desc: 'Complete your first song', icon: '🎵', xpBonus: 15 },
+    { id: 'ra_combo_master', name: 'Combo Master', desc: 'Achieve a 10-hit combo', icon: '🔥', xpBonus: 30 },
+    { id: 'ra_perfect_accuracy', name: 'Perfect Rhythm', desc: 'Get 90% accuracy on a song', icon: '⭐', xpBonus: 40 },
+    { id: 'ra_three_stars', name: 'Three Star Champion', desc: 'Get 3 stars on a song', icon: '🏆', xpBonus: 50 },
+    { id: 'ra_all_songs', name: 'Song Master', desc: 'Unlock all songs', icon: '🎸', xpBonus: 75 },
+    
+    // Pixel Quest
+    { id: 'pq_first_level', name: 'First Jump', desc: 'Complete your first level', icon: '🎮', xpBonus: 15 },
+    { id: 'pq_three_stars', name: 'Star Collector', desc: 'Get 3 stars on a level', icon: '⭐', xpBonus: 40 },
+    { id: 'pq_coin_collector', name: 'Coin Collector', desc: 'Collect 10 coins in a level', icon: '💰', xpBonus: 30 },
+    { id: 'pq_world_unlock', name: 'World Explorer', desc: 'Unlock a new world', icon: '🌍', xpBonus: 50 },
+    { id: 'pq_all_worlds', name: 'Quest Master', desc: 'Unlock all worlds', icon: '👑', xpBonus: 100 },
+    
     // Shadows in the Halls
     { id: 'shadows_first_escape', name: 'First Escape', desc: 'Escape the school for the first time', icon: '🚪', xpBonus: 50 },
     { id: 'shadows_puzzle_master', name: 'Puzzle Master', desc: 'Solve 50 puzzles in Shadows', icon: '🧩', xpBonus: 100 },
@@ -155,6 +169,18 @@ const LuminaCore = (function() {
       name: 'Math Quest',
       icon: '⚔️',
       defaultStats: { enemiesDefeated: 0, gamesPlayed: 0, correctAnswers: 0, totalAnswers: 0, maxCombo: 0, playerLevel: 1 }
+    },
+    rhythmAcademy: {
+      id: 'rhythmAcademy',
+      name: 'Rhythm Academy',
+      icon: '🎵',
+      defaultStats: { songsCompleted: 0, gamesPlayed: 0, highScore: 0, maxCombo: 0, perfectSongs: 0, threeStarSongs: 0 }
+    },
+    pixelQuest: {
+      id: 'pixelQuest',
+      name: 'Pixel Quest',
+      icon: '🎮',
+      defaultStats: { levelsCompleted: 0, gamesPlayed: 0, starsCollected: 0, coinsCollected: 0, worldsUnlocked: 1, threeStarLevels: 0 }
     },
     shadowsInTheHalls: {
       id: 'shadowsInTheHalls',
@@ -221,6 +247,10 @@ const LuminaCore = (function() {
         startDate: null,
         endDate: null,
         contributions: { emma: 0, liam: 0 },
+      },
+      dailyChallenges: {
+        lastResetDate: null,
+        challenges: [],
       },
       claimedRewards: [],
       pendingRewards: [],
@@ -534,6 +564,11 @@ const LuminaCore = (function() {
     
     const oldLevel = player.level;
     player.totalXP += amount;
+    
+    // Update daily challenge for XP earned
+    if (amount > 0) {
+      updateDailyChallenge('earn_100_xp', amount);
+    }
     
     const levelInfo = calculateLevel(player.totalXP);
     player.level = levelInfo.level;
@@ -916,6 +951,9 @@ const LuminaCore = (function() {
     
     player.achievements.push(achievementId);
     
+    // Update daily challenge for achievement unlocked
+    updateDailyChallenge('complete_achievement', 1);
+    
     // Award bonus XP
     if (achievement.xpBonus) {
       player.totalXP += achievement.xpBonus;
@@ -964,6 +1002,22 @@ const LuminaCore = (function() {
         if (stats.enemiesDefeated >= 10) checkAchievement(playerId, 'mq_veteran');
         if (stats.maxCombo >= 10) checkAchievement(playerId, 'mq_combo_master');
         if (stats.playerLevel >= 5) checkAchievement(playerId, 'mq_level_5');
+        break;
+        
+      case 'rhythmAcademy':
+        if (stats.songsCompleted >= 1) checkAchievement(playerId, 'ra_first_song');
+        if (stats.maxCombo >= 10) checkAchievement(playerId, 'ra_combo_master');
+        if (stats.perfectSongs >= 1) checkAchievement(playerId, 'ra_perfect_accuracy');
+        if (stats.threeStarSongs >= 1) checkAchievement(playerId, 'ra_three_stars');
+        if (stats.songsCompleted >= 3) checkAchievement(playerId, 'ra_all_songs');
+        break;
+        
+      case 'pixelQuest':
+        if (stats.levelsCompleted >= 1) checkAchievement(playerId, 'pq_first_level');
+        if (stats.threeStarLevels >= 1) checkAchievement(playerId, 'pq_three_stars');
+        if (stats.coinsCollected >= 10) checkAchievement(playerId, 'pq_coin_collector');
+        if (stats.worldsUnlocked >= 2) checkAchievement(playerId, 'pq_world_unlock');
+        if (stats.worldsUnlocked >= 5) checkAchievement(playerId, 'pq_all_worlds');
         break;
     }
   }
@@ -1152,6 +1206,160 @@ const LuminaCore = (function() {
     }
   }
   
+  // ==================== DAILY CHALLENGES ====================
+  
+  function generateDailyChallenges() {
+    const challenges = [
+      {
+        id: 'play_any_game',
+        name: 'Play Any Game',
+        description: 'Play any game today',
+        icon: '🎮',
+        target: 1,
+        current: 0,
+        reward: { xp: 20, coins: 10 },
+        completed: false
+      },
+      {
+        id: 'play_3_games',
+        name: 'Game Explorer',
+        description: 'Play 3 different games today',
+        icon: '🌍',
+        target: 3,
+        current: 0,
+        reward: { xp: 50, coins: 25 },
+        completed: false
+      },
+      {
+        id: 'earn_100_xp',
+        name: 'XP Collector',
+        description: 'Earn 100 XP today',
+        icon: '⭐',
+        target: 100,
+        current: 0,
+        reward: { xp: 30, coins: 15 },
+        completed: false
+      },
+      {
+        id: 'complete_achievement',
+        name: 'Achievement Hunter',
+        description: 'Unlock any achievement today',
+        icon: '🏅',
+        target: 1,
+        current: 0,
+        reward: { xp: 40, coins: 20 },
+        completed: false
+      },
+      {
+        id: 'collect_50_coins',
+        name: 'Coin Collector',
+        description: 'Collect 50 coins today',
+        icon: '💰',
+        target: 50,
+        current: 0,
+        reward: { xp: 25, coins: 30 },
+        completed: false
+      }
+    ];
+    
+    return challenges;
+  }
+  
+  function resetDailyChallengesIfNeeded() {
+    const data = getData();
+    const today = new Date().toDateString();
+    
+    if (data.dailyChallenges.lastResetDate !== today) {
+      data.dailyChallenges.challenges = generateDailyChallenges();
+      data.dailyChallenges.lastResetDate = today;
+      save();
+    }
+  }
+  
+  function getDailyChallenges() {
+    resetDailyChallengesIfNeeded();
+    return getData().dailyChallenges.challenges;
+  }
+  
+  function updateDailyChallenge(challengeId, progress = 1) {
+    const data = getData();
+    resetDailyChallengesIfNeeded();
+    
+    const challenge = data.dailyChallenges.challenges.find(c => c.id === challengeId);
+    if (!challenge || challenge.completed) return;
+    
+    challenge.current += progress;
+    
+    if (challenge.current >= challenge.target) {
+      challenge.completed = true;
+      challenge.current = challenge.target;
+      
+      // Award rewards
+      const playerId = getCurrentPlayerId();
+      if (playerId) {
+        const player = data.profiles[playerId];
+        if (player) {
+          addXP(playerId, challenge.reward.xp || 0);
+          addCoins(playerId, challenge.reward.coins || 0);
+        }
+      }
+    }
+    
+    save();
+    return challenge;
+  }
+  
+  function checkDailyChallengeProgress(playerId, gameId, stats) {
+    // Auto-update challenges based on game activity
+    updateDailyChallenge('play_any_game', 1);
+    
+    // Check for 3 different games (track in stats)
+    const data = getData();
+    const player = data.profiles[playerId];
+    if (player && player.gameStats) {
+      const gamesPlayedToday = Object.keys(player.gameStats).filter(gameKey => {
+        const gameStat = player.gameStats[gameKey];
+        const lastPlayed = gameStat.lastPlayed;
+        if (!lastPlayed) return false;
+        const lastPlayedDate = new Date(lastPlayed).toDateString();
+        return lastPlayedDate === new Date().toDateString();
+      }).length;
+      
+      if (gamesPlayedToday >= 3) {
+        updateDailyChallenge('play_3_games', 3);
+      }
+    }
+  }
+  
+  // ==================== CROSS-GAME ACHIEVEMENTS ====================
+  
+  function checkCrossGameAchievements(playerId) {
+    const player = getPlayer(playerId);
+    if (!player || !player.gameStats) return;
+    
+    // Count unique games played
+    const gamesPlayed = Object.keys(player.gameStats).filter(key => {
+      const stats = player.gameStats[key];
+      return stats && stats.gamesPlayed > 0;
+    }).length;
+    
+    // Cross-game achievements
+    if (gamesPlayed >= 3) checkAchievement(playerId, 'cg_play_3_games');
+    if (gamesPlayed >= 5) checkAchievement(playerId, 'cg_play_5_games');
+    if (gamesPlayed >= 7) checkAchievement(playerId, 'cg_play_all_games');
+    
+    // Check for playing all games in one day
+    const today = new Date().toDateString();
+    const gamesPlayedToday = Object.keys(player.gameStats).filter(key => {
+      const stats = player.gameStats[key];
+      if (!stats || !stats.lastPlayed) return false;
+      const lastPlayedDate = new Date(stats.lastPlayed).toDateString();
+      return lastPlayedDate === today;
+    }).length;
+    
+    if (gamesPlayedToday >= 5) checkAchievement(playerId, 'cg_all_games_one_day');
+  }
+  
   // ==================== EVENT SYSTEM ====================
   
   let _subscribers = [];
@@ -1245,6 +1453,14 @@ const LuminaCore = (function() {
     startFamilyQuest,
     getFamilyQuest,
     completeFamilyQuest,
+    
+    // Daily Challenges
+    getDailyChallenges,
+    updateDailyChallenge,
+    checkDailyChallengeProgress,
+    
+    // Cross-Game Achievements
+    checkCrossGameAchievements,
     
     // Leaderboard
     getLeaderboard,

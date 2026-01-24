@@ -1,0 +1,121 @@
+/* ==================== PIXEL QUEST BASE STYLES ==================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  overflow: hidden;
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.game-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Character animations */
+.character {
+  transition: transform 0.1s;
+}
+
+.character.jumping {
+  transform: scaleY(1.2) scaleX(0.9);
+}
+
+.character.landing {
+  transform: scaleY(0.8) scaleX(1.1);
+}
+
+.character.running {
+  animation: runCycle 0.3s steps(4) infinite;
+}
+
+@keyframes runCycle {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+}
+
+/* Platform styles */
+.platform {
+  background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+  border: 2px solid #5C3A1F;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Collectible styles */
+.collectible {
+  animation: float 2s ease-in-out infinite;
+  transition: transform 0.2s;
+}
+
+.collectible.collected {
+  animation: collectAnim 0.3s ease-out forwards;
+}
+
+@keyframes collectAnim {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2) rotate(360deg); opacity: 0; }
+}
+
+/* Checkpoint styles */
+.checkpoint {
+  border: 3px solid #4CAF50;
+  background: rgba(76, 175, 80, 0.2);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.checkpoint.activated {
+  background: rgba(76, 175, 80, 0.5);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+}
+
+/* Enemy styles */
+.enemy {
+  animation: enemyMove 1s ease-in-out infinite;
+}
+
+@keyframes enemyMove {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+/* Camera follow */
+.game-viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Stars background */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 60% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 50% 50%, #fff, transparent);
+  background-size: 200% 200%;
+  animation: stars 20s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes stars {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .character {
+    font-size: 2rem;
+  }
+}

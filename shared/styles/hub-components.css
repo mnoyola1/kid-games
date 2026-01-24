@@ -491,6 +491,39 @@ header {
   font-size: 0.9rem;
 }
 
+.leaderboard-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 0.4rem 0.8rem;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.filter-btn.active {
+  background: rgba(139, 92, 246, 0.5);
+  border-color: rgba(139, 92, 246, 0.8);
+  font-weight: 600;
+}
+
+.leaderboard-rank.third {
+  color: #CD7F32;
+}
+
 /* ==================== FAMILY QUEST ==================== */
 .family-quest {
   background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.1));
@@ -547,6 +580,86 @@ header {
   text-align: center;
   color: #a7f3d0;
   font-size: 0.8rem;
+}
+
+/* ==================== DAILY CHALLENGES ==================== */
+.daily-challenge {
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.daily-challenge.completed {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.5);
+  opacity: 0.8;
+}
+
+.daily-challenge-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.daily-challenge-icon {
+  font-size: 1.5rem;
+}
+
+.daily-challenge-info {
+  flex: 1;
+}
+
+.daily-challenge-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.daily-challenge-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.daily-challenge-check {
+  color: #4CAF50;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.daily-challenge-progress {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.daily-challenge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8B5CF6, #A78BFA);
+  transition: width 0.3s ease;
+}
+
+.daily-challenge.completed .daily-challenge-fill {
+  background: linear-gradient(90deg, #4CAF50, #66BB6A);
+}
+
+.daily-challenge-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.daily-challenge-reward {
+  font-size: 0.8rem;
+  color: #4CAF50;
+  margin-top: 0.5rem;
+  font-weight: 600;
 }
 
 /* ==================== REWARDS PREVIEW ==================== */

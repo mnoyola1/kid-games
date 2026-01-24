@@ -33,21 +33,88 @@ function updateUI() {
   
   // Update games with stats
   renderGames();
+  
+  // Update daily challenges
+  renderDailyChallenges();
 }
+
+let currentLeaderboardFilter = 'all';
 
 function renderLeaderboard() {
   const leaderboard = LuminaCore.getLeaderboard();
   const container = document.getElementById('leaderboardContent');
   
-  container.innerHTML = leaderboard.map((player, index) => `
-    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
-      <div class="leaderboard-rank ${index === 0 ? 'first' : 'second'}">
-        ${index === 0 ? '👑' : '🥈'}
+  // Add filter buttons
+  const filterHTML = `
+    <div class="leaderboard-filters" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+      <button class="filter-btn ${currentLeaderboardFilter === 'all' ? 'active' : ''}" data-filter="all" onclick="filterLeaderboard('all')">All</button>
+      <button class="filter-btn ${currentLeaderboardFilter === 'xp' ? 'active' : ''}" data-filter="xp" onclick="filterLeaderboard('xp')">By XP</button>
+      <button class="filter-btn ${currentLeaderboardFilter === 'achievements' ? 'active' : ''}" data-filter="achievements" onclick="filterLeaderboard('achievements')">By Achievements</button>
+      <button class="filter-btn ${currentLeaderboardFilter === 'coins' ? 'active' : ''}" data-filter="coins" onclick="filterLeaderboard('coins')">By Coins</button>
+      <button class="filter-btn ${currentLeaderboardFilter === 'streak' ? 'active' : ''}" data-filter="streak" onclick="filterLeaderboard('streak')">By Streak</button>
+    </div>
+  `;
+  
+  container.innerHTML = filterHTML + leaderboard.map((player, index) => `
+    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}" data-xp="${player.totalXP}" data-achievements="${player.achievementCount}" data-coins="${player.currentCoins}" data-streak="${player.streakDays}">
+      <div class="leaderboard-rank ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : ''}">
+        ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
       </div>
       <img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">
       <div class="leaderboard-info">
         <div class="leaderboard-name">${player.name}</div>
-        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅</div>
+        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅 • ${player.currentCoins} 💰 • ${player.streakDays}🔥</div>
+      </div>
+      <div class="leaderboard-level">Lv.${player.level}</div>
+    </div>
+  `).join('');
+}
+
+function filterLeaderboard(filter) {
+  currentLeaderboardFilter = filter;
+  
+  // Update active button
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.filter === filter) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // Sort leaderboard based on filter
+  let leaderboard = LuminaCore.getLeaderboard();
+  
+  switch (filter) {
+    case 'xp':
+      leaderboard.sort((a, b) => b.totalXP - a.totalXP);
+      break;
+    case 'achievements':
+      leaderboard.sort((a, b) => b.achievementCount - a.achievementCount);
+      break;
+    case 'coins':
+      leaderboard.sort((a, b) => b.currentCoins - a.currentCoins);
+      break;
+    case 'streak':
+      leaderboard.sort((a, b) => b.streakDays - a.streakDays);
+      break;
+    default:
+      // Default sorting (already sorted by XP)
+      break;
+  }
+  
+  // Re-render
+  const container = document.getElementById('leaderboardContent');
+  const filterHTML = container.querySelector('.leaderboard-filters')?.outerHTML || '';
+  
+  container.innerHTML = filterHTML + leaderboard.map((player, index) => `
+    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
+      <div class="leaderboard-rank ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : ''}">
+        ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+      </div>
+      <img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">
+      <div class="leaderboard-info">
+        <div class="leaderboard-name">${player.name}</div>
+        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅 • ${player.currentCoins} 💰 • ${player.streakDays}🔥</div>
       </div>
       <div class="leaderboard-level">Lv.${player.level}</div>
     </div>

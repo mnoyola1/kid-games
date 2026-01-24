@@ -61,6 +61,26 @@ const GAMES = [
     active: true
   },
   {
+    id: 'rhythm-academy',
+    name: 'Rhythm Academy',
+    subtitle: 'Music Learning',
+    icon: '🎵',
+    url: './rhythm-academy/index.html',
+    description: 'Hit notes to the beat while learning! Master rhythm and education in one epic game!',
+    features: ['🎵 Rhythm Gameplay', '📚 Educational Questions', '🔥 Combos', '⭐ Star Ratings'],
+    active: true
+  },
+  {
+    id: 'pixel-quest',
+    name: 'Pixel Quest',
+    subtitle: 'Educational Platformer',
+    icon: '🎮',
+    url: './pixel-quest/index.html',
+    description: 'Jump and run through educational worlds! Solve challenges and collect stars!',
+    features: ['🦘 Platforming', '🧩 Checkpoint Challenges', '⭐ Star Collection', '🌍 Multiple Worlds'],
+    active: true
+  },
+  {
     id: 'world-of-lumina',
     name: 'World of Lumina',
     subtitle: 'Fantasy Adventure',

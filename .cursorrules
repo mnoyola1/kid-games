@@ -73,10 +73,34 @@ assets/
 │       ├── music/     # .mp3 files (ElevenLabs API)
 │       ├── sfx/       # .mp3 files (ElevenLabs API)
 │       └── voice/     # .mp3 files (Cartesia API)
-├── sprites/           # Character sprites, items, enemies (Gemini)
-├── backgrounds/       # Level backgrounds, menus (Gemini)
+├── sprites/
+│   └── [game-id]/     # Character sprites, items, enemies (Gemini + rembg)
+│       ├── sprite.png        # Original with background
+│       └── sprite_rgba.png   # Transparent version (use this in games)
+├── backgrounds/
+│   └── [game-id]/     # Level backgrounds, menus (Gemini)
 └── [game-id]/         # Game-specific images if needed
 ```
+
+### Transparent Background Workflow (CRITICAL)
+For sprites that need transparency (characters, items, enemies):
+
+1. **Generate with solid background:**
+   ```bash
+   python tools/generate_image.py -p "description" -t sprite -s pixel-art -o assets/sprites/[game-id]/sprite.png
+   ```
+
+2. **Remove background using rembg:**
+   ```bash
+   py -3.13 tools/remove_bg.py --input assets/sprites/[game-id]/sprite.png --output assets/sprites/[game-id]/sprite_rgba.png
+   ```
+
+3. **Use `*_rgba.png` in game code:**
+   ```javascript
+   <img src="../assets/sprites/[game-id]/sprite_rgba.png" alt="Sprite" />
+   ```
+
+**IMPORTANT:** Always generate sprites with `generate_image.py`, then process with `remove_bg.py` to create true RGBA transparent PNGs. Never use emoji placeholders for final game assets.
 
 ## Game Architecture Pattern
 

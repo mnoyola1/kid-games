@@ -1,0 +1,155 @@
+/* ==================== RHYTHM ACADEMY BASE STYLES ==================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  overflow: hidden;
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.game-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Stars background */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 60% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 50% 50%, #fff, transparent),
+    radial-gradient(1px 1px at 80% 10%, #fff, transparent),
+    radial-gradient(2px 2px at 90% 60%, #fff, transparent),
+    radial-gradient(1px 1px at 33% 80%, #fff, transparent),
+    radial-gradient(1px 1px at 55% 20%, #fff, transparent);
+  background-size: 200% 200%;
+  animation: stars 20s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes stars {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+/* Note lane styles */
+.note-lane {
+  position: relative;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.note-lane.active {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.8);
+}
+
+.hit-zone {
+  position: absolute;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  border-top: 4px solid #fbbf24;
+  border-bottom: 4px solid #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  pointer-events: none;
+}
+
+.hit-zone.perfect {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4CAF50;
+}
+
+.hit-zone.good {
+  background: rgba(255, 193, 7, 0.2);
+  border-color: #FFC107;
+}
+
+/* Note styles */
+.falling-note {
+  position: absolute;
+  width: 80%;
+  left: 10%;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s;
+}
+
+.falling-note.perfect-zone {
+  border-color: #4CAF50;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.falling-note.good-zone {
+  border-color: #FFC107;
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+}
+
+.falling-note.hit {
+  animation: noteHit 0.3s ease-out forwards;
+}
+
+@keyframes noteHit {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* Combo display */
+.combo-display {
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 0 0 20px currentColor;
+  animation: pulse 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Score popup */
+.score-popup {
+  position: absolute;
+  font-size: 2rem;
+  font-weight: bold;
+  pointer-events: none;
+  animation: scoreFloat 1s ease-out forwards;
+}
+
+@keyframes scoreFloat {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .note-lane {
+    min-width: 60px;
+  }
+  .falling-note {
+    height: 50px;
+    font-size: 0.9rem;
+  }
+}
