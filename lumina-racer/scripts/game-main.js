@@ -31,6 +31,7 @@ function LuminaRacer() {
   
   // Game state
   const [screen, setScreen] = useState('menu'); // menu, charSelect, trackSelect, countdown, racing, results
+  const [character, setCharacter] = useState(null);
   const [track, setTrack] = useState(null);
   const [words, setWords] = useState(DEFAULT_WORDS);
   const [customWordsInput, setCustomWordsInput] = useState('');
