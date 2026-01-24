@@ -82,7 +82,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   if (!activeProfile) {
     console.log('📋 No profile selected, showing profile select modal');
-    showProfileSelect();
+    if (typeof window.showProfileSelect === 'function') {
+      window.showProfileSelect();
+    } else if (typeof showProfileSelect === 'function') {
+      showProfileSelect();
+    } else {
+      console.error('showProfileSelect not available');
+    }
   } else {
     console.log('✅ Profile selected, updating UI');
     updateUI();
@@ -103,8 +109,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   setInterval(updateCloudStatus, 30000);
   
   // Setup PIN input auto-advance
-  setupPinInputs();
-  setupProfilePinInputs();
+  if (typeof window.setupPinInputs === 'function') {
+    window.setupPinInputs();
+  } else if (typeof setupPinInputs === 'function') {
+    setupPinInputs();
+  }
+  
+  if (typeof window.setupProfilePinInputs === 'function') {
+    window.setupProfilePinInputs();
+  } else if (typeof setupProfilePinInputs === 'function') {
+    setupProfilePinInputs();
+  }
   
   console.log('✅ Hub initialization complete');
 });
