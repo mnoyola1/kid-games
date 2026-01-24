@@ -937,6 +937,59 @@ header {
   color: white;
 }
 
+/* Game Tags - Styled like Coming Soon badge */
+.game-tag-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  z-index: 10;
+}
+
+.game-tag-badge.popular {
+  background: #fbbf24;
+  color: #1a1a2e;
+}
+
+.game-tag-badge.new {
+  background: #8b5cf6;
+  color: white;
+}
+
+.game-tag-badge.trending {
+  background: #ec4899;
+  color: white;
+}
+
+.game-tag-badge.favorite {
+  background: #22d3ee;
+  color: #1a1a2e;
+}
+
+[data-theme="gaming"] .game-tag-badge.popular {
+  background: #fee440;
+  color: #0a0a0f;
+}
+
+[data-theme="gaming"] .game-tag-badge.new {
+  background: #00f5d4;
+  color: #0a0a0f;
+}
+
+[data-theme="gaming"] .game-tag-badge.trending {
+  background: #ff00ff;
+  color: white;
+}
+
+[data-theme="gaming"] .game-tag-badge.favorite {
+  background: #00ff88;
+  color: #0a0a0f;
+}
+
 /* ==================== FOOTER ==================== */
 footer {
   text-align: center;
