@@ -29,6 +29,9 @@ function showProfileSelect() {
   modal.classList.add('active');
 }
 
+// Make it globally available
+window.showProfileSelect = showProfileSelect;
+
 function selectProfile(key) {
   const profile = LuminaCore.getPlayer(key);
   
