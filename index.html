@@ -13,7 +13,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Lumina Core -->
+  <!-- Supabase Client (for cloud sync) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Lumina Core & Cloud Sync -->
+  <script src="./shared/supabase-config.js"></script>
+  <script src="./shared/lumina-cloud.js"></script>
   <script src="./shared/lumina-core.js"></script>
   
   <!-- Hub Styles -->
@@ -31,6 +36,10 @@
       <span class="theme-toggle-icon" id="themeIcon">✨</span>
       <span class="theme-toggle-label" id="themeLabel">Fantasy</span>
     </button>
+    <!-- Cloud Sync Status -->
+    <span id="cloudStatus" class="cloud-status" title="Cloud sync status" style="margin-left: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
+      ☁️
+    </span>
   </div>
   
   <!-- Background animation -->

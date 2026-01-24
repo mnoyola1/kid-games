@@ -3,6 +3,7 @@
 ### Last Updated: January 23, 2026
 ### Architecture Fully Refactored: January 22, 2026
 ### AI Asset Generation Tools Added: January 23, 2026
+### Cloud Sync (Supabase) Added: January 23, 2026
 
 ---
 
@@ -32,6 +33,11 @@ A unified game ecosystem called "Noyola Hub" that connects multiple educational 
   - ✅ Voice synthesis (Cartesia API)
   - ✅ Music generation (manual via Lyria 2 or Suno Pro)
   - ✅ Batch asset generator for new games
+- ✅ **Cloud Sync with Supabase!**
+  - ✅ Cross-device data persistence
+  - ✅ Hybrid storage (localStorage + cloud)
+  - ✅ Offline support with automatic sync
+  - ✅ See `SUPABASE_SETUP.md` for configuration
 
 ---
 
@@ -453,39 +459,87 @@ LuminaCore.getLeaderboard(category)         // Get sorted leaderboard
 
 ## Deployment & Data Storage
 
-### Current Setup: localStorage + Vercel
+### Current Setup: localStorage + Vercel + Supabase Cloud Sync
 - **Hosting:** Vercel (auto-deploys from GitHub)
-- **Storage:** Browser localStorage (client-side)
+- **Primary Storage:** Browser localStorage (client-side, instant)
+- **Cloud Sync:** Supabase (optional, for cross-device support)
 - **Live URL:** https://kid-games-one.vercel.app/
 
-**How localStorage works on Vercel:**
-- Data persists on the device/browser where they play
-- Survives page refreshes, closing browser, redeployments
-- Each device maintains its own separate data
-- No server costs, works offline
+**Storage Architecture:**
+```
+┌─────────────────┐    ┌─────────────────┐
+│  localStorage   │ <─>│    Supabase     │
+│  (Primary)      │    │  (Cloud Sync)   │
+└─────────────────┘    └─────────────────┘
+        │                       │
+        │   Hybrid Storage      │
+        │   - Offline works     │
+        │   - Cloud syncs       │
+        │   - Best of both      │
+        └───────────────────────┘
+```
 
-**Limitations:**
+**With Cloud Sync Enabled:**
 | Scenario | What Happens |
 |----------|--------------|
-| Play on iPad | ✅ Progress saved on iPad |
-| Check on computer | ❌ Different device = fresh start |
-| Clear browser data | ❌ Progress lost |
-| New device | ❌ Need to start over |
+| Play on iPad | ✅ Progress saved locally AND to cloud |
+| Check on computer | ✅ Progress synced from cloud |
+| Clear browser data | ✅ Progress restored from cloud |
+| New device | ✅ Enter PIN to load profile from cloud |
+| Go offline | ✅ Works normally, syncs when back online |
 
-**For primary use case** (kids on one iPad), localStorage is ideal - simple and reliable.
+### Cloud Sync Files
 
-### Future Enhancement: Supabase/Firebase
-Plan to add cloud sync for cross-device support and backup:
-- **Supabase** or **Firebase** (free tier covers family use)
-- Enables playing on any device with same progress
-- Automatic backup (no data loss if browser cleared)
-- Could add parent dashboard for monitoring progress
+| File | Purpose |
+|------|---------|
+| `shared/supabase-config.js` | Supabase credentials and settings |
+| `shared/lumina-cloud.js` | Cloud sync module (LuminaCloud API) |
+| `SUPABASE_SETUP.md` | Step-by-step setup guide |
 
-**Migration path:**
-1. Keep localStorage as offline fallback
-2. Add Supabase/Firebase as sync layer
-3. On load: merge cloud + local, prefer newer timestamps
-4. On save: write to both localStorage and cloud
+### Cloud Sync API
+
+```javascript
+// Async load with cloud sync
+await LuminaCore.loadAsync();
+
+// Force sync to cloud
+await LuminaCore.syncToCloud();
+
+// Force sync from cloud
+await LuminaCore.syncFromCloud();
+
+// Check cloud status
+LuminaCore.getCloudStatus();
+// Returns: { initialized, online, configured, lastSync, autoSyncEnabled }
+
+// Check if cloud is enabled
+LuminaCore.isCloudEnabled();
+
+// Lookup profile by PIN (for new device login)
+await LuminaCloud.fetchProfileByPIN('1008');
+```
+
+### Enabling Cloud Sync
+
+1. Create a free Supabase account at https://supabase.com
+2. Follow the setup guide in `SUPABASE_SETUP.md`
+3. Update `shared/supabase-config.js` with your credentials
+4. Set `enabled: true` in the config
+
+### Sync Behavior
+
+- **On Load:** Local data loads instantly, cloud merges async
+- **On Save:** Local saves immediately, cloud syncs in background
+- **Auto-Sync:** Every 30 seconds when online
+- **Offline:** Works fully offline, syncs when back online
+- **Conflicts:** Newer data wins, stats merged (keeps best values)
+
+### Cost (Free Tier)
+
+Supabase Free Tier:
+- 500 MB database (need ~100 KB)
+- 2 GB bandwidth/month (use ~150 MB/month)
+- **Well within free limits for family use**
 
 ---
 
@@ -621,17 +675,44 @@ useEffect(() => {
 ```
 
 ### Step 3: Award XP/Coins on Game Events
+
+**IMPORTANT: Reward Balancing Guidelines**
+
+To ensure kids earn rewards at a healthy pace (targeting ~500 reward points per week of regular play):
+
+**XP Guidelines by Game Type:**
+- **Quick games (5-10 min):** 20-50 XP per game
+  - Example: Lumina Racer awards ~60-80 XP per win
+- **Medium games (10-20 min):** 50-100 XP per game
+  - Example: Word Forge, Canada Adventure
+- **Long games (20+ min):** 100-200 XP per game
+  - Example: Spell Siege, Shadows in the Halls
+
+**Reward Points Formula:**
+- **Recommended:** `rewardPoints = Math.floor(xpEarned / 20)`
+- **Alternate for long games:** `rewardPoints = Math.floor(xpEarned / 15)`
+
+**Example Implementation:**
 ```javascript
 if (playerProfile) {
-  const xpEarned = 50;
-  const coinsEarned = 25;
-  const rewardPointsEarned = 5;
+  // Adjust XP based on game length and difficulty
+  const baseXP = 30;  // Base for completing game
+  const performanceXP = score * 0.5;  // Performance-based bonus
+  const xpEarned = Math.floor(baseXP + performanceXP);
+  
+  const coinsEarned = Math.floor(xpEarned * 0.5);  // Roughly half of XP
+  const rewardPointsEarned = Math.floor(xpEarned / 20);  // 1 point per 20 XP
   
   LuminaCore.addXP(playerProfile.id, xpEarned, 'gameId');
   LuminaCore.addCoins(playerProfile.id, coinsEarned, 'gameId');
   LuminaCore.addRewardPoints(playerProfile.id, rewardPointsEarned);
 }
 ```
+
+**Target Progression:**
+- 3-5 games per day = 60-150 reward points per day
+- 1 week of regular play = ~500 reward points (playdate tier)
+- 2 levels per week for active players
 
 ### Step 4: Record Session on Game End
 ```javascript
@@ -726,6 +807,33 @@ if (level >= 10) {
 ---
 
 # PART 9: RECENT UPDATES & CHANGES
+
+## January 23, 2026 - Cloud Sync Implemented ✅
+
+### New Feature: Cross-Device Cloud Sync
+- ✅ Added Supabase integration for cross-device data persistence
+- ✅ Kids can now play on iPad and see progress on computer
+- ✅ Hybrid storage: localStorage (instant) + cloud (sync)
+- ✅ Offline support: works without internet, syncs when back online
+- ✅ Automatic conflict resolution (keeps best stats from both sources)
+
+### New Files
+- ✅ `shared/supabase-config.js` - Supabase credentials and settings
+- ✅ `shared/lumina-cloud.js` - Cloud sync module (LuminaCloud API)
+- ✅ `SUPABASE_SETUP.md` - Step-by-step setup guide with SQL schema
+
+### Updated Files
+- ✅ `shared/lumina-core.js` - Added cloud sync integration (v1.2.0)
+- ✅ `index.html` - Added Supabase CDN and cloud status indicator
+- ✅ `shared/scripts/hub-init.js` - Async initialization with cloud sync
+
+### How to Enable
+1. Create free Supabase account
+2. Follow `SUPABASE_SETUP.md` guide
+3. Update `shared/supabase-config.js` with credentials
+4. Set `enabled: true`
+
+---
 
 ## January 23, 2026 - AI Asset Generation Tools Added ✅
 

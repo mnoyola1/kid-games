@@ -16,7 +16,11 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.1.2'; // Force guest avatar update to SVG
+  const VERSION = '1.2.0'; // Added cloud sync support
+  
+  // Cloud sync status
+  let _cloudSyncEnabled = false;
+  let _cloudInitialized = false;
   
   // ==================== CONSTANTS ====================
   
@@ -185,6 +189,31 @@ const LuminaCore = (function() {
   
   let _data = null;
   
+  /**
+   * Initialize cloud sync if available
+   */
+  function initCloudSync() {
+    if (_cloudInitialized) return _cloudSyncEnabled;
+    
+    _cloudInitialized = true;
+    
+    if (typeof LuminaCloud !== 'undefined' && typeof isSupabaseConfigured === 'function') {
+      if (isSupabaseConfigured()) {
+        _cloudSyncEnabled = LuminaCloud.init();
+        if (_cloudSyncEnabled) {
+          console.log('🌐 LuminaCore: Cloud sync enabled');
+        }
+      } else {
+        console.log('🌐 LuminaCore: Cloud sync available but not configured');
+      }
+    }
+    
+    return _cloudSyncEnabled;
+  }
+  
+  /**
+   * Load data from localStorage, then sync with cloud if available
+   */
   function load() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -212,13 +241,85 @@ const LuminaCore = (function() {
       console.error('LuminaCore: Failed to load data', e);
       _data = getDefaultData();
     }
+    
+    // Try to sync with cloud after local load (non-blocking)
+    initCloudSync();
+    if (_cloudSyncEnabled) {
+      syncFromCloud();
+    }
+    
     return _data;
+  }
+  
+  /**
+   * Load and sync from cloud (async version)
+   * Use this for initial page load to ensure cloud data is fetched
+   */
+  async function loadAsync() {
+    // First load from localStorage
+    load();
+    
+    // Then sync with cloud
+    initCloudSync();
+    if (_cloudSyncEnabled) {
+      await syncFromCloud();
+    }
+    
+    return _data;
+  }
+  
+  /**
+   * Sync data from cloud, merging with local
+   */
+  async function syncFromCloud() {
+    if (!_cloudSyncEnabled || typeof LuminaCloud === 'undefined') {
+      return false;
+    }
+    
+    try {
+      const mergedData = await LuminaCloud.fullSync(_data);
+      if (mergedData) {
+        _data = mergedData;
+        // Save merged data to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(_data));
+        notifySubscribers();
+        console.log('🌐 LuminaCore: Synced from cloud');
+        return true;
+      }
+    } catch (e) {
+      console.error('LuminaCore: Cloud sync failed', e);
+    }
+    return false;
+  }
+  
+  /**
+   * Force sync to cloud (useful after important changes)
+   */
+  async function syncToCloud() {
+    if (!_cloudSyncEnabled || typeof LuminaCloud === 'undefined') {
+      return false;
+    }
+    
+    try {
+      return await LuminaCloud.syncToCloud(_data);
+    } catch (e) {
+      console.error('LuminaCore: Cloud sync failed', e);
+      return false;
+    }
   }
   
   function save() {
     try {
       _data.lastUpdated = new Date().toISOString();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(_data));
+      
+      // Also sync to cloud if enabled (non-blocking)
+      if (_cloudSyncEnabled && typeof LuminaCloud !== 'undefined') {
+        LuminaCloud.syncToCloud(_data).catch(e => {
+          console.warn('LuminaCore: Background cloud sync failed', e);
+        });
+      }
+      
       return true;
     } catch (e) {
       console.error('LuminaCore: Failed to save data', e);
@@ -913,6 +1014,14 @@ const LuminaCore = (function() {
     // Profile PIN Management
     verifyProfilePIN,
     changeProfilePIN,
+    
+    // Cloud Sync
+    loadAsync,
+    syncFromCloud,
+    syncToCloud,
+    initCloudSync,
+    isCloudEnabled: () => _cloudSyncEnabled,
+    getCloudStatus: () => typeof LuminaCloud !== 'undefined' ? LuminaCloud.getStatus() : null,
     
     // Utility
     exportData,

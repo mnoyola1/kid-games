@@ -35,16 +35,46 @@ function createStars() {
   }
 }
 
+// ==================== CLOUD STATUS ====================
+function updateCloudStatus() {
+  const statusEl = document.getElementById('cloudStatus');
+  if (!statusEl) return;
+  
+  const cloudStatus = LuminaCore.getCloudStatus();
+  
+  if (!cloudStatus) {
+    // Cloud not configured
+    statusEl.textContent = '💾';
+    statusEl.title = 'Local storage only (cloud sync not configured)';
+    statusEl.style.opacity = '0.4';
+  } else if (cloudStatus.online) {
+    // Online and syncing
+    statusEl.textContent = '☁️';
+    statusEl.title = 'Cloud sync active' + (cloudStatus.lastSync ? ` (last sync: ${cloudStatus.lastSync.toLocaleTimeString()})` : '');
+    statusEl.style.opacity = '1';
+    statusEl.style.color = '#4ade80';
+  } else {
+    // Offline
+    statusEl.textContent = '📴';
+    statusEl.title = 'Offline - changes saved locally';
+    statusEl.style.opacity = '0.7';
+    statusEl.style.color = '#fbbf24';
+  }
+}
+
 // ==================== INITIALIZATION ====================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('🎮 Hub initializing...');
   
-  // Initialize Lumina Core
-  LuminaCore.load();
+  // Initialize Lumina Core (with cloud sync)
+  await LuminaCore.loadAsync();
   
   initTheme();
   createStars();
   renderGames();
+  
+  // Update cloud status indicator
+  updateCloudStatus();
   
   // Check if profile is selected
   const activeProfile = LuminaCore.getActiveProfileKey();
@@ -59,7 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // Subscribe to changes
-  LuminaCore.subscribe(updateUI);
+  LuminaCore.subscribe(() => {
+    updateUI();
+    updateCloudStatus();
+  });
+  
+  // Update cloud status periodically
+  setInterval(updateCloudStatus, 30000);
   
   // Setup PIN input auto-advance
   setupPinInputs();

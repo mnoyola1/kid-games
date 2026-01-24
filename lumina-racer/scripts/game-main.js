@@ -276,14 +276,16 @@ function LuminaRacer() {
     if (!playerProfile || typeof LuminaCore === 'undefined') return;
     
     const won = finalPlace === 1;
+    // Reduced XP for quicker game - was too generous
     const xpEarned = Math.floor(
-      (wordsCompleted * 10) + 
-      (won ? 100 : 0) + 
-      (finalPlace === 2 ? 50 : finalPlace === 3 ? 25 : 0) +
-      (maxCombo >= 5 ? 30 : 0)
+      (wordsCompleted * 3) +  // Reduced from 10 to 3 XP per word
+      (won ? 30 : 0) +  // Reduced from 100 to 30 for winning
+      (finalPlace === 2 ? 15 : finalPlace === 3 ? 8 : 0) +  // Reduced placement bonuses
+      (maxCombo >= 5 ? 10 : 0)  // Reduced combo bonus
     );
     const coinsEarned = Math.floor(wordsCompleted * 2 + (won ? 50 : 0));
-    const rewardPointsEarned = Math.floor(xpEarned / 10);
+    // Reduced reward points ratio from /10 to /20 for slower progression
+    const rewardPointsEarned = Math.floor(xpEarned / 20);
     
     LuminaCore.addXP(playerProfile.id, xpEarned, 'luminaRacer');
     LuminaCore.addCoins(playerProfile.id, coinsEarned, 'luminaRacer');
