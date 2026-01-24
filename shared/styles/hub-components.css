@@ -916,6 +916,226 @@ footer {
   cursor: not-allowed;
 }
 
+/* ==================== REWARD HISTORY ==================== */
+#rewardHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 500px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.reward-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.reward-history-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.reward-history-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.reward-history-icon {
+  font-size: 2rem;
+}
+
+.reward-history-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reward-history-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.reward-history-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.reward-history-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reward-history-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.reward-history-status.fulfilled {
+  background: rgba(52, 211, 153, 0.2);
+  color: #10b981;
+}
+
+.reward-history-status.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.reward-history-status.expired {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* ==================== SHOP ==================== */
+.shop-category-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.shop-category-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.shop-category-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #0a0a0f;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.shop-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.shop-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.shop-item.affordable {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.shop-item.owned {
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.1);
+  opacity: 0.7;
+}
+
+.shop-item-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.shop-item-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.shop-item-description {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  min-height: 2.5rem;
+}
+
+.shop-item-cost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: auto;
+}
+
+.shop-item-cost.affordable {
+  color: var(--accent-gold);
+}
+
+.shop-item-cost.unaffordable {
+  color: #6b7280;
+}
+
+.shop-purchase-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+}
+
+.shop-purchase-btn.can-buy {
+  background: var(--accent-gold);
+  color: #0a0a0f;
+}
+
+.shop-purchase-btn.can-buy:hover {
+  background: #f59e0b;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
+.shop-purchase-btn.cannot-buy {
+  background: #374151;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.shop-purchase-btn.owned {
+  background: #10b981;
+  color: white;
+  cursor: default;
+}
+
 /* ==================== PIN MODAL ==================== */
 .pin-input-container {
   display: flex;

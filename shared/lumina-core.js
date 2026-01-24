@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.2.1'; // Updated parent PIN
+  const VERSION = '1.3.0'; // Added shop system and reward history
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
@@ -49,6 +49,30 @@ const LuminaCore = (function() {
     { id: 'treat', name: 'Special Treat', points: 150, icon: '🍦', category: 'treat' },
     { id: 'skip_chore', name: 'Skip One Chore', points: 400, icon: '✨', category: 'privilege' },
     { id: 'friend_playdate', name: 'Friend Playdate', points: 500, icon: '👫', category: 'social' },
+  ];
+  
+  const SHOP_ITEMS = [
+    // Cosmetics - Themes
+    { id: 'theme_rainbow', name: 'Rainbow Theme', cost: 200, icon: '🌈', category: 'cosmetic', type: 'theme', description: 'Colorful rainbow theme for the hub' },
+    { id: 'theme_space', name: 'Space Theme', cost: 250, icon: '🚀', category: 'cosmetic', type: 'theme', description: 'Cosmic space theme with stars' },
+    { id: 'theme_ocean', name: 'Ocean Theme', cost: 250, icon: '🌊', category: 'cosmetic', type: 'theme', description: 'Calming ocean waves theme' },
+    { id: 'theme_forest', name: 'Forest Theme', cost: 250, icon: '🌲', category: 'cosmetic', type: 'theme', description: 'Nature forest theme' },
+    
+    // Cosmetics - Avatar Frames
+    { id: 'frame_gold', name: 'Gold Avatar Frame', cost: 150, icon: '⭐', category: 'cosmetic', type: 'avatar_frame', description: 'Shiny gold border around your avatar' },
+    { id: 'frame_rainbow', name: 'Rainbow Avatar Frame', cost: 200, icon: '💫', category: 'cosmetic', type: 'avatar_frame', description: 'Colorful rainbow border' },
+    { id: 'frame_glow', name: 'Glowing Avatar Frame', cost: 300, icon: '✨', category: 'cosmetic', type: 'avatar_frame', description: 'Animated glowing border effect' },
+    
+    // Power-ups - Single Use
+    { id: 'powerup_skip', name: 'Skip Question', cost: 50, icon: '⏭️', category: 'powerup', type: 'consumable', description: 'Skip one question in any game', stackable: true },
+    { id: 'powerup_hint', name: 'Hint', cost: 75, icon: '💡', category: 'powerup', type: 'consumable', description: 'Get a hint for one question', stackable: true },
+    { id: 'powerup_shield', name: 'Shield', cost: 100, icon: '🛡️', category: 'powerup', type: 'consumable', description: 'Block one wrong answer', stackable: true },
+    { id: 'powerup_double', name: 'Double Points', cost: 150, icon: '⚡', category: 'powerup', type: 'consumable', description: 'Double XP for one game', stackable: true },
+    
+    // Unlockables - Permanent
+    { id: 'unlock_hard_mode', name: 'Hard Mode', cost: 500, icon: '🔥', category: 'unlockable', type: 'permanent', description: 'Unlock hard difficulty in all games' },
+    { id: 'unlock_bonus_games', name: 'Bonus Games', cost: 750, icon: '🎯', category: 'unlockable', type: 'permanent', description: 'Access to special bonus game modes' },
+    { id: 'unlock_custom_avatar', name: 'Custom Avatar Upload', cost: 1000, icon: '🖼️', category: 'unlockable', type: 'permanent', description: 'Upload your own avatar image' },
   ];
   
   const ACHIEVEMENTS = [
@@ -152,6 +176,17 @@ const LuminaCore = (function() {
       totalPlayTimeMinutes: 0,
       achievements: [],
       gameStats,
+      inventory: {
+        powerups: {
+          skip: 0,
+          hint: 0,
+          shield: 0,
+          double: 0,
+        },
+        themes: [],
+        avatarFrames: [],
+        unlocked: [],
+      },
       createdAt: new Date().toISOString(),
     };
   }
@@ -360,6 +395,22 @@ const LuminaCore = (function() {
             oldProfile.gameStats[gameKey] = { ...GAMES[gameKey].defaultStats };
           }
         });
+        
+        // Ensure inventory exists
+        if (!oldProfile.inventory) {
+          console.log('✅ Adding inventory to profile:', key);
+          oldProfile.inventory = {
+            powerups: {
+              skip: 0,
+              hint: 0,
+              shield: 0,
+              double: 0,
+            },
+            themes: [],
+            avatarFrames: [],
+            unlocked: [],
+          };
+        }
       });
     }
     
@@ -507,6 +558,102 @@ const LuminaCore = (function() {
     return true;
   }
   
+  // ==================== SHOP ====================
+  
+  function getShopItems(category = null) {
+    if (category) {
+      return SHOP_ITEMS.filter(item => item.category === category);
+    }
+    return SHOP_ITEMS;
+  }
+  
+  function purchaseItem(playerId, itemId) {
+    const data = getData();
+    const player = data.profiles[playerId];
+    if (!player) return { success: false, error: 'Player not found' };
+    
+    const item = SHOP_ITEMS.find(i => i.id === itemId);
+    if (!item) return { success: false, error: 'Item not found' };
+    
+    if (player.currentCoins < item.cost) {
+      return { success: false, error: 'Not enough coins' };
+    }
+    
+    // Check if permanent item already owned
+    if (item.type === 'permanent' && player.inventory.unlocked.includes(itemId)) {
+      return { success: false, error: 'Already owned' };
+    }
+    
+    // Deduct coins
+    player.currentCoins -= item.cost;
+    
+    // Add to inventory
+    if (item.type === 'consumable' && item.stackable) {
+      // Power-ups
+      const powerupKey = itemId.replace('powerup_', '');
+      if (player.inventory.powerups[powerupKey] !== undefined) {
+        player.inventory.powerups[powerupKey] = (player.inventory.powerups[powerupKey] || 0) + 1;
+      }
+    } else if (item.type === 'theme') {
+      if (!player.inventory.themes.includes(itemId)) {
+        player.inventory.themes.push(itemId);
+      }
+    } else if (item.type === 'avatar_frame') {
+      if (!player.inventory.avatarFrames.includes(itemId)) {
+        player.inventory.avatarFrames.push(itemId);
+      }
+    } else if (item.type === 'permanent') {
+      if (!player.inventory.unlocked.includes(itemId)) {
+        player.inventory.unlocked.push(itemId);
+      }
+    }
+    
+    save();
+    return { success: true, item, remainingCoins: player.currentCoins };
+  }
+  
+  function hasItem(playerId, itemId) {
+    const player = getPlayer(playerId);
+    if (!player) return false;
+    
+    const item = SHOP_ITEMS.find(i => i.id === itemId);
+    if (!item) return false;
+    
+    if (item.type === 'consumable') {
+      const powerupKey = itemId.replace('powerup_', '');
+      return player.inventory.powerups[powerupKey] > 0;
+    } else if (item.type === 'theme') {
+      return player.inventory.themes.includes(itemId);
+    } else if (item.type === 'avatar_frame') {
+      return player.inventory.avatarFrames.includes(itemId);
+    } else if (item.type === 'permanent') {
+      return player.inventory.unlocked.includes(itemId);
+    }
+    
+    return false;
+  }
+  
+  function usePowerup(playerId, powerupType) {
+    const data = getData();
+    const player = data.profiles[playerId];
+    if (!player) return false;
+    
+    const powerupKey = powerupType.replace('powerup_', '');
+    if (player.inventory.powerups[powerupKey] > 0) {
+      player.inventory.powerups[powerupKey] -= 1;
+      save();
+      return true;
+    }
+    
+    return false;
+  }
+  
+  function getInventory(playerId) {
+    const player = getPlayer(playerId);
+    if (!player) return null;
+    return player.inventory;
+  }
+  
   // ==================== REWARD POINTS ====================
   
   function addRewardPoints(playerId, amount) {
@@ -565,6 +712,14 @@ const LuminaCore = (function() {
   
   function getPendingRewards() {
     return getData().pendingRewards;
+  }
+  
+  function getClaimedRewards(playerId = null) {
+    const data = getData();
+    if (playerId) {
+      return data.claimedRewards.filter(r => r.playerId === playerId);
+    }
+    return data.claimedRewards;
   }
   
   // ==================== STREAKS ====================
@@ -980,12 +1135,20 @@ const LuminaCore = (function() {
     addCoins,
     spendCoins,
     
+    // Shop
+    getShopItems,
+    purchaseItem,
+    hasItem,
+    usePowerup,
+    getInventory,
+    
     // Rewards
     addRewardPoints,
     claimReward,
     fulfillReward,
     getAvailableRewards,
     getPendingRewards,
+    getClaimedRewards,
     
     // Streaks
     updateStreak,
@@ -1038,6 +1201,7 @@ const LuminaCore = (function() {
     // Constants
     REWARDS,
     REWARDS_CATALOG: REWARDS, // Alias for hub compatibility
+    SHOP_ITEMS,
     ACHIEVEMENTS,
     GAMES,
     LEVEL_TITLES,

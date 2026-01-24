@@ -147,6 +147,178 @@ function closeRewardsModal() {
   document.getElementById('rewardsModal').classList.remove('active');
 }
 
+function showRewardHistoryModal() {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  
+  const modal = document.getElementById('rewardHistoryModal');
+  const list = document.getElementById('rewardHistoryList');
+  
+  const claimedRewards = LuminaCore.getClaimedRewards(profile.id);
+  const pendingRewards = LuminaCore.getPendingRewards().filter(r => r.playerId === profile.id);
+  
+  // Combine and sort by date (newest first)
+  const allRewards = [...claimedRewards, ...pendingRewards].sort((a, b) => {
+    const dateA = new Date(a.fulfilledAt || a.claimedAt);
+    const dateB = new Date(b.fulfilledAt || b.claimedAt);
+    return dateB - dateA;
+  });
+  
+  if (allRewards.length === 0) {
+    list.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p style="font-size: 3rem; margin-bottom: 1rem;">📭</p>
+        <p>No rewards claimed yet!</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Start earning reward points to claim your first reward.</p>
+      </div>
+    `;
+  } else {
+    list.innerHTML = allRewards.map(reward => {
+      const rewardDef = LuminaCore.REWARDS_CATALOG.find(r => r.id === reward.rewardId);
+      const icon = rewardDef ? rewardDef.icon : '🎁';
+      const claimedDate = new Date(reward.claimedAt);
+      const fulfilledDate = reward.fulfilledAt ? new Date(reward.fulfilledAt) : null;
+      
+      const formatDate = (date) => {
+        return date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+      };
+      
+      return `
+        <div class="reward-history-item">
+          <div class="reward-history-info">
+            <span class="reward-history-icon">${icon}</span>
+            <div class="reward-history-details">
+              <div class="reward-history-name">${reward.rewardName}</div>
+              <div class="reward-history-dates">
+                <div class="reward-history-date">
+                  <span>📅 Claimed:</span>
+                  <span>${formatDate(claimedDate)}</span>
+                </div>
+                ${fulfilledDate ? `
+                  <div class="reward-history-date">
+                    <span>✅ Fulfilled:</span>
+                    <span>${formatDate(fulfilledDate)}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="reward-history-status ${reward.status || 'pending'}">
+            ${reward.status === 'fulfilled' ? '✅ Fulfilled' : 
+              reward.status === 'expired' ? '⏰ Expired' : 
+              '⏳ Pending'}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  modal.classList.add('active');
+}
+
+function closeRewardHistoryModal() {
+  document.getElementById('rewardHistoryModal').classList.remove('active');
+}
+
+// ==================== SHOP ====================
+let currentShopCategory = 'all';
+
+function showShopModal() {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  
+  const modal = document.getElementById('shopModal');
+  const grid = document.getElementById('shopGrid');
+  
+  document.getElementById('shopCoinsDisplay').textContent = profile.currentCoins;
+  
+  filterShopItems('all');
+  
+  modal.classList.add('active');
+}
+
+function closeShopModal() {
+  document.getElementById('shopModal').classList.remove('active');
+}
+
+function filterShopItems(category) {
+  currentShopCategory = category;
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  
+  const grid = document.getElementById('shopGrid');
+  const items = category === 'all' 
+    ? LuminaCore.SHOP_ITEMS 
+    : LuminaCore.SHOP_ITEMS.filter(item => item.category === category);
+  
+  grid.innerHTML = items.map(item => {
+    const canAfford = profile.currentCoins >= item.cost;
+    const isOwned = LuminaCore.hasItem(profile.id, item.id);
+    const inventory = LuminaCore.getInventory(profile.id);
+    
+    // For consumables, show current count
+    let ownedText = '';
+    if (item.type === 'consumable' && inventory) {
+      const powerupKey = item.id.replace('powerup_', '');
+      const count = inventory.powerups[powerupKey] || 0;
+      if (count > 0) {
+        ownedText = ` (${count})`;
+      }
+    }
+    
+    return `
+      <div class="shop-item ${canAfford && !isOwned ? 'affordable' : ''} ${isOwned ? 'owned' : ''}">
+        <div class="shop-item-icon">${item.icon}</div>
+        <div class="shop-item-name">${item.name}${ownedText}</div>
+        <div class="shop-item-description">${item.description}</div>
+        <div class="shop-item-cost ${canAfford ? 'affordable' : 'unaffordable'}">
+          💰 ${item.cost}
+        </div>
+        <button 
+          class="shop-purchase-btn ${isOwned ? 'owned' : canAfford ? 'can-buy' : 'cannot-buy'}" 
+          onclick="${isOwned ? '' : canAfford ? `purchaseShopItem('${item.id}')` : ''}"
+          ${isOwned || !canAfford ? 'disabled' : ''}>
+          ${isOwned ? '✓ Owned' : canAfford ? 'Buy' : `Need ${item.cost - profile.currentCoins} more`}
+        </button>
+      </div>
+    `;
+  }).join('');
+  
+  // Update active category button
+  document.querySelectorAll('.shop-category-btn').forEach(btn => {
+    const btnText = btn.textContent.trim().toLowerCase();
+    const categoryText = category === 'all' ? 'all' : category.toLowerCase();
+    if (btnText === categoryText || (category === 'all' && btnText === 'all')) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function purchaseShopItem(itemId) {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  
+  const result = LuminaCore.purchaseItem(profile.id, itemId);
+  
+  if (result.success) {
+    showToast(`🎉 Purchased: ${result.item.name}!`, 'success');
+    updateUI();
+    // Refresh shop display
+    filterShopItems(currentShopCategory);
+    document.getElementById('shopCoinsDisplay').textContent = profile.currentCoins;
+  } else {
+    showToast(`❌ ${result.error}`, 'error');
+  }
+}
+
 function claimReward(rewardId) {
   pendingRewardId = rewardId;
   closeRewardsModal();
