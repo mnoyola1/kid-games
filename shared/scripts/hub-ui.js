@@ -212,3 +212,96 @@ function claimDailyChallenge(challengeId) {
     }
   }
 }
+
+function renderUsageMetrics() {
+  const profile = LuminaCore.getActiveProfile();
+  const panel = document.getElementById('usageMetricsPanel');
+  const content = document.getElementById('usageMetricsContent');
+  
+  if (!panel || !content) return;
+  
+  // Only show for parent profiles
+  if (!profile || !profile.isParent) {
+    panel.style.display = 'none';
+    return;
+  }
+  
+  panel.style.display = 'block';
+  
+  const metrics = LuminaCore.getUsageMetrics(profile.id);
+  if (!metrics) {
+    content.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No metrics yet</p>';
+    return;
+  }
+  
+  // Get all kids' metrics
+  const allPlayers = LuminaCore.getAllPlayers();
+  const kidsMetrics = {};
+  Object.keys(allPlayers).forEach(playerId => {
+    const player = allPlayers[playerId];
+    if (player && !player.isParent && player.gameStats) {
+      kidsMetrics[playerId] = {
+        name: player.name,
+        totalGames: Object.keys(player.gameStats).reduce((sum, gameId) => sum + (player.gameStats[gameId].gamesPlayed || 0), 0),
+        totalPlayTime: player.totalPlayTimeMinutes || 0,
+        lastPlayed: player.lastPlayed,
+        games: player.gameStats
+      };
+    }
+  });
+  
+  const today = new Date().toDateString();
+  const todayActivity = metrics.dailyActivity[today] || { sessions: 0, playTime: 0, games: {} };
+  
+  // Get GAMES array from global scope
+  const GAMES = typeof window !== 'undefined' && window.GAMES ? window.GAMES : [];
+  
+  content.innerHTML = `
+    <div style="margin-bottom: 1rem;">
+      <h4 style="color: var(--text-accent); margin-bottom: 0.5rem;">Today's Activity</h4>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+        <div style="background: rgba(139, 92, 246, 0.1); padding: 0.75rem; border-radius: var(--radius-md);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">${todayActivity.sessions}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">Sessions</div>
+        </div>
+        <div style="background: rgba(139, 92, 246, 0.1); padding: 0.75rem; border-radius: var(--radius-md);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">${todayActivity.playTime}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">Minutes</div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <h4 style="color: var(--text-accent); margin-bottom: 0.5rem;">Kids' Activity</h4>
+      ${Object.keys(kidsMetrics).length > 0 ? Object.entries(kidsMetrics).map(([playerId, kid]) => `
+        <div style="background: rgba(139, 92, 246, 0.1); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+          <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">${kid.name}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            ${kid.totalGames} games played • ${kid.totalPlayTime} minutes total
+          </div>
+          ${kid.lastPlayed ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Last played: ${new Date(kid.lastPlayed).toLocaleDateString()}</div>` : ''}
+        </div>
+      `).join('') : '<p style="color: var(--text-secondary); text-align: center; font-size: 0.85rem;">No activity yet</p>'}
+    </div>
+    
+    <div>
+      <h4 style="color: var(--text-accent); margin-bottom: 0.5rem;">Most Played Games</h4>
+      ${Object.keys(metrics.gamesPlayed).length > 0 ? Object.entries(metrics.gamesPlayed)
+        .sort((a, b) => b[1].sessions - a[1].sessions)
+        .slice(0, 5)
+        .map(([gameId, stats]) => {
+          const game = GAMES.find(g => g.id === gameId);
+          return `
+            <div style="background: rgba(139, 92, 246, 0.1); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+              <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                ${game ? game.icon + ' ' + game.name : gameId}
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                ${stats.sessions} sessions • ${stats.totalPlayTime} minutes
+              </div>
+            </div>
+          `;
+        }).join('') : '<p style="color: var(--text-secondary); text-align: center; font-size: 0.85rem;">No games played yet</p>'}
+    </div>
+  `;
+}
