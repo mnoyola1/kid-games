@@ -450,8 +450,10 @@ header {
   text-align: center;
 }
 
+.leaderboard-rank { color: var(--text-primary); font-weight: 700; }
 .leaderboard-rank.first { color: var(--accent-gold); }
-.leaderboard-rank.second { color: var(--text-muted); }
+.leaderboard-rank.second { color: #c0c0c0; }
+.leaderboard-rank.third { color: #CD7F32; }
 
 [data-theme="gaming"] .leaderboard-rank.first { 
   color: var(--accent-primary);
@@ -518,10 +520,6 @@ header {
   background: rgba(139, 92, 246, 0.5);
   border-color: rgba(139, 92, 246, 0.8);
   font-weight: 600;
-}
-
-.leaderboard-rank.third {
-  color: #CD7F32;
 }
 
 /* ==================== FAMILY QUEST ==================== */
@@ -660,6 +658,80 @@ header {
   color: #4CAF50;
   margin-top: 0.5rem;
   font-weight: 600;
+}
+
+/* Daily Challenge Items - Hub UI rendered classes */
+.daily-challenge-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.daily-challenge-item.completed {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.daily-challenge-item .challenge-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.daily-challenge-item .challenge-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.daily-challenge-item .challenge-progress {
+  color: var(--accent-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.daily-challenge-item .challenge-rewards {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.daily-challenge-item .challenge-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.daily-challenge-item .challenge-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 0.3s ease;
+}
+
+.daily-challenge-item.completed .challenge-progress-fill {
+  background: linear-gradient(90deg, #4CAF50, #66BB6A);
+}
+
+.daily-challenge-item .claim-challenge-btn {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.daily-challenge-item .claim-challenge-btn:hover {
+  background: var(--accent-secondary);
+  transform: scale(1.05);
 }
 
 /* ==================== REWARDS PREVIEW ==================== */

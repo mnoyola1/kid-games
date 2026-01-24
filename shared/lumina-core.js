@@ -1107,12 +1107,13 @@ const LuminaCore = (function() {
       avatar: profile.avatar,
       role: profile.role,
       level: profile.level,
-      title: profile.title,
-      totalXP: profile.totalXP,
-      lifetimeCoins: profile.lifetimeCoins,
-      rewardPoints: profile.rewardPoints,
-      achievementCount: profile.achievements.length,
-      streakDays: profile.streakDays,
+      title: profile.title || 'Apprentice',
+      totalXP: profile.totalXP || 0,
+      currentCoins: profile.currentCoins || 0,
+      lifetimeCoins: profile.lifetimeCoins || 0,
+      rewardPoints: profile.rewardPoints || 0,
+      achievementCount: (profile.achievements && profile.achievements.length) || 0,
+      streakDays: profile.streakDays || 0,
     }));
     
     return players.sort((a, b) => b[category] - a[category]);
