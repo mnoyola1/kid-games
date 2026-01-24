@@ -45,49 +45,34 @@ python tools/generate_voice.py --text "TEXT" --voice VOICE_PRESET --output asset
 - **Voice Presets:** `cheerful_female`, `calm_male`, `excited_child`
 - Great for: Feedback ("Great job!"), narration, character dialogue
 
-### Music (MANUAL - Generate Prompt File)
-Music is created manually. When a game needs music, generate a prompt file:
-
-**Create:** `assets/audio/GAME_ID/music/PROMPTS.md`
-
-```markdown
-# Music Prompts for [Game Name]
-
-Generate these tracks using Lyria 2 or Suno Pro:
-- Lyria 2: https://aitestkitchen.withgoogle.com/tools/music-fx (FREE)
-- Suno Pro: https://suno.com ($8/month)
-
-## Track 1: Menu Theme
-**Filename:** menu.wav
-**Prompt:** "educational game menu music, welcoming, magical, loopable, instrumental, 60 seconds"
-**Usage:** Main menu background
-
-## Track 2: Gameplay
-**Filename:** gameplay.wav  
-**Prompt:** "[genre] gameplay music, focused but fun, not distracting, loopable, instrumental"
-**Usage:** During active gameplay
-
-## Track 3: Victory
-**Filename:** victory.wav
-**Prompt:** "victory fanfare, achievement unlocked, triumphant, celebratory, 10 seconds"
-**Usage:** Level complete / win screen
-
-## Track 4: Game Over
-**Filename:** gameover.wav
-**Prompt:** "game over music, encouraging to try again, hopeful not sad, short, 8 seconds"
-**Usage:** Loss screen
+### Music (ElevenLabs API - Automated)
+```bash
+python tools/generate_music.py --prompt "DESCRIPTION" --duration SECONDS --output assets/audio/GAME_ID/music/FILE.mp3
 ```
+- Duration: 0.5-22 seconds (ElevenLabs limit, default: 20s)
+- **Always include "instrumental" in prompts** for game music (no vocals)
+- For longer loops: Generate multiple segments and concatenate, or loop in-game
+- Great for: Menu themes, gameplay BGM, victory fanfares, boss battles
 
-After generating, save files to: `assets/audio/GAME_ID/music/`
+**Example prompts:**
+- `"educational game menu music, welcoming, magical, loopable, instrumental"`
+- `"adventure gameplay music, focused but fun, not distracting, instrumental"`
+- `"victory fanfare, achievement unlocked, triumphant, instrumental"`
+- `"boss battle music, intense but kid-friendly, orchestral, instrumental"`
+
+**Note:** ElevenLabs has a 22-second limit per generation. For seamless loops, you may need to:
+1. Generate multiple 20-22 second segments
+2. Use audio editing software to create seamless loops
+3. Or loop the track in-game (works well for background music)
 
 ### Asset Output Paths
 ```
 assets/
 ├── audio/
 │   └── [game-id]/
-│       ├── music/     # .wav/.mp3 files (manually created)
-│       ├── sfx/       # .mp3 files (ElevenLabs)
-│       └── voice/     # .mp3 files (Cartesia)
+│       ├── music/     # .mp3 files (ElevenLabs API)
+│       ├── sfx/       # .mp3 files (ElevenLabs API)
+│       └── voice/     # .mp3 files (Cartesia API)
 ├── sprites/           # Character sprites, items, enemies (Gemini)
 ├── backgrounds/       # Level backgrounds, menus (Gemini)
 └── [game-id]/         # Game-specific images if needed

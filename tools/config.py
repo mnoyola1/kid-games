@@ -44,10 +44,11 @@ IMAGE_DEFAULTS = {
     "pixel_art_size": "256x256",
 }
 
-# Music generation defaults
+# Music generation defaults (ElevenLabs)
 MUSIC_DEFAULTS = {
-    "duration_seconds": 90,      # Good length for game BGM
-    "instrumental": True,        # No vocals for game music
+    "duration_seconds": 20,      # Max 22 seconds (ElevenLabs limit), good for loops
+    "output_format": "mp3_44100_128",  # Standard MP3 format
+    "instrumental": True,        # No vocals for game music (hint for prompts)
 }
 
 # Sound effects defaults (ElevenLabs)
