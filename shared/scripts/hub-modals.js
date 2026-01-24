@@ -335,19 +335,6 @@ function purchaseShopItem(itemId) {
     showToast(result.error || 'Purchase failed', 'error');
   }
 }
-  
-  const result = LuminaCore.purchaseItem(profile.id, itemId);
-  
-  if (result.success) {
-    showToast(`🎉 Purchased: ${result.item.name}!`, 'success');
-    updateUI();
-    // Refresh shop display
-    filterShopItems(currentShopCategory);
-    document.getElementById('shopCoinsDisplay').textContent = profile.currentCoins;
-  } else {
-    showToast(`❌ ${result.error}`, 'error');
-  }
-}
 
 function claimReward(rewardId) {
   pendingRewardId = rewardId;
