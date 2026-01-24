@@ -389,10 +389,33 @@ function LuminaRacer() {
             }}
             className="px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 
                      text-white font-title text-2xl rounded-xl shadow-lg hover:scale-105
-                     border-2 border-purple-400/50 transition-all animate-pulse-glow"
+                     border-2 border-purple-400/50 transition-all animate-pulse-glow mb-4"
           >
             🏁 START RACING
           </button>
+          
+          {/* Audio Controls */}
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => {
+                const enabled = audioManager.toggleMusic();
+                if (enabled) {
+                  audioManager.playMusic('menu');
+                }
+              }}
+              className="px-4 py-2 bg-slate-800/80 text-white rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
+              title="Toggle Music"
+            >
+              {audioManager.musicEnabled ? '🔊' : '🔇'} Music
+            </button>
+            <button
+              onClick={() => audioManager.toggleSFX()}
+              className="px-4 py-2 bg-slate-800/80 text-white rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
+              title="Toggle Sound Effects"
+            >
+              {audioManager.sfxEnabled ? '🔊' : '🔇'} SFX
+            </button>
+          </div>
           
           <div className="mt-8 text-purple-400/60 font-game text-sm">
             Made with ❤️ for Emma & Liam
