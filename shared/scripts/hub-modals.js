@@ -424,3 +424,8 @@ function showToast(message, type = 'success') {
     toast.classList.remove('show');
   }, 3000);
 }
+
+// Make functions globally available for inline event handlers
+window.showProfileSelect = showProfileSelect;
+window.setupPinInputs = setupPinInputs;
+window.setupProfilePinInputs = setupProfilePinInputs;
