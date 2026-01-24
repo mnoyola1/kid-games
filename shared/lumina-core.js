@@ -268,6 +268,28 @@ const LuminaCore = (function() {
             save();
           }
         }
+        
+        // HOTFIX: Ensure all profiles have inventory (runs on every load)
+        if (_data.profiles) {
+          Object.keys(_data.profiles).forEach(key => {
+            const profile = _data.profiles[key];
+            if (!profile.inventory) {
+              console.log('🔧 HOTFIX: Adding inventory to profile:', key);
+              profile.inventory = {
+                powerups: {
+                  skip: 0,
+                  hint: 0,
+                  shield: 0,
+                  double: 0,
+                },
+                themes: [],
+                avatarFrames: [],
+                unlocked: [],
+              };
+              save();
+            }
+          });
+        }
       } else {
         _data = getDefaultData();
         save();
@@ -616,12 +638,28 @@ const LuminaCore = (function() {
     const player = getPlayer(playerId);
     if (!player) return false;
     
+    // Ensure inventory exists (defensive check)
+    if (!player.inventory) {
+      player.inventory = {
+        powerups: {
+          skip: 0,
+          hint: 0,
+          shield: 0,
+          double: 0,
+        },
+        themes: [],
+        avatarFrames: [],
+        unlocked: [],
+      };
+      save();
+    }
+    
     const item = SHOP_ITEMS.find(i => i.id === itemId);
     if (!item) return false;
     
     if (item.type === 'consumable') {
       const powerupKey = itemId.replace('powerup_', '');
-      return player.inventory.powerups[powerupKey] > 0;
+      return (player.inventory.powerups[powerupKey] || 0) > 0;
     } else if (item.type === 'theme') {
       return player.inventory.themes.includes(itemId);
     } else if (item.type === 'avatar_frame') {
@@ -651,6 +689,23 @@ const LuminaCore = (function() {
   function getInventory(playerId) {
     const player = getPlayer(playerId);
     if (!player) return null;
+    
+    // Ensure inventory exists (defensive check)
+    if (!player.inventory) {
+      player.inventory = {
+        powerups: {
+          skip: 0,
+          hint: 0,
+          shield: 0,
+          double: 0,
+        },
+        themes: [],
+        avatarFrames: [],
+        unlocked: [],
+      };
+      save();
+    }
+    
     return player.inventory;
   }
   
