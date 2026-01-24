@@ -48,8 +48,42 @@
   <div class="container">
     <!-- Header -->
     <header>
-      <h1 class="logo">✨ Noyola Hub ✨</h1>
-      <p class="tagline">Game On, Level Up, Earn Rewards!</p>
+      <div class="switch-console">
+        <!-- Left Joy-Con -->
+        <div class="joycon joycon-left">
+          <div class="joycon-joystick"></div>
+          <div class="joycon-buttons-dpad">
+            <div class="dpad-btn dpad-up"></div>
+            <div class="dpad-btn dpad-right"></div>
+            <div class="dpad-btn dpad-down"></div>
+            <div class="dpad-btn dpad-left"></div>
+            <div class="dpad-center"></div>
+          </div>
+          <div class="joycon-minus">−</div>
+          <div class="joycon-capture"></div>
+        </div>
+        
+        <!-- Screen (Video) -->
+        <div class="switch-screen">
+          <video class="logo-video" autoplay loop muted playsinline>
+            <source src="./assets/noyola_hub_animated.mp4" type="video/mp4">
+            <h1 class="logo">Noyola Hub</h1>
+          </video>
+        </div>
+        
+        <!-- Right Joy-Con -->
+        <div class="joycon joycon-right">
+          <div class="joycon-buttons-abxy">
+            <div class="abxy-btn btn-x">X</div>
+            <div class="abxy-btn btn-a">A</div>
+            <div class="abxy-btn btn-b">B</div>
+            <div class="abxy-btn btn-y">Y</div>
+          </div>
+          <div class="joycon-joystick"></div>
+          <div class="joycon-plus">+</div>
+          <div class="joycon-home"></div>
+        </div>
+      </div>
     </header>
     
     <!-- Active Player Banner -->
