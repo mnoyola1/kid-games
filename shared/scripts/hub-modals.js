@@ -334,8 +334,6 @@ function purchaseShopItem(itemId) {
     showToast(result.error || 'Purchase failed', 'error');
   }
 }
-  const profile = LuminaCore.getActiveProfile();
-  if (!profile) return;
   
   const result = LuminaCore.purchaseItem(profile.id, itemId);
   
