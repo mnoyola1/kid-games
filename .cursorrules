@@ -1,11 +1,21 @@
 # Noyola Hub - Development Rules for Cursor
 
-This is an educational game ecosystem for Emma (10, 5th grade) and Liam (8, 3rd grade). Games are deployed to Vercel as static sites with localStorage persistence.
+This is an educational game ecosystem for Emma (10, 5th grade) and Liam (8, 3rd grade). Games are deployed to Vercel as static sites with localStorage + Supabase cloud sync.
+
+## Development Environment (Windows)
+
+**IMPORTANT:** To use git in shell commands, first add it to PATH:
+```powershell
+$env:Path += ";C:\Program Files\Git\cmd"
+```
+
+Then git commands will work normally: `git status`, `git add .`, `git commit -m "message"`, `git push origin main`
 
 ## Project Context
 
 - **Live URL:** https://kid-games-one.vercel.app/
 - **Core Module:** `shared/lumina-core.js` - Handles profiles, XP, coins, achievements, streaks
+- **Cloud Sync:** `shared/lumina-cloud.js` + `shared/supabase-config.js` - Supabase integration
 - **Target Devices:** iPad Safari (primary), desktop browsers
 - **Design Philosophy:** Learning disguised as gameplay, real rewards for real effort
 
