@@ -107,6 +107,13 @@ const LuminaCore = (function() {
     { id: 'lr_first_race', name: 'Speed Demon', desc: 'Complete your first race', icon: '🏎️', xpBonus: 15 },
     { id: 'lr_win_5', name: 'Racing Champion', desc: 'Win 5 races', icon: '🏆', xpBonus: 40 },
     
+    // Math Quest
+    { id: 'mq_first_win', name: 'First Victory', desc: 'Defeat your first enemy', icon: '⚔️', xpBonus: 15 },
+    { id: 'mq_veteran', name: 'Veteran Warrior', desc: 'Defeat 10 enemies', icon: '🛡️', xpBonus: 40 },
+    { id: 'mq_combo_master', name: 'Combo Master', desc: 'Achieve a 10-hit combo', icon: '🔥', xpBonus: 30 },
+    { id: 'mq_level_5', name: 'Math Champion', desc: 'Reach level 5', icon: '⭐', xpBonus: 50 },
+    { id: 'mq_boss_defeated', name: 'Boss Slayer', desc: 'Defeat the Math King', icon: '👑', xpBonus: 100 },
+    
     // Shadows in the Halls
     { id: 'shadows_first_escape', name: 'First Escape', desc: 'Escape the school for the first time', icon: '🚪', xpBonus: 50 },
     { id: 'shadows_puzzle_master', name: 'Puzzle Master', desc: 'Solve 50 puzzles in Shadows', icon: '🧩', xpBonus: 100 },
@@ -142,6 +149,12 @@ const LuminaCore = (function() {
       name: 'Lumina Racer', 
       icon: '🏎️',
       defaultStats: { bestTime: null, gamesPlayed: 0, racesWon: 0, wordsTyped: 0 }
+    },
+    mathQuest: {
+      id: 'mathQuest',
+      name: 'Math Quest',
+      icon: '⚔️',
+      defaultStats: { enemiesDefeated: 0, gamesPlayed: 0, correctAnswers: 0, totalAnswers: 0, maxCombo: 0, playerLevel: 1 }
     },
     shadowsInTheHalls: {
       id: 'shadowsInTheHalls',
@@ -944,6 +957,13 @@ const LuminaCore = (function() {
       case 'luminaRacer':
         if (stats.gamesPlayed >= 1) checkAchievement(playerId, 'lr_first_race');
         if (stats.racesWon >= 5) checkAchievement(playerId, 'lr_win_5');
+        break;
+        
+      case 'mathQuest':
+        if (stats.enemiesDefeated >= 1) checkAchievement(playerId, 'mq_first_win');
+        if (stats.enemiesDefeated >= 10) checkAchievement(playerId, 'mq_veteran');
+        if (stats.maxCombo >= 10) checkAchievement(playerId, 'mq_combo_master');
+        if (stats.playerLevel >= 5) checkAchievement(playerId, 'mq_level_5');
         break;
     }
   }

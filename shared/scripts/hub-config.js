@@ -51,6 +51,16 @@ const GAMES = [
     active: true
   },
   {
+    id: 'math-quest',
+    name: 'Math Quest',
+    subtitle: 'Adventure RPG',
+    icon: '⚔️',
+    url: './math-quest/index.html',
+    description: 'Embark on an epic adventure through the Numbers Realm! Defeat monsters with math and save the kingdom!',
+    features: ['⚔️ RPG Combat', '🧮 Math Problems', '🎯 Combos', '🏆 Progression'],
+    active: true
+  },
+  {
     id: 'world-of-lumina',
     name: 'World of Lumina',
     subtitle: 'Fantasy Adventure',
