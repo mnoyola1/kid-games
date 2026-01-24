@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.2.0'; // Added cloud sync support
+  const VERSION = '1.2.1'; // Updated parent PIN
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
@@ -179,7 +179,7 @@ const LuminaCore = (function() {
       settings: {
         showLeaderboard: true,
         soundEnabled: true,
-        parentPIN: '1234',
+        parentPIN: '0320',
       },
       lastUpdated: new Date().toISOString(),
     };
@@ -367,6 +367,12 @@ const LuminaCore = (function() {
     if (!oldData.profiles.guest) {
       console.log('✅ Adding guest profile');
       oldData.profiles.guest = { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') };
+    }
+    
+    // Update parent PIN to new value (v1.2.1)
+    if (oldData.settings && oldData.settings.parentPIN === '1234') {
+      console.log('✅ Updating parent PIN to new value');
+      oldData.settings.parentPIN = '0320';
     }
     
     // Update version and preserve all data
