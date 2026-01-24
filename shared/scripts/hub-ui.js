@@ -36,6 +36,9 @@ function updateUI() {
   
   // Update daily challenges
   renderDailyChallenges();
+  
+  // Update usage metrics (if parent profile)
+  renderUsageMetrics();
 }
 
 let currentLeaderboardFilter = 'all';

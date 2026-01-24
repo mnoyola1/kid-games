@@ -304,6 +304,37 @@ function filterShopItems(category) {
 
 function purchaseShopItem(itemId) {
   const profile = LuminaCore.getActiveProfile();
+  if (!profile) {
+    showToast('Please select a profile first', 'error');
+    return;
+  }
+  
+  const result = LuminaCore.purchaseItem(profile.id, itemId);
+  
+  if (result.success) {
+    showToast(`Purchased ${result.item.name}!`, 'success');
+    updateUI();
+    renderShop();
+    
+    // If it's a theme, apply it immediately
+    if (result.item.type === 'theme') {
+      const themeMap = {
+        'theme_rainbow': 'rainbow',
+        'theme_space': 'space',
+        'theme_ocean': 'ocean',
+        'theme_forest': 'forest'
+      };
+      const theme = themeMap[itemId];
+      if (theme && typeof setTheme === 'function') {
+        setTheme(theme);
+        showToast(`Theme applied!`, 'success');
+      }
+    }
+  } else {
+    showToast(result.error || 'Purchase failed', 'error');
+  }
+}
+  const profile = LuminaCore.getActiveProfile();
   if (!profile) return;
   
   const result = LuminaCore.purchaseItem(profile.id, itemId);

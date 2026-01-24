@@ -20,11 +20,21 @@ function renderGames() {
   console.log('✅ Rendering', GAMES.length, 'games');
   
   container.innerHTML = GAMES.map(game => {
-    const gameStats = profile?.games?.[game.id] || { highScore: 0, sessionsPlayed: 0 };
+    const gameStats = profile?.gameStats?.[game.id] || { highScore: 0, gamesPlayed: 0 };
+    
+    // Get game tags
+    const tags = game.tags || [];
+    const tagLabels = {
+      'popular': '🔥 Popular',
+      'new': '✨ New',
+      'trending': '📈 Trending',
+      'favorite': '⭐ Favorite'
+    };
     
     return `
       <a href="${game.active ? game.url : '#'}" class="game-card ${game.active ? '' : 'coming-soon'}">
         ${!game.active ? '<span class="coming-soon-badge">Coming Soon</span>' : ''}
+        ${tags.length > 0 ? `<div class="game-tags">${tags.map(tag => `<span class="game-tag ${tag}">${tagLabels[tag] || tag}</span>`).join('')}</div>` : ''}
         <div class="game-icon">${game.icon}</div>
         <h3 class="game-title">${game.name}</h3>
         <p class="game-subtitle">${game.subtitle}</p>
@@ -32,14 +42,14 @@ function renderGames() {
         <div class="game-features">
           ${game.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
         </div>
-        ${profile && gameStats.sessionsPlayed > 0 ? `
+        ${profile && gameStats.gamesPlayed > 0 ? `
           <div class="game-stats">
             <div class="game-stat">
-              <div class="game-stat-value">${gameStats.sessionsPlayed}</div>
+              <div class="game-stat-value">${gameStats.gamesPlayed}</div>
               <div class="game-stat-label">Plays</div>
             </div>
             <div class="game-stat">
-              <div class="game-stat-value">${gameStats.highScore}</div>
+              <div class="game-stat-value">${gameStats.highScore || 0}</div>
               <div class="game-stat-label">Best</div>
             </div>
           </div>

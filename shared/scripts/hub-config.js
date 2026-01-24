@@ -8,7 +8,8 @@ const GAMES = [
     url: './spell-siege/index.html',
     description: 'Defend your castle from invading monsters by typing words correctly! Cast magical spells, earn coins, and upgrade your defenses.',
     features: ['📝 Custom Words', '🔊 Text-to-Speech', '⬆️ Upgrades', '🎵 Epic Music'],
-    active: true
+    active: true,
+    tags: ['popular']
   },
   {
     id: 'canada-adventure',
@@ -68,7 +69,8 @@ const GAMES = [
     url: './rhythm-academy/index.html',
     description: 'Hit notes to the beat while learning! Master rhythm and education in one epic game!',
     features: ['🎵 Rhythm Gameplay', '📚 Educational Questions', '🔥 Combos', '⭐ Star Ratings'],
-    active: true
+    active: true,
+    tags: ['new']
   },
   {
     id: 'pixel-quest',
@@ -78,7 +80,8 @@ const GAMES = [
     url: './pixel-quest/index.html',
     description: 'Jump and run through educational worlds! Solve challenges and collect stars!',
     features: ['🦘 Platforming', '🧩 Checkpoint Challenges', '⭐ Star Collection', '🌍 Multiple Worlds'],
-    active: true
+    active: true,
+    tags: ['new']
   },
   {
     id: 'world-of-lumina',

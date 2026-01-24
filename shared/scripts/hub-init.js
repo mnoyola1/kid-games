@@ -94,6 +94,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCloudStatus();
   });
   
+  // Apply purchased theme on load
+  if (typeof applyPurchasedTheme === 'function') {
+    applyPurchasedTheme();
+  }
+  
   // Update cloud status periodically
   setInterval(updateCloudStatus, 30000);
   

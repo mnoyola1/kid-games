@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.3.0'; // Added shop system and reward history
+  const VERSION = '1.4.0'; // Added functional shop themes, game tags, usage metrics, parent profiles
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
@@ -192,7 +192,7 @@ const LuminaCore = (function() {
   
   // ==================== DEFAULT DATA ====================
   
-  function createDefaultProfile(name, role, avatar) {
+  function createDefaultProfile(name, role, avatar, isParent = false) {
     const gameStats = {};
     Object.keys(GAMES).forEach(key => {
       gameStats[key] = { ...GAMES[key].defaultStats };
@@ -226,6 +226,15 @@ const LuminaCore = (function() {
         avatarFrames: [],
         unlocked: [],
       },
+      isParent: isParent || false,
+      usageMetrics: isParent ? {
+        totalSessions: 0,
+        totalPlayTime: 0,
+        gamesPlayed: {},
+        dailyActivity: {},
+        weeklyActivity: {},
+        lastViewed: null
+      } : null,
       createdAt: new Date().toISOString(),
     };
   }
@@ -238,6 +247,8 @@ const LuminaCore = (function() {
         emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
         liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
         guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') },
+        mario: { id: 'mario', pin: '0320', role: 'Parent', ...createDefaultProfile('Mario', 'The Warrior-Inventor', './assets/Mario_Step.png', true) },
+        adriana: { id: 'adriana', pin: '7979', role: 'Parent', ...createDefaultProfile('Adriana', 'The Earth-Mage', './assets/Adriana_Terra.png', true) },
       },
       familyQuest: {
         active: false,
@@ -875,6 +886,9 @@ const LuminaCore = (function() {
     // First game achievement
     checkAchievement(playerId, 'first_game');
     
+    // Update usage metrics for parent profiles
+    updateUsageMetrics(playerId, gameId, 'start');
+    
     // Secret achievements
     const hour = new Date().getHours();
     if (hour >= 20) checkAchievement(playerId, 'secret_night');
@@ -1331,6 +1345,112 @@ const LuminaCore = (function() {
     }
   }
   
+  // ==================== USAGE METRICS ====================
+  
+  function updateUsageMetrics(playerId, gameId, event, playTimeSeconds = 0) {
+    const data = getData();
+    const player = data.profiles[playerId];
+    if (!player || !player.isParent) return; // Only track for parent profiles
+    
+    if (!player.usageMetrics) {
+      player.usageMetrics = {
+        totalSessions: 0,
+        totalPlayTime: 0,
+        gamesPlayed: {},
+        dailyActivity: {},
+        weeklyActivity: {},
+        lastViewed: null
+      };
+    }
+    
+    const today = new Date().toDateString();
+    const weekKey = getWeekKey(new Date());
+    
+    if (event === 'start') {
+      player.usageMetrics.totalSessions++;
+      player.usageMetrics.lastViewed = new Date().toISOString();
+      
+      // Track daily activity
+      if (!player.usageMetrics.dailyActivity[today]) {
+        player.usageMetrics.dailyActivity[today] = { sessions: 0, playTime: 0, games: {} };
+      }
+      player.usageMetrics.dailyActivity[today].sessions++;
+      
+      // Track weekly activity
+      if (!player.usageMetrics.weeklyActivity[weekKey]) {
+        player.usageMetrics.weeklyActivity[weekKey] = { sessions: 0, playTime: 0, games: {} };
+      }
+      player.usageMetrics.weeklyActivity[weekKey].sessions++;
+      
+      // Track per-game
+      if (!player.usageMetrics.gamesPlayed[gameId]) {
+        player.usageMetrics.gamesPlayed[gameId] = { sessions: 0, totalPlayTime: 0 };
+      }
+      player.usageMetrics.gamesPlayed[gameId].sessions++;
+    } else if (event === 'end' && playTimeSeconds > 0) {
+      const playTimeMinutes = Math.floor(playTimeSeconds / 60);
+      player.usageMetrics.totalPlayTime += playTimeMinutes;
+      
+      // Update daily activity
+      if (player.usageMetrics.dailyActivity[today]) {
+        player.usageMetrics.dailyActivity[today].playTime += playTimeMinutes;
+        if (!player.usageMetrics.dailyActivity[today].games) {
+          player.usageMetrics.dailyActivity[today].games = {};
+        }
+        if (!player.usageMetrics.dailyActivity[today].games[gameId]) {
+          player.usageMetrics.dailyActivity[today].games[gameId] = 0;
+        }
+        player.usageMetrics.dailyActivity[today].games[gameId]++;
+      }
+      
+      // Update weekly activity
+      if (player.usageMetrics.weeklyActivity[weekKey]) {
+        player.usageMetrics.weeklyActivity[weekKey].playTime += playTimeMinutes;
+        if (!player.usageMetrics.weeklyActivity[weekKey].games) {
+          player.usageMetrics.weeklyActivity[weekKey].games = {};
+        }
+        if (!player.usageMetrics.weeklyActivity[weekKey].games[gameId]) {
+          player.usageMetrics.weeklyActivity[weekKey].games[gameId] = 0;
+        }
+        player.usageMetrics.weeklyActivity[weekKey].games[gameId]++;
+      }
+      
+      // Update per-game
+      if (player.usageMetrics.gamesPlayed[gameId]) {
+        player.usageMetrics.gamesPlayed[gameId].totalPlayTime += playTimeMinutes;
+      }
+    }
+    
+    save();
+  }
+  
+  function getWeekKey(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const week = Math.ceil((d.getDate() + d.getDay()) / 7);
+    return `${year}-W${week}`;
+  }
+  
+  function getUsageMetrics(playerId) {
+    const player = getPlayer(playerId);
+    if (!player || !player.isParent) return null;
+    return player.usageMetrics || null;
+  }
+  
+  function getAllUsageMetrics() {
+    const data = getData();
+    const metrics = {};
+    
+    Object.keys(data.profiles).forEach(playerId => {
+      const player = data.profiles[playerId];
+      if (player.isParent && player.usageMetrics) {
+        metrics[playerId] = player.usageMetrics;
+      }
+    });
+    
+    return metrics;
+  }
+  
   // ==================== CROSS-GAME ACHIEVEMENTS ====================
   
   function checkCrossGameAchievements(playerId) {
@@ -1474,6 +1594,10 @@ const LuminaCore = (function() {
     // Profile PIN Management
     verifyProfilePIN,
     changeProfilePIN,
+    
+    // Usage Metrics (Parent Profiles)
+    getUsageMetrics,
+    getAllUsageMetrics,
     
     // Cloud Sync
     loadAsync,
