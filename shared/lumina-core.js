@@ -1281,6 +1281,15 @@ const LuminaCore = (function() {
   
   function resetDailyChallengesIfNeeded() {
     const data = getData();
+    
+    // Ensure dailyChallenges exists
+    if (!data.dailyChallenges) {
+      data.dailyChallenges = {
+        lastResetDate: null,
+        challenges: [],
+      };
+    }
+    
     const today = new Date().toDateString();
     
     if (data.dailyChallenges.lastResetDate !== today) {
@@ -1290,9 +1299,23 @@ const LuminaCore = (function() {
     }
   }
   
-  function getDailyChallenges() {
+  function getDailyChallenges(playerId = null) {
     resetDailyChallengesIfNeeded();
-    return getData().dailyChallenges.challenges;
+    const data = getData();
+    
+    // Ensure dailyChallenges exists
+    if (!data.dailyChallenges) {
+      data.dailyChallenges = {
+        lastResetDate: null,
+        challenges: [],
+      };
+      save();
+    }
+    
+    return {
+      challenges: data.dailyChallenges.challenges || [],
+      lastGeneratedDate: data.dailyChallenges.lastResetDate || new Date().toISOString()
+    };
   }
   
   function updateDailyChallenge(challengeId, progress = 1) {

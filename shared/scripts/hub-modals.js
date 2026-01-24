@@ -1,7 +1,8 @@
 // ==================== PROFILE SELECTION ====================
 let pendingProfileSelection = null;
 
-function showProfileSelect() {
+// Make showProfileSelect globally available
+window.showProfileSelect = function showProfileSelect() {
   const modal = document.getElementById('profileModal');
   const grid = document.getElementById('profileSelectGrid');
   const profiles = LuminaCore.getAllProfiles();
