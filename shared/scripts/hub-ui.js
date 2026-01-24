@@ -159,3 +159,56 @@ function renderRewardsPreview() {
     `;
   }).join('');
 }
+
+function renderDailyChallenges() {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+
+  const dailyChallenges = LuminaCore.getDailyChallenges(profile.id);
+  const container = document.getElementById('dailyChallengesContent');
+  const dateDisplay = document.getElementById('dailyChallengesDate');
+
+  if (!container) return;
+
+  if (dailyChallenges.challenges.length === 0) {
+    container.innerHTML = '<p class="text-center text-gray-400">No challenges today!</p>';
+    if (dateDisplay) dateDisplay.textContent = '';
+    return;
+  }
+
+  if (dateDisplay) {
+    dateDisplay.textContent = `(${new Date(dailyChallenges.lastGeneratedDate).toLocaleDateString()})`;
+  }
+
+  container.innerHTML = dailyChallenges.challenges.map(challenge => `
+    <div class="daily-challenge-item ${challenge.completed ? 'completed' : ''}">
+      <div class="challenge-info">
+        <span class="challenge-name">${challenge.name}</span>
+        <span class="challenge-progress">${challenge.completed ? '✅' : `${challenge.current}/${challenge.target}`}</span>
+      </div>
+      <div class="challenge-rewards">
+        ${challenge.reward.xp} XP • ${challenge.reward.coins} 💰
+      </div>
+      <div class="challenge-progress-bar">
+        <div class="challenge-progress-fill" style="width: ${Math.min((challenge.current / challenge.target) * 100, 100)}%;"></div>
+      </div>
+      ${!challenge.completed ? `<button class="claim-challenge-btn" onclick="claimDailyChallenge('${challenge.id}')">Claim</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function claimDailyChallenge(challengeId) {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  const result = LuminaCore.completeDailyChallenge(profile.id, challengeId);
+  if (result.success) {
+    if (typeof showToast === 'function') {
+      showToast(`Challenge "${result.challenge.name}" completed! +${result.xp} XP, +${result.coins} Coins!`, 'success');
+    }
+    updateUI();
+  } else {
+    if (typeof showToast === 'function') {
+      showToast(result.error, 'error');
+    }
+  }
+}

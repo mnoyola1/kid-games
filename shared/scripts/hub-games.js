@@ -22,7 +22,7 @@ function renderGames() {
   container.innerHTML = GAMES.map(game => {
     const gameStats = profile?.gameStats?.[game.id] || { highScore: 0, gamesPlayed: 0 };
     
-    // Get game tags
+    // Get game tags (show only first tag, similar to Coming Soon badge)
     const tags = game.tags || [];
     const tagLabels = {
       'popular': '🔥 Popular',
@@ -31,10 +31,13 @@ function renderGames() {
       'favorite': '⭐ Favorite'
     };
     
+    // Show first tag only, positioned like Coming Soon badge
+    const firstTag = tags.length > 0 ? tags[0] : null;
+    
     return `
       <a href="${game.active ? game.url : '#'}" class="game-card ${game.active ? '' : 'coming-soon'}">
         ${!game.active ? '<span class="coming-soon-badge">Coming Soon</span>' : ''}
-        ${tags.length > 0 ? `<div class="game-tags">${tags.map(tag => `<span class="game-tag ${tag}">${tagLabels[tag] || tag}</span>`).join('')}</div>` : ''}
+        ${firstTag ? `<span class="game-tag-badge ${firstTag}">${tagLabels[firstTag] || firstTag}</span>` : ''}
         <div class="game-icon">${game.icon}</div>
         <h3 class="game-title">${game.name}</h3>
         <p class="game-subtitle">${game.subtitle}</p>
