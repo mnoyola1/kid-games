@@ -10,17 +10,27 @@ function LuminaRacer() {
       if (profile) {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
-        console.log('🏎️ Lumina Racer: Playing as', profile.name);
+        // Auto-select character based on logged-in profile
+        const profileId = profile.id.toLowerCase();
+        if (profileId === 'emma' || profileId === 'liam') {
+          setCharacter(profileId);
+          console.log('🏎️ Lumina Racer: Playing as', profile.name, `(${profileId})`);
+        } else {
+          // Guest profile - default to emma character
+          setCharacter('emma');
+          console.log('🏎️ Lumina Racer: Guest profile, using Emma character');
+        }
         LuminaCore.recordGameStart(profile.id, 'luminaRacer');
       } else {
         console.warn('⚠️ No active player found for Lumina Racer.');
+        // Default to emma if no profile
+        setCharacter('emma');
       }
     }
   }, []);
   
   // Game state
   const [screen, setScreen] = useState('menu'); // menu, charSelect, trackSelect, countdown, racing, results
-  const [character, setCharacter] = useState(null);
   const [track, setTrack] = useState(null);
   const [words, setWords] = useState(DEFAULT_WORDS);
   const [customWordsInput, setCustomWordsInput] = useState('');
@@ -45,6 +55,13 @@ function LuminaRacer() {
   // Aurora
   const [auroraMessage, setAuroraMessage] = useState('');
   const [auroraVisible, setAuroraVisible] = useState(false);
+  
+  // Audio Manager
+  const audioManager = useMemo(() => {
+    const manager = new AudioManager();
+    manager.preloadMusic();
+    return manager;
+  }, []);
   
   // Refs
   const inputRef = useRef(null);
@@ -116,9 +133,11 @@ function LuminaRacer() {
       count--;
       if (count > 0) {
         setCountdown(count);
+        audioManager.playSFX('countdown');
       } else {
         clearInterval(countInterval);
         setScreen('racing');
+        audioManager.playSFX('countdown');
         speakWord(nextWord);
         inputRef.current?.focus();
       }
@@ -171,6 +190,7 @@ function LuminaRacer() {
     // Check if player finished
     if (playerPosition >= TRACK_LENGTH) {
       setFinished(true);
+      audioManager.playSFX('finish');
       setFinalPlace(playerRank);
       if (playerRank === 1) {
         auroraSpeak('finish');
@@ -183,11 +203,12 @@ function LuminaRacer() {
     // Check if all AI finished (player loses)
     if (aiPositions.every(p => p >= TRACK_LENGTH) && !finished) {
       setFinished(true);
+      audioManager.playSFX('finish');
       setFinalPlace(4);
       auroraSpeak('lostRace');
       setTimeout(() => setScreen('results'), 1500);
     }
-  }, [playerPosition, aiPositions, screen, finished, auroraSpeak]);
+  }, [playerPosition, aiPositions, screen, finished, auroraSpeak, audioManager]);
   
   // Update current lap
   useEffect(() => {
@@ -195,9 +216,10 @@ function LuminaRacer() {
       const newLap = Math.min(track.laps, Math.floor(playerPosition / LAP_LENGTH) + 1);
       if (newLap > currentLap) {
         setCurrentLap(newLap);
+        audioManager.playSFX('lap');
       }
     }
-  }, [playerPosition, track, LAP_LENGTH, currentLap]);
+  }, [playerPosition, track, LAP_LENGTH, currentLap, audioManager]);
   
   // Handle input
   const handleInputChange = useCallback((e) => {
@@ -228,12 +250,14 @@ function LuminaRacer() {
         boost += 3;
         setBoostActive(true);
         setShowBoostEffect(true);
+        audioManager.playSFX('boost');
         auroraSpeak('boost');
         setTimeout(() => {
           setBoostActive(false);
           setShowBoostEffect(false);
         }, 500);
       } else {
+        audioManager.playSFX('correct');
         auroraSpeak('correct');
       }
       
@@ -245,7 +269,7 @@ function LuminaRacer() {
       setTypedWord('');
       speakWord(nextWord);
     }
-  }, [currentWord, combo, character, getNextWord, auroraSpeak]);
+  }, [currentWord, combo, character, getNextWord, auroraSpeak, audioManager]);
   
   // Handle key press
   const handleKeyDown = useCallback((e) => {
@@ -256,11 +280,12 @@ function LuminaRacer() {
       if (typedWord && typedWord !== currentWord) {
         setMistakes(m => m + 1);
         setCombo(0);
+        audioManager.playSFX('wrong');
         auroraSpeak('wrong');
         setTypedWord('');
       }
     }
-  }, [screen, typedWord, currentWord, auroraSpeak]);
+  }, [screen, typedWord, currentWord, auroraSpeak, audioManager]);
   
   // Calculate stats
   const accuracy = wordsCompleted > 0 
@@ -313,6 +338,20 @@ function LuminaRacer() {
     console.log('✨ Race Complete! Rewards earned:', { xp: xpEarned, coins: coinsEarned, rewardPoints: rewardPointsEarned });
   }, [playerProfile, finalPlace, wordsCompleted, mistakes, accuracy, maxCombo, wpm, track, raceTime]);
   
+  // Play music based on screen
+  useEffect(() => {
+    if (screen === 'menu') {
+      audioManager.playMusic('menu');
+    } else if (screen === 'racing') {
+      audioManager.playMusic('gameplay');
+    } else if (screen === 'results') {
+      const won = finalPlace === 1;
+      audioManager.playMusic(won ? 'victory' : 'gameover');
+    } else {
+      audioManager.stopMusic();
+    }
+  }, [screen, finalPlace, audioManager]);
+  
   // Record results when screen changes to results
   useEffect(() => {
     if (screen === 'results' && playerProfile) {
@@ -340,7 +379,14 @@ function LuminaRacer() {
           </div>
           
           <button
-            onClick={() => setScreen('charSelect')}
+            onClick={() => {
+              // Skip character select if profile is already set
+              if (character) {
+                setScreen('trackSelect');
+              } else {
+                setScreen('charSelect');
+              }
+            }}
             className="px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 
                      text-white font-title text-2xl rounded-xl shadow-lg hover:scale-105
                      border-2 border-purple-400/50 transition-all animate-pulse-glow"
