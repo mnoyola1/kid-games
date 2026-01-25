@@ -86,6 +86,8 @@
   padding: 2rem;
   max-width: 500px;
   width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
   border: 2px solid var(--border-accent);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   transform: scale(0.9);
@@ -116,6 +118,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
 .profile-select-card {
@@ -1764,6 +1769,21 @@ footer {
   }
   .profile-select-grid {
     grid-template-columns: 1fr;
+    max-height: 70vh;
+  }
+  
+  .modal {
+    max-height: 85vh;
+    padding: 1.5rem;
+  }
+  
+  .profile-select-card {
+    padding: 1rem;
+  }
+  
+  .profile-select-avatar {
+    width: 80px;
+    height: 80px;
   }
 }
 
