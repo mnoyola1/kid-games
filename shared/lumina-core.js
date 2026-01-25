@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.4.0'; // Added functional shop themes, game tags, usage metrics, parent profiles
+  const VERSION = '1.4.1'; // Updated Mario and Adriana profile pictures
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
@@ -244,11 +244,11 @@ const LuminaCore = (function() {
       version: VERSION,
       currentPlayer: null,
       profiles: {
-        emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/Emma_Lumina.png') },
-        liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/Liam_Lumina.png') },
+        emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/emma_profile.png?v=2') },
+        liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/liam_profile.png?v=2') },
         guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') },
-        mario: { id: 'mario', pin: '0320', role: 'Parent', ...createDefaultProfile('Mario', 'The Warrior-Inventor', './assets/Mario_Step.png', true) },
-        adriana: { id: 'adriana', pin: '7979', role: 'Parent', ...createDefaultProfile('Adriana', 'The Earth-Mage', './assets/Adriana_Terra.png', true) },
+        mario: { id: 'mario', pin: '0320', role: 'Parent', ...createDefaultProfile('Mario', 'The Warrior-Inventor', './assets/mario_step_profile.png?v=2', true) },
+        adriana: { id: 'adriana', pin: '7979', role: 'Parent', ...createDefaultProfile('Adriana', 'The Earth-Mage', './assets/adriana_terra_profile.png?v=2', true) },
       },
       familyQuest: {
         active: false,
@@ -301,6 +301,108 @@ const LuminaCore = (function() {
   }
   
   /**
+   * Apply hotfixes to data (run after loading or cloud sync)
+   */
+  function applyHotfixes() {
+    let needsSave = false;
+    
+    // HOTFIX: Ensure Emma avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.emma) {
+      const correctAvatar = './assets/emma_profile.png?v=2';
+      const currentAvatar = _data.profiles.emma.avatar || '';
+      const currentAvatarLower = currentAvatar.toLowerCase();
+      // Update if it contains old filename (case-insensitive) OR doesn't match new path exactly
+      const isOldPath = (currentAvatarLower.includes('emma_lumina') || currentAvatarLower.includes('emma') && !currentAvatarLower.includes('emma_profile'));
+      if (isOldPath || currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Emma avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.emma.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Liam avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.liam) {
+      const correctAvatar = './assets/liam_profile.png?v=2';
+      const currentAvatar = _data.profiles.liam.avatar || '';
+      const currentAvatarLower = currentAvatar.toLowerCase();
+      // Update if it contains old filename (case-insensitive) OR doesn't match new path exactly
+      const isOldPath = (currentAvatarLower.includes('liam_lumina') || currentAvatarLower.includes('liam') && !currentAvatarLower.includes('liam_profile'));
+      if (isOldPath || currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Liam avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.liam.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure guest avatar is always correct
+    if (_data.profiles && _data.profiles.guest) {
+      const correctAvatar = './assets/guest-avatar.svg';
+      if (_data.profiles.guest.avatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting guest avatar from', _data.profiles.guest.avatar, 'to', correctAvatar);
+        _data.profiles.guest.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Mario avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.mario) {
+      const correctAvatar = './assets/mario_step_profile.png?v=2';
+      const currentAvatar = _data.profiles.mario.avatar || '';
+      const currentAvatarLower = currentAvatar.toLowerCase();
+      // Update if it contains old filename (case-insensitive) OR doesn't match new path exactly
+      const isOldPath = (currentAvatarLower.includes('mario_step') && !currentAvatarLower.includes('mario_step_profile')) || 
+                       currentAvatarLower.includes('mario_step.png');
+      if (isOldPath || currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Mario avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.mario.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Adriana avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.adriana) {
+      const correctAvatar = './assets/adriana_terra_profile.png?v=2';
+      const currentAvatar = _data.profiles.adriana.avatar || '';
+      const currentAvatarLower = currentAvatar.toLowerCase();
+      // Update if it contains old filename (case-insensitive) OR doesn't match new path exactly
+      const isOldPath = (currentAvatarLower.includes('adriana_terra') && !currentAvatarLower.includes('adriana_terra_profile')) ||
+                       currentAvatarLower.includes('adriana_terra.png');
+      if (isOldPath || currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Adriana avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.adriana.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure all profiles have inventory (runs on every load)
+    if (_data.profiles) {
+      Object.keys(_data.profiles).forEach(key => {
+        const profile = _data.profiles[key];
+        if (!profile.inventory) {
+          console.log('🔧 HOTFIX: Adding inventory to profile:', key);
+          profile.inventory = {
+            powerups: {
+              skip: 0,
+              hint: 0,
+              shield: 0,
+              double: 0,
+            },
+            themes: [],
+            avatarFrames: [],
+            unlocked: [],
+          };
+          needsSave = true;
+        }
+      });
+    }
+    
+    if (needsSave) {
+      save();
+      notifySubscribers(); // Notify UI to refresh
+    }
+  }
+
+  /**
    * Load data from localStorage, then sync with cloud if available
    */
   function load() {
@@ -313,37 +415,8 @@ const LuminaCore = (function() {
           _data = migrateData(_data);
         }
         
-        // HOTFIX: Ensure guest avatar is always correct
-        if (_data.profiles && _data.profiles.guest) {
-          const correctAvatar = './assets/guest-avatar.svg';
-          if (_data.profiles.guest.avatar !== correctAvatar) {
-            console.log('🔧 HOTFIX: Correcting guest avatar from', _data.profiles.guest.avatar, 'to', correctAvatar);
-            _data.profiles.guest.avatar = correctAvatar;
-            save();
-          }
-        }
-        
-        // HOTFIX: Ensure all profiles have inventory (runs on every load)
-        if (_data.profiles) {
-          Object.keys(_data.profiles).forEach(key => {
-            const profile = _data.profiles[key];
-            if (!profile.inventory) {
-              console.log('🔧 HOTFIX: Adding inventory to profile:', key);
-              profile.inventory = {
-                powerups: {
-                  skip: 0,
-                  hint: 0,
-                  shield: 0,
-                  double: 0,
-                },
-                themes: [],
-                avatarFrames: [],
-                unlocked: [],
-              };
-              save();
-            }
-          });
-        }
+        // Apply hotfixes after loading
+        applyHotfixes();
       } else {
         _data = getDefaultData();
         save();
@@ -391,9 +464,9 @@ const LuminaCore = (function() {
       const mergedData = await LuminaCloud.fullSync(_data);
       if (mergedData) {
         _data = mergedData;
-        // Save merged data to localStorage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(_data));
-        notifySubscribers();
+        // Apply hotfixes AFTER cloud sync to ensure correct avatars
+        applyHotfixes();
+        // Save merged data to localStorage (already done in applyHotfixes if needed)
         console.log('🌐 LuminaCore: Synced from cloud');
         return true;
       }
@@ -456,6 +529,30 @@ const LuminaCore = (function() {
         if (key === 'guest' && !oldProfile.avatar.includes('guest-avatar.svg')) {
           console.log('✅ Updating guest avatar to SVG (was:', oldProfile.avatar, ')');
           oldProfile.avatar = './assets/guest-avatar.svg';
+        }
+        
+        // Update Emma profile avatar to new path (check for any old path variation)
+        if (key === 'emma' && oldProfile.avatar && (oldProfile.avatar.includes('Emma_Lumina') || oldProfile.avatar.includes('emma') && !oldProfile.avatar.includes('emma_profile'))) {
+          console.log('✅ Updating Emma avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/emma_profile.png?v=2';
+        }
+        
+        // Update Liam profile avatar to new path (check for any old path variation)
+        if (key === 'liam' && oldProfile.avatar && (oldProfile.avatar.includes('Liam_Lumina') || oldProfile.avatar.includes('liam') && !oldProfile.avatar.includes('liam_profile'))) {
+          console.log('✅ Updating Liam avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/liam_profile.png?v=2';
+        }
+        
+        // Update Mario profile avatar to new path (check for any old path variation)
+        if (key === 'mario' && oldProfile.avatar && (oldProfile.avatar.includes('Mario_Step') || oldProfile.avatar.includes('mario_step'))) {
+          console.log('✅ Updating Mario avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/mario_step_profile.png?v=2';
+        }
+        
+        // Update Adriana profile avatar to new path (check for any old path variation)
+        if (key === 'adriana' && oldProfile.avatar && (oldProfile.avatar.includes('Adriana_Terra') || oldProfile.avatar.includes('adriana_terra'))) {
+          console.log('✅ Updating Adriana avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/adriana_terra_profile.png?v=2';
         }
         
         // Ensure profiles have PIN field (null for guest, default for others)
