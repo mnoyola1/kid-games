@@ -39,6 +39,12 @@ A unified game ecosystem called "Noyola Hub" that connects multiple educational 
   - ✅ Hybrid storage (localStorage + cloud)
   - ✅ Offline support with automatic sync
   - ✅ See `SUPABASE_SETUP.md` for configuration
+- ✅ **Offline Support & PWA!** (Added January 25, 2026)
+  - ✅ Service Worker for offline gameplay
+  - ✅ Progressive Web App (installable on iPad)
+  - ✅ Cache-first strategy for fast loading
+  - ✅ Auto-updates when new version deployed
+  - ✅ See `OFFLINE_SETUP.md` for details
 
 ---
 

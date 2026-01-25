@@ -69,6 +69,15 @@
   <!-- Lumina Core Integration -->
   <script src="../shared/lumina-core.js"></script>
   
+  <!-- Service Worker Registration (Offline Support) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch((err) => console.error('❌ Service Worker registration failed:', err));
+    }
+  </script>
+  
   <!-- Game Styles -->
   <link rel="stylesheet" href="./styles/game-base.css">
 </head>
