@@ -201,7 +201,7 @@ header {
 
 /* Joy-Con Controllers */
 .joycon {
-  width: 70px;
+  width: 90px;
   background: #1a1a1a;
   display: flex;
   flex-direction: column;
@@ -215,12 +215,16 @@ header {
   border-radius: 35px 0 0 35px;
   background: linear-gradient(180deg, #0ab9e6 0%, #0891b2 100%);
   box-shadow: inset -3px 0 10px rgba(0, 0, 0, 0.3);
+  margin-right: -55px;
+  z-index: 1;
 }
 
 .joycon-right {
   border-radius: 0 35px 35px 0;
   background: linear-gradient(180deg, #ff3c28 0%, #dc2626 100%);
   box-shadow: inset 3px 0 10px rgba(0, 0, 0, 0.3);
+  margin-left: -55px;
+  z-index: 1;
 }
 
 /* Joystick */
@@ -340,7 +344,7 @@ header {
 }
 
 .logo-video {
-  width: 165%;
+  width: 140%;
   height: auto;
   min-height: 100%;
   object-fit: cover;
@@ -1678,50 +1682,52 @@ footer {
     max-width: 100%;
   }
   .joycon {
-    width: 45px;
-    padding: 12px 6px;
-    gap: 5px;
+    width: 60px;
+    padding: 15px 8px;
+    gap: 6px;
   }
   .joycon-left {
-    border-radius: 25px 0 0 25px;
+    border-radius: 30px 0 0 30px;
+    margin-right: -10px;
   }
   .joycon-right {
-    border-radius: 0 25px 25px 0;
+    border-radius: 0 30px 30px 0;
+    margin-left: -10px;
   }
   .joycon-joystick {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
   }
   .joycon-buttons-dpad,
   .joycon-buttons-abxy {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
   .dpad-btn {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
   }
   .dpad-center {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
   }
   .abxy-btn {
-    width: 14px;
-    height: 14px;
-    font-size: 7px;
+    width: 15px;
+    height: 15px;
+    font-size: 8px;
   }
   .joycon-minus, .joycon-plus {
-    width: 16px;
-    height: 6px;
-    font-size: 9px;
+    width: 18px;
+    height: 7px;
+    font-size: 10px;
   }
   .joycon-home {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
   }
   .joycon-capture {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
   }
   .switch-screen {
     height: 180px;
@@ -1763,41 +1769,44 @@ footer {
 
 @media (max-width: 400px) {
   .joycon {
-    width: 35px;
-    padding: 10px 4px;
+    width: 45px;
+    padding: 12px 5px;
+    gap: 4px;
   }
   .joycon-left {
-    border-radius: 20px 0 0 20px;
+    border-radius: 22px 0 0 22px;
+    margin-right: -8px;
   }
   .joycon-right {
-    border-radius: 0 20px 20px 0;
+    border-radius: 0 22px 22px 0;
+    margin-left: -8px;
   }
   .joycon-joystick {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
   .joycon-buttons-dpad,
   .joycon-buttons-abxy {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
   }
   .dpad-btn, .dpad-center {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
   }
   .abxy-btn {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
     font-size: 6px;
   }
   .joycon-minus, .joycon-plus {
-    width: 14px;
+    width: 15px;
     height: 5px;
     font-size: 8px;
   }
   .joycon-home, .joycon-capture {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
   }
   .switch-screen {
     height: 150px;
