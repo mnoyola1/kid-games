@@ -40,6 +40,7 @@ function PianoPath() {
   const [sessionRewards, setSessionRewards] = useState(null);
   const [tip, setTip] = useState(QUICK_TIPS[0]);
   const [showHelp, setShowHelp] = useState(false);
+  const [songPage, setSongPage] = useState(0);
 
   const audioManager = useMemo(() => {
     const manager = new AudioManager();
@@ -81,6 +82,19 @@ function PianoPath() {
   useEffect(() => {
     setTip(QUICK_TIPS[Math.floor(Math.random() * QUICK_TIPS.length)]);
   }, [screen]);
+
+  useEffect(() => {
+    if (screen === 'select') {
+      setSongPage(0);
+    }
+  }, [screen]);
+
+  const pageSize = 9;
+  const totalPages = Math.max(1, Math.ceil(SONGS.length / pageSize));
+  const pageSongs = useMemo(() => {
+    const start = songPage * pageSize;
+    return SONGS.slice(start, start + pageSize);
+  }, [songPage]);
 
   // ==================== INPUT HANDLING ====================
   useEffect(() => {
@@ -486,7 +500,7 @@ function PianoPath() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
-              {SONGS.map((song) => {
+              {pageSongs.map((song) => {
                 const unlocked = unlockedSongs.includes(song.id);
                 const stars = songStars[song.id] || 0;
                 return (
@@ -517,6 +531,26 @@ function PianoPath() {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                className="text-purple-200 hover:text-white disabled:opacity-40"
+                onClick={() => setSongPage((prev) => Math.max(0, prev - 1))}
+                disabled={songPage === 0}
+              >
+                ← Prev
+              </button>
+              <div className="text-sm text-purple-300">
+                Page {songPage + 1} of {totalPages}
+              </div>
+              <button
+                className="text-purple-200 hover:text-white disabled:opacity-40"
+                onClick={() => setSongPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={songPage >= totalPages - 1}
+              >
+                Next →
+              </button>
             </div>
           </div>
         )}
