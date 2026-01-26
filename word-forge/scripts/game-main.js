@@ -4,6 +4,7 @@ const DungeonForge = () => {
   const [playerProfile, setPlayerProfile] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [menuMusicOption, setMenuMusicOption] = useState('menu'); // 'menu', 'menu_alt1', 'menu_alt2'
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   
   // Player state
   const [player, setPlayer] = useState(null);
@@ -301,7 +302,11 @@ const DungeonForge = () => {
   // ==================== RENDER TITLE SCREEN ====================
   if (screen === 'title') {
     return (
-      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden" style={{
+        backgroundImage: 'url("../assets/backgrounds/word-forge/title_screen.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
         <div className="dungeon-overlay" />
         
         <div className="relative z-10 text-center max-w-2xl">
@@ -337,6 +342,14 @@ const DungeonForge = () => {
               ⬆️ Upgrades
             </button>
           </div>
+          
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            className="mb-4 px-6 py-3 bg-gradient-to-b from-blue-600 to-blue-800 text-white rounded-xl font-bold 
+                     border-b-4 border-blue-900 hover:from-blue-500 hover:to-blue-700 transition-all"
+          >
+            ❓ How to Play
+          </button>
           
           <div className="flex flex-col gap-3 items-center">
             <button
@@ -413,6 +426,95 @@ const DungeonForge = () => {
             </div>
           )}
         </div>
+        
+        {/* How to Play Modal */}
+        {showHowToPlay && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" onClick={() => setShowHowToPlay(false)}>
+            <div className="bg-black/95 backdrop-blur rounded-2xl p-8 max-w-2xl max-h-[90vh] overflow-y-auto border-2 border-amber-900/50" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-title text-3xl text-amber-400">How to Play</h2>
+                <button
+                  onClick={() => setShowHowToPlay(false)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-6 text-gray-300">
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">🎯 Goal</h3>
+                  <p>Explore procedurally generated dungeons, battle monsters by spelling words correctly, and survive as deep as you can!</p>
+                </section>
+                
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">⚔️ Combat</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Spell words correctly</strong> to attack enemies</li>
+                    <li><strong>Wrong spelling</strong> = enemy attacks you!</li>
+                    <li><strong>Perfect streaks</strong> = combo multiplier</li>
+                    <li>Word difficulty increases with floor depth</li>
+                  </ul>
+                </section>
+                
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">🗺️ Exploration</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Combat Rooms:</strong> Fight monsters for XP and coins</li>
+                    <li><strong>Forge Rooms:</strong> Craft powerful items</li>
+                    <li><strong>Treasure Rooms:</strong> Find loot and equipment</li>
+                    <li><strong>Boss Rooms:</strong> Defeat to descend deeper</li>
+                  </ul>
+                </section>
+                
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">🛡️ Items & Equipment</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Weapons:</strong> Increase your attack damage</li>
+                    <li><strong>Armor:</strong> Reduce damage taken</li>
+                    <li><strong>Accessories:</strong> Boost max HP and special effects</li>
+                    <li>Click items in inventory to equip them</li>
+                  </ul>
+                </section>
+                
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">💀 Permadeath & Meta-Progression</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Death ends your run</strong> (you lose items & progress)</li>
+                    <li><strong>BUT...</strong> you keep <span className="text-purple-400">Fragments</span></li>
+                    <li>Spend Fragments on <strong>permanent upgrades</strong></li>
+                    <li>Each run makes you stronger for the next!</li>
+                  </ul>
+                </section>
+                
+                <section>
+                  <h3 className="text-xl text-amber-400 font-bold mb-2">📍 Mini-Map</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong className="text-amber-400">Yellow:</strong> Your current position</li>
+                    <li><strong className="text-green-400">Green:</strong> Cleared rooms</li>
+                    <li><strong className="text-blue-400">Blue:</strong> Visited rooms</li>
+                    <li><strong className="text-gray-400">Gray:</strong> Unexplored</li>
+                  </ul>
+                </section>
+                
+                <section className="border-t border-amber-900/50 pt-4">
+                  <p className="text-center text-amber-400 font-bold">
+                    ⚡ Quick Tip: Practice spelling under pressure!<br />
+                    The deeper you go, the harder the words get!
+                  </p>
+                </section>
+              </div>
+              
+              <button
+                onClick={() => setShowHowToPlay(false)}
+                className="mt-6 w-full py-3 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl font-bold text-white
+                         border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all"
+              >
+                Got it! Let's Play
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
