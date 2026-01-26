@@ -171,6 +171,16 @@ Create a stunning professional racing game background for a cosmic starlight rac
 Create a stunning professional racing game background for a neon pulse canyon racing track. Massive canyon walls with glowing energy veins, luminous geometric rock faces, and vibrant plasma rivers below. Pulsing neon grids embedded in the cliff sides, with lightning arcs and energy bursts. Track surface is a smooth energy bridge with rhythmic light waves and glowing rails. Red, magenta, purple, and electric blue palette. Intense speed and power atmosphere with dramatic lighting and motion blur. Professional racing game quality environment art with tech-fantasy canyon feel. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
 ```
 
+### Track 7: Glimmer Tundra - Full Background
+```
+Create a stunning professional racing game background for an icy aurora racing track. Vast frozen tundra with crystalline snow dunes, towering ice spires, and shimmering aurora ribbons across the sky. Glowing frost crystals embedded in the ground and floating icy shards. Track surface is a sleek ice ribbon with neon blue energy rails and light trails. Cool blue, cyan, and silver palette with soft magical glow. Speed blur on snow particles and ice shards. Professional racing game quality environment art with crisp, luminous atmosphere. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
+```
+
+### Track 8: Ember Rift - Full Background
+```
+Create a stunning professional racing game background for a volcanic rift racing track. Molten lava rivers cutting through obsidian cliffs, glowing ember particles, and heat haze distortion. Fiery rock arches with glowing rune etchings. Track surface is a hovering energy bridge with orange-red light rails and pulsing magma glow. Warm amber, orange, crimson, and purple palette with dramatic lighting. Speed blur on sparks and lava splashes. Professional racing game quality environment art with epic, high-energy atmosphere. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
+```
+
 ### Track 4: Fog Frontier - 3D Props
 ```
 Create a set of professional 3D-rendered mysterious obstacles for fog frontier racing track. Floating rock formations with impossible angles defying gravity. Reality distortion effects creating space warps and tears. Mysterious portal rings with swirling energy. Ancient unknown artifacts with alien geometry. Fog cloud volumes in various densities. Fractured crystal fragments. Dimensional rift effects. Each object has ethereal, otherworldly appearance with glowing edges and particle trails. Purple, teal, and gray color palette. Various sizes and orientations. High-quality game prop assets with mysterious alien aesthetic. Transparent backgrounds. Set of 8-10 individual objects. High resolution 1024x1024px each.

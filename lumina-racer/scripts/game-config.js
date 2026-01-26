@@ -91,6 +91,32 @@ const TRACKS = [
     order: 6,
     difficulty: 'Final Surge',
     unlocked: false
+  },
+  { 
+    id: 'glimmer', 
+    name: 'Glimmer Tundra', 
+    emoji: '❄️',
+    bg: 'from-sky-900 via-cyan-900 to-slate-900',
+    bgImage: '../assets/backgrounds/lumina-racer/track_glimmer.png',
+    cardImage: '../assets/backgrounds/lumina-racer/track_glimmer.png',
+    description: 'Slice through icy aurora winds and crystal snow!',
+    laps: 4,
+    order: 7,
+    difficulty: 'Frost Run',
+    unlocked: false
+  },
+  { 
+    id: 'ember', 
+    name: 'Ember Rift', 
+    emoji: '🔥',
+    bg: 'from-amber-900 via-orange-900 to-rose-900',
+    bgImage: '../assets/backgrounds/lumina-racer/track_ember.png',
+    cardImage: '../assets/backgrounds/lumina-racer/track_ember.png',
+    description: 'Ride the molten rift with blazing energy rails!',
+    laps: 5,
+    order: 8,
+    difficulty: 'Inferno Finale',
+    unlocked: false
   }
 ];
 

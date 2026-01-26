@@ -45,6 +45,7 @@ function LuminaRacer() {
   const [unlockedTracks, setUnlockedTracks] = useState([]);
   const [newlyUnlockedTrack, setNewlyUnlockedTrack] = useState(null);
   const [trackHint, setTrackHint] = useState('');
+  const [trackPage, setTrackPage] = useState(0);
   
   // Race state
   const [playerPosition, setPlayerPosition] = useState(0);
@@ -87,6 +88,12 @@ function LuminaRacer() {
     () => [...TRACKS].sort((a, b) => (a.order || 0) - (b.order || 0)),
     []
   );
+  const TRACKS_PER_PAGE = 4;
+  const totalTrackPages = Math.max(1, Math.ceil(orderedTracks.length / TRACKS_PER_PAGE));
+  const pagedTracks = orderedTracks.slice(
+    trackPage * TRACKS_PER_PAGE,
+    trackPage * TRACKS_PER_PAGE + TRACKS_PER_PAGE
+  );
   
   const isTrackUnlocked = useCallback(
     (trackId) => unlockedTracks.includes(trackId),
@@ -110,6 +117,17 @@ function LuminaRacer() {
       };
     });
   }, []);
+  
+  // Keep track page in range
+  useEffect(() => {
+    if (trackPage > totalTrackPages - 1) {
+      setTrackPage(Math.max(0, totalTrackPages - 1));
+    }
+  }, [trackPage, totalTrackPages]);
+  
+  useEffect(() => {
+    setTrackHint('');
+  }, [trackPage]);
   
   // Aurora speaks
   const auroraSpeak = useCallback((category) => {
@@ -641,7 +659,7 @@ function LuminaRacer() {
               Select Your Track
             </h2>
             <p className="font-game text-purple-300 mb-6 text-center max-w-lg">
-              More tracks unlock as you win races — scroll right to discover them.
+              More tracks unlock as you win races — use the arrows to see more.
             </p>
             
             {/* Selected racer */}
@@ -688,10 +706,11 @@ function LuminaRacer() {
               />
             </div>
             
-            <div className="flex gap-5 mb-4 max-w-5xl w-full overflow-x-auto pb-4 px-2">
-              {orderedTracks.map((t, index) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4 max-w-4xl w-full">
+              {pagedTracks.map((t) => {
+                const trackIndex = orderedTracks.findIndex(trackItem => trackItem.id === t.id);
                 const unlocked = isTrackUnlocked(t.id);
-                const requiredTrack = orderedTracks[index - 1];
+                const requiredTrack = orderedTracks[trackIndex - 1];
                 return (
                   <button
                     key={t.id}
@@ -706,7 +725,7 @@ function LuminaRacer() {
                     }}
                     className={`track-card bg-slate-900/80 rounded-2xl border-2 border-white/10 
                              transition-all hover:scale-[1.02] hover:border-white/30 text-left overflow-hidden
-                             flex-shrink-0 w-72 ${unlocked ? '' : 'track-card--locked'}`}
+                             ${unlocked ? '' : 'track-card--locked'}`}
                   >
                     <div
                       className="relative h-36 w-full bg-cover bg-center"
@@ -737,6 +756,26 @@ function LuminaRacer() {
                   </button>
                 );
               })}
+            </div>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                onClick={() => setTrackPage(p => Math.max(0, p - 1))}
+                className="px-4 py-2 bg-slate-700 text-slate-200 font-game rounded-lg hover:bg-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={trackPage === 0}
+              >
+                ← Previous Tracks
+              </button>
+              <div className="font-game text-xs text-slate-300">
+                Page {trackPage + 1} of {totalTrackPages}
+              </div>
+              <button
+                onClick={() => setTrackPage(p => Math.min(totalTrackPages - 1, p + 1))}
+                className="px-4 py-2 bg-slate-700 text-slate-200 font-game rounded-lg hover:bg-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={trackPage >= totalTrackPages - 1}
+              >
+                Next Tracks →
+              </button>
             </div>
             
             {trackHint && (
