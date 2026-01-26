@@ -40,6 +40,7 @@ function PianoPath() {
   const [tip, setTip] = useState(QUICK_TIPS[0]);
   const [showHelp, setShowHelp] = useState(false);
   const [songPage, setSongPage] = useState(0);
+  const [musicEnabled, setMusicEnabled] = useState(true);
 
   const audioManager = useMemo(() => {
     const manager = new AudioManager();
@@ -67,6 +68,7 @@ function PianoPath() {
         const parsed = JSON.parse(stored);
         if (parsed.unlockedSongs) setUnlockedSongs(parsed.unlockedSongs);
         if (parsed.songStars) setSongStars(parsed.songStars);
+        if (parsed.musicEnabled !== undefined) setMusicEnabled(parsed.musicEnabled);
       } catch (e) {
         console.warn('Piano Path: Failed to parse progress');
       }
@@ -76,21 +78,22 @@ function PianoPath() {
   useEffect(() => {
     localStorage.setItem('piano-path-progress', JSON.stringify({
       unlockedSongs,
-      songStars
+      songStars,
+      musicEnabled
     }));
-  }, [unlockedSongs, songStars]);
+  }, [unlockedSongs, songStars, musicEnabled]);
 
   useEffect(() => {
     setTip(QUICK_TIPS[Math.floor(Math.random() * QUICK_TIPS.length)]);
   }, [screen]);
 
   useEffect(() => {
-    if (screen === 'menu' || screen === 'select') {
+    if (musicEnabled && (screen === 'menu' || screen === 'select')) {
       audioManager.playMusic('menu');
     } else {
       audioManager.stopMusic();
     }
-  }, [screen, audioManager]);
+  }, [screen, musicEnabled, audioManager]);
 
   const unlockAudio = useCallback(() => {
     audioManager.unlockAudio();
@@ -457,9 +460,22 @@ function PianoPath() {
             <h1 className="text-4xl font-title text-yellow-300">Piano Path</h1>
             <p className="text-purple-200">Follow the lights. Play the song.</p>
           </div>
-          <div className="text-right">
-            <div className="text-sm text-purple-200">Player</div>
-            <div className="text-xl font-semibold text-white">{playerName || 'Guest'}</div>
+          <div className="flex items-center gap-4">
+            <button
+              className="p-2 rounded-full bg-purple-800/60 hover:bg-purple-700/70 transition-all"
+              onClick={() => {
+                unlockAudio();
+                setMusicEnabled(!musicEnabled);
+                audioManager.playSfx('click');
+              }}
+              title={musicEnabled ? 'Mute Music' : 'Unmute Music'}
+            >
+              <span className="text-2xl">{musicEnabled ? '🔊' : '🔇'}</span>
+            </button>
+            <div className="text-right">
+              <div className="text-sm text-purple-200">Player</div>
+              <div className="text-xl font-semibold text-white">{playerName || 'Guest'}</div>
+            </div>
           </div>
         </div>
 
