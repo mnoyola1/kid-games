@@ -314,7 +314,7 @@ const LuminaCore = (function() {
       reward: 'Pizza Night Pick',
       startDate: null,
       endDate: null,
-      contributions: { emma: 0, liam: 0, micaya: 0 },
+      contributions: { emma: 0, liam: 0, micaya: 0, cami: 0, javi: 0 },
     };
 
     data.dailyChallenges = {
@@ -336,6 +336,8 @@ const LuminaCore = (function() {
         emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/emma_profile.png?v=2') },
         liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/liam_profile.png?v=2') },
         micaya: { id: 'micaya', pin: '1115', ...createDefaultProfile('Micaya', 'The Shadow', './assets/micaya_profile.png?v=2') },
+        cami: { id: 'cami', pin: '0722', ...createDefaultProfile('Cami', 'The Adventurer', './assets/cami_profile.png?v=2') },
+        javi: { id: 'javi', pin: '0424', ...createDefaultProfile('Javi', 'The Racer', './assets/javi_profile.png?v=2') },
         guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') },
         mario: { id: 'mario', pin: '0320', role: 'Parent', ...createDefaultProfile('Mario', 'The Warrior-Inventor', './assets/mario_step_profile.png?v=2', true) },
         adriana: { id: 'adriana', pin: '7979', role: 'Parent', ...createDefaultProfile('Adriana', 'The Earth-Mage', './assets/adriana_terra_profile.png?v=2', true) },
@@ -471,6 +473,28 @@ const LuminaCore = (function() {
       if (currentAvatar !== correctAvatar) {
         console.log('🔧 HOTFIX: Correcting Micaya avatar from', currentAvatar, 'to', correctAvatar);
         _data.profiles.micaya.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Cami avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.cami) {
+      const correctAvatar = './assets/cami_profile.png?v=2';
+      const currentAvatar = _data.profiles.cami.avatar || '';
+      if (currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Cami avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.cami.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Javi avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.javi) {
+      const correctAvatar = './assets/javi_profile.png?v=2';
+      const currentAvatar = _data.profiles.javi.avatar || '';
+      if (currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Javi avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.javi.avatar = correctAvatar;
         needsSave = true;
       }
     }
@@ -662,10 +686,22 @@ const LuminaCore = (function() {
           oldProfile.avatar = './assets/micaya_profile.png?v=2';
         }
         
+        // Update Cami profile avatar to new path (check for any old path variation)
+        if (key === 'cami' && oldProfile.avatar && oldProfile.avatar.includes('cami')) {
+          console.log('✅ Updating Cami avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/cami_profile.png?v=2';
+        }
+        
+        // Update Javi profile avatar to new path (check for any old path variation)
+        if (key === 'javi' && oldProfile.avatar && oldProfile.avatar.includes('javi')) {
+          console.log('✅ Updating Javi avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/javi_profile.png?v=2';
+        }
+        
         // Ensure profiles have PIN field (null for guest, default for others)
         if (!oldProfile.hasOwnProperty('pin')) {
           console.log('✅ Adding pin field to profile:', key);
-          oldProfile.pin = key === 'guest' ? null : (key === 'emma' ? '1008' : key === 'liam' ? '0830' : key === 'micaya' ? '1115' : null);
+          oldProfile.pin = key === 'guest' ? null : (key === 'emma' ? '1008' : key === 'liam' ? '0830' : key === 'micaya' ? '1115' : key === 'cami' ? '0722' : key === 'javi' ? '0424' : null);
         }
         
         // Ensure all required fields exist
@@ -704,6 +740,18 @@ const LuminaCore = (function() {
     if (!oldData.profiles.micaya) {
       console.log('✅ Adding Micaya profile');
       oldData.profiles.micaya = { id: 'micaya', pin: '1115', ...createDefaultProfile('Micaya', 'The Shadow', './assets/micaya_profile.png?v=2') };
+    }
+    
+    // Add Cami profile if it doesn't exist
+    if (!oldData.profiles.cami) {
+      console.log('✅ Adding Cami profile');
+      oldData.profiles.cami = { id: 'cami', pin: '0722', ...createDefaultProfile('Cami', 'The Adventurer', './assets/cami_profile.png?v=2') };
+    }
+    
+    // Add Javi profile if it doesn't exist
+    if (!oldData.profiles.javi) {
+      console.log('✅ Adding Javi profile');
+      oldData.profiles.javi = { id: 'javi', pin: '0424', ...createDefaultProfile('Javi', 'The Racer', './assets/javi_profile.png?v=2') };
     }
     
     // Update parent PIN to new value (v1.2.1)
@@ -1303,7 +1351,7 @@ const LuminaCore = (function() {
       reward,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
-      contributions: { emma: 0, liam: 0, micaya: 0 },
+      contributions: { emma: 0, liam: 0, micaya: 0, cami: 0, javi: 0 },
     };
     
     save();

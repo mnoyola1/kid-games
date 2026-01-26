@@ -63,6 +63,8 @@ Create a "meta-game" layer that sits above individual educational games, making 
 | Emma | 10 | 5th | The Sage | Strategic thinker |
 | Liam | 8 | 3rd | The Scout | Action-oriented |
 | Micaya | - | - | The Shadow | Mysterious observer |
+| Cami | 7 | 2nd | The Adventurer | Super Mario fan |
+| Javi | 4 | - | The Racer | Speed enthusiast |
 
 ## Core Features
 
