@@ -41,6 +41,7 @@ function PianoPath() {
   const [showHelp, setShowHelp] = useState(false);
   const [songPage, setSongPage] = useState(0);
   const [musicEnabled, setMusicEnabled] = useState(true);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   const audioManager = useMemo(() => {
     const manager = new AudioManager();
@@ -88,19 +89,20 @@ function PianoPath() {
   }, [screen]);
 
   useEffect(() => {
-    if (musicEnabled && (screen === 'menu' || screen === 'select')) {
+    if (audioUnlocked && musicEnabled && (screen === 'menu' || screen === 'select')) {
       audioManager.playMusic('menu');
-    } else {
+    } else if (!musicEnabled || (screen !== 'menu' && screen !== 'select')) {
       audioManager.stopMusic();
     }
-  }, [screen, musicEnabled, audioManager]);
+  }, [screen, musicEnabled, audioUnlocked, audioManager]);
 
   const unlockAudio = useCallback(() => {
     audioManager.unlockAudio();
-    if (screen === 'menu' || screen === 'select') {
+    setAudioUnlocked(true);
+    if (musicEnabled && (screen === 'menu' || screen === 'select')) {
       audioManager.playMusic('menu');
     }
-  }, [audioManager, screen]);
+  }, [audioManager, screen, musicEnabled]);
 
   useEffect(() => {
     if (screen === 'select') {
