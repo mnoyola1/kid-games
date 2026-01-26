@@ -22,6 +22,10 @@ const DungeonForge = () => {
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState(null);
   
+  // Forge state
+  const [craftingWords, setCraftingWords] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  
   const inputRef = useRef(null);
   
   // ==================== LUMINA CORE INTEGRATION ====================
@@ -41,6 +45,17 @@ const DungeonForge = () => {
       }
     }
   }, []);
+  
+  // Initialize forge state when entering forge room
+  useEffect(() => {
+    if (screen === 'forge' && dungeon) {
+      const room = dungeon.rooms[dungeon.currentRoom];
+      if (room) {
+        setCraftingWords(room.craftingWords.map(w => ({ word: w, spelled: false, input: '' })));
+        setSelectedItem(room.availableItems[0]);
+      }
+    }
+  }, [screen, dungeon?.currentRoom]);
   
   // ==================== GAME FUNCTIONS ====================
   
@@ -666,8 +681,11 @@ const DungeonForge = () => {
   // ==================== RENDER FORGE ====================
   if (screen === 'forge' && dungeon) {
     const room = dungeon.rooms[dungeon.currentRoom];
-    const [craftingWords, setCraftingWords] = useState(room.craftingWords.map(w => ({ word: w, spelled: false, input: '' })));
-    const [selectedItem, setSelectedItem] = useState(room.availableItems[0]);
+    
+    // Wait for state to initialize
+    if (!selectedItem || craftingWords.length === 0) {
+      return null;
+    }
     
     return (
       <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
