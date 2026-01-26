@@ -42,6 +42,7 @@ function PianoPath() {
   const [songPage, setSongPage] = useState(0);
   const [musicEnabled, setMusicEnabled] = useState(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [showStartOverlay, setShowStartOverlay] = useState(true);
 
   const audioManager = useMemo(() => {
     const manager = new AudioManager();
@@ -103,6 +104,11 @@ function PianoPath() {
       audioManager.playMusic('menu');
     }
   }, [audioManager, screen, musicEnabled]);
+
+  const handleStartClick = useCallback(() => {
+    unlockAudio();
+    setShowStartOverlay(false);
+  }, [unlockAudio]);
 
   useEffect(() => {
     if (screen === 'select') {
@@ -455,6 +461,19 @@ function PianoPath() {
     <div className="game-bg">
       <div className="stars" />
       <div className={`screen-flash ${flash ? 'active' : ''}`} />
+
+      {showStartOverlay && (
+        <div
+          className="fixed inset-0 bg-purple-900/95 backdrop-blur-sm z-50 flex items-center justify-center cursor-pointer"
+          onClick={handleStartClick}
+        >
+          <div className="text-center space-y-4 animate-bounce-in">
+            <h1 className="text-6xl font-title text-yellow-300 mb-2">🎹 Piano Path</h1>
+            <p className="text-2xl text-purple-100">Click anywhere to start</p>
+            <p className="text-sm text-purple-300">Music will begin playing</p>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-6 py-10 relative z-10">
         <div className="flex items-center justify-between mb-6">
