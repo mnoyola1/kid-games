@@ -92,7 +92,10 @@ const LuminaCloud = (function() {
           .upsert({
             id: profileId,
             pin: profile.pin,
-            data: profile,
+            data: {
+              ...profile,
+              resetAtVersion: localData.resetAtVersion || profile.resetAtVersion
+            },
             family_quest: localData.familyQuest,
             settings: localData.settings,
             last_updated: localData.lastUpdated || new Date().toISOString()
@@ -235,6 +238,13 @@ const LuminaCloud = (function() {
         ? new Date(localProfile.lastPlayed) 
         : new Date(0);
       
+      // If local data was reset in this version, keep it
+      if (localData.resetAtVersion && cloudProfile?.resetAtVersion !== localData.resetAtVersion) {
+        merged.profiles[profileId] = localProfile;
+        console.log('☁️ LuminaCloud: Keeping local reset for', profileId);
+        continue;
+      }
+
       // Resolve conflicts based on configuration
       let useCloud = false;
       

@@ -206,6 +206,7 @@ const LuminaCore = (function() {
       name,
       role,
       avatar,
+      resetAtVersion: VERSION,
       totalXP: 0,
       level: 1,
       title: 'Apprentice',
@@ -251,6 +252,7 @@ const LuminaCore = (function() {
 
     return {
       ...profile,
+      resetAtVersion: VERSION,
       totalXP: 0,
       level: 1,
       title: 'Apprentice',
