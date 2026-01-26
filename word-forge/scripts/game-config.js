@@ -135,13 +135,7 @@ const ENEMIES = [
     id: 'slime',
     name: 'Slime',
     sprite: '../assets/sprites/word-forge/slime_realistic_rgba.png',
-    videoSrc: '../assets/sprites/word-forge/slime_video.mp4',
-    animFrames: [
-      '../assets/sprites/word-forge/slime_anim_01_rgba.png',
-      '../assets/sprites/word-forge/slime_anim_02_rgba.png',
-      '../assets/sprites/word-forge/slime_anim_03_rgba.png',
-      '../assets/sprites/word-forge/slime_anim_04_rgba.png'
-    ],
+    animClass: 'monster-bounce',
     health: 15,
     attack: 3,
     xp: 10,
@@ -152,12 +146,7 @@ const ENEMIES = [
     id: 'goblin',
     name: 'Goblin',
     sprite: '../assets/sprites/word-forge/goblin_realistic_rgba.png',
-    animFrames: [
-      '../assets/sprites/word-forge/goblin_anim_01_rgba.png',
-      '../assets/sprites/word-forge/goblin_anim_02_rgba.png',
-      '../assets/sprites/word-forge/goblin_anim_03_rgba.png',
-      '../assets/sprites/word-forge/goblin_anim_04_rgba.png'
-    ],
+    animClass: 'monster-sway',
     health: 25,
     attack: 5,
     xp: 20,
@@ -168,12 +157,7 @@ const ENEMIES = [
     id: 'skeleton',
     name: 'Skeleton',
     sprite: '../assets/sprites/word-forge/skeleton_realistic_rgba.png',
-    animFrames: [
-      '../assets/sprites/word-forge/skeleton_anim_01_rgba.png',
-      '../assets/sprites/word-forge/skeleton_anim_02_rgba.png',
-      '../assets/sprites/word-forge/skeleton_anim_03_rgba.png',
-      '../assets/sprites/word-forge/skeleton_anim_04_rgba.png'
-    ],
+    animClass: 'monster-shake',
     health: 35,
     attack: 8,
     xp: 30,
@@ -184,12 +168,7 @@ const ENEMIES = [
     id: 'fire_elemental',
     name: 'Fire Elemental',
     sprite: '../assets/sprites/word-forge/fire_elemental_realistic_rgba.png',
-    animFrames: [
-      '../assets/sprites/word-forge/fire_elemental_anim_01_rgba.png',
-      '../assets/sprites/word-forge/fire_elemental_anim_02_rgba.png',
-      '../assets/sprites/word-forge/fire_elemental_anim_03_rgba.png',
-      '../assets/sprites/word-forge/fire_elemental_anim_04_rgba.png'
-    ],
+    animClass: 'monster-flicker',
     health: 50,
     attack: 12,
     xp: 50,
@@ -200,12 +179,7 @@ const ENEMIES = [
     id: 'dragon',
     name: 'Ancient Dragon',
     sprite: '../assets/sprites/word-forge/dragon_realistic_rgba.png',
-    animFrames: [
-      '../assets/sprites/word-forge/dragon_anim_01_rgba.png',
-      '../assets/sprites/word-forge/dragon_anim_02_rgba.png',
-      '../assets/sprites/word-forge/dragon_anim_03_rgba.png',
-      '../assets/sprites/word-forge/dragon_anim_04_rgba.png'
-    ],
+    animClass: 'monster-breathe',
     health: 150,
     attack: 20,
     xp: 200,

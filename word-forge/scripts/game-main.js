@@ -26,9 +26,6 @@ const DungeonForge = () => {
   const [craftingWords, setCraftingWords] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   
-  // Animation state
-  const [animFrame, setAnimFrame] = useState(0);
-  
   const inputRef = useRef(null);
   
   // ==================== LUMINA CORE INTEGRATION ====================
@@ -59,15 +56,6 @@ const DungeonForge = () => {
       }
     }
   }, [screen, dungeon?.currentRoom]);
-  
-  // Animate monster sprites
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimFrame(prev => (prev + 1) % 4); // Cycle through 4 frames
-    }, 400); // Change frame every 400ms (2.5 FPS for breathing effect)
-    
-    return () => clearInterval(interval);
-  }, []);
   
   // ==================== GAME FUNCTIONS ====================
   
@@ -667,24 +655,12 @@ const DungeonForge = () => {
           {livingEnemies.map((enemy, i) => (
             <div key={i} className="bg-black/70 backdrop-blur rounded-xl p-4 border-2 border-red-900/50">
               <div className="flex justify-center mb-2">
-                {enemy.videoSrc ? (
-                  <video 
-                    src={enemy.videoSrc}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-24 h-24 object-contain"
-                    style={{ imageRendering: 'auto' }}
-                  />
-                ) : (
-                  <img 
-                    src={enemy.animFrames ? enemy.animFrames[animFrame] : enemy.sprite} 
-                    alt={enemy.name}
-                    className="w-24 h-24 object-contain monster-animate"
-                    style={{ imageRendering: 'auto' }}
-                  />
-                )}
+                <img 
+                  src={enemy.sprite} 
+                  alt={enemy.name}
+                  className={`w-24 h-24 object-contain ${enemy.animClass || 'monster-breathe'}`}
+                  style={{ imageRendering: 'auto' }}
+                />
               </div>
               <div className="text-sm text-amber-400 font-bold">{enemy.name}</div>
               <div className="text-xs text-gray-400">{Math.ceil(enemy.currentHealth)}/{enemy.maxHealth} HP</div>
