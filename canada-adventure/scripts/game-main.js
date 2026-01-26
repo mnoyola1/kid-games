@@ -383,7 +383,6 @@
               </div>
               <div className="flex items-center justify-center gap-2 mb-1">
                 <h1 className="text-4xl font-black text-red-600">CANADA</h1>
-                <span className="text-xs font-black uppercase tracking-widest bg-red-600 text-white px-2 py-1 rounded-full">Revamp 01-26</span>
               </div>
               <h2 className="text-2xl font-bold text-gray-600 mb-4">ADVENTURE</h2>
               

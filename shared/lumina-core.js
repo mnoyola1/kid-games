@@ -16,13 +16,17 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.4.1'; // Updated Mario and Adriana profile pictures
+  const VERSION = '1.4.2'; // Progression reset + reward pacing update
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
   let _cloudInitialized = false;
   
   // ==================== CONSTANTS ====================
+
+  const XP_GAIN_MULTIPLIER = 0.85;
+  const COIN_GAIN_MULTIPLIER = 0.9;
+  const REWARD_POINT_MULTIPLIER = 0.9;
   
   const LEVEL_TITLES = [
     { level: 1, title: 'Apprentice', minXP: 0 },
@@ -238,11 +242,82 @@ const LuminaCore = (function() {
       createdAt: new Date().toISOString(),
     };
   }
+
+  function resetProfileProgress(profile) {
+    const gameStats = {};
+    Object.keys(GAMES).forEach(key => {
+      gameStats[key] = { ...GAMES[key].defaultStats };
+    });
+
+    return {
+      ...profile,
+      totalXP: 0,
+      level: 1,
+      title: 'Apprentice',
+      currentCoins: 0,
+      lifetimeCoins: 0,
+      rewardPoints: 0,
+      lastPlayed: null,
+      lastPlayedGame: null,
+      streakDays: 0,
+      streakLastDate: null,
+      totalPlayTimeMinutes: 0,
+      achievements: [],
+      gameStats,
+      inventory: {
+        powerups: {
+          skip: 0,
+          hint: 0,
+          shield: 0,
+          double: 0,
+        },
+        themes: [],
+        avatarFrames: [],
+        unlocked: [],
+      },
+      usageMetrics: profile.isParent ? {
+        totalSessions: 0,
+        totalPlayTime: 0,
+        gamesPlayed: {},
+        dailyActivity: {},
+        weeklyActivity: {},
+        lastViewed: null
+      } : null
+    };
+  }
+
+  function resetAllProgress(data) {
+    if (data.profiles) {
+      Object.keys(data.profiles).forEach(key => {
+        data.profiles[key] = resetProfileProgress(data.profiles[key]);
+      });
+    }
+
+    data.familyQuest = {
+      active: false,
+      goal: 500,
+      current: 0,
+      reward: 'Pizza Night Pick',
+      startDate: null,
+      endDate: null,
+      contributions: { emma: 0, liam: 0 },
+    };
+
+    data.dailyChallenges = {
+      lastResetDate: null,
+      challenges: [],
+    };
+
+    data.claimedRewards = [];
+    data.pendingRewards = [];
+    data.resetAtVersion = VERSION;
+  }
   
   function getDefaultData() {
     return {
       version: VERSION,
       currentPlayer: null,
+      resetAtVersion: VERSION,
       profiles: {
         emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/emma_profile.png?v=2') },
         liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/liam_profile.png?v=2') },
@@ -599,6 +674,12 @@ const LuminaCore = (function() {
       oldData.settings.parentPIN = '0320';
     }
     
+    // One-time progression reset for this version
+    if (oldData.resetAtVersion !== VERSION) {
+      console.log('🔄 Resetting profile progression for version', VERSION);
+      resetAllProgress(oldData);
+    }
+
     // Update version and preserve all data
     oldData.version = VERSION;
     console.log('✅ Migration complete');
@@ -669,13 +750,15 @@ const LuminaCore = (function() {
     const data = getData();
     const player = data.profiles[playerId];
     if (!player) return null;
+
+    const adjustedAmount = amount > 0 ? Math.max(1, Math.floor(amount * XP_GAIN_MULTIPLIER)) : amount;
     
     const oldLevel = player.level;
-    player.totalXP += amount;
+    player.totalXP += adjustedAmount;
     
     // Update daily challenge for XP earned
-    if (amount > 0) {
-      updateDailyChallenge('earn_100_xp', amount);
+    if (adjustedAmount > 0) {
+      updateDailyChallenge('earn_100_xp', adjustedAmount);
     }
     
     const levelInfo = calculateLevel(player.totalXP);
@@ -686,8 +769,8 @@ const LuminaCore = (function() {
     
     // Also add to family quest if active
     if (data.familyQuest.active) {
-      data.familyQuest.current += amount;
-      data.familyQuest.contributions[playerId] = (data.familyQuest.contributions[playerId] || 0) + amount;
+      data.familyQuest.current += adjustedAmount;
+      data.familyQuest.contributions[playerId] = (data.familyQuest.contributions[playerId] || 0) + adjustedAmount;
     }
     
     save();
@@ -711,9 +794,11 @@ const LuminaCore = (function() {
     const data = getData();
     const player = data.profiles[playerId];
     if (!player) return null;
+
+    const adjustedAmount = amount > 0 ? Math.max(1, Math.floor(amount * COIN_GAIN_MULTIPLIER)) : amount;
     
-    player.currentCoins += amount;
-    player.lifetimeCoins += amount;
+    player.currentCoins += adjustedAmount;
+    player.lifetimeCoins += adjustedAmount;
     save();
     
     // Check coin achievements
@@ -872,7 +957,8 @@ const LuminaCore = (function() {
     const player = data.profiles[playerId];
     if (!player) return null;
     
-    player.rewardPoints += amount;
+    const adjustedAmount = amount > 0 ? Math.max(1, Math.floor(amount * REWARD_POINT_MULTIPLIER)) : amount;
+    player.rewardPoints += adjustedAmount;
     save();
     
     return player.rewardPoints;
