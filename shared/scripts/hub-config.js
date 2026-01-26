@@ -104,6 +104,16 @@ const GAMES = [
     description: 'Enter the magical world of Lumina! Join Aurora on an epic quest.',
     features: ['📖 Epic Story', '⚔️ Boss Battles', '👨‍👩‍👧‍👦 Family'],
     active: false
+  },
+  {
+    id: '99-nights-in-space',
+    name: '99 Nights in Space',
+    subtitle: 'Space Adventure',
+    icon: '🚀',
+    url: '#',
+    description: 'Embark on an intergalactic journey! Explore alien worlds, solve cosmic puzzles, and discover the mysteries of the universe.',
+    features: ['🌌 Space Exploration', '🪐 Alien Worlds', '🧩 Cosmic Puzzles', '🛸 Adventure'],
+    active: false
   }
 ];
 

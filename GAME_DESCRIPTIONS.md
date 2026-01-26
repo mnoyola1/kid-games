@@ -408,6 +408,50 @@ Top-down survival horror where players explore a dark, procedurally-generated sc
 
 ---
 
+## 9. 99 NIGHTS IN SPACE 🚀
+
+**Genre:** Space Adventure + Educational Puzzles  
+**Target Players:** Emma & Liam  
+**Duration:** 15-25 minutes per session  
+**Status:** 🚧 Coming Soon
+
+### Core Gameplay
+An intergalactic adventure where players explore alien worlds, solve cosmic puzzles, and learn about space, science, and problem-solving. Navigate through different planets, each with unique challenges and educational content.
+
+### Key Features (Planned)
+- **Space Exploration:**
+  - Visit multiple alien worlds
+  - Discover cosmic artifacts
+  - Navigate asteroid fields
+  - Interact with alien civilizations
+
+- **Educational Content:**
+  - Space science (planets, stars, gravity)
+  - Math puzzles (coordinates, calculations)
+  - Logic challenges
+  - Reading comprehension missions
+
+- **Progression System:**
+  - Unlock new planets
+  - Upgrade spaceship
+  - Collect alien artifacts
+  - Complete mission log
+
+### Educational Value
+- Space science and astronomy
+- STEM concepts (gravity, orbits, space travel)
+- Problem-solving and critical thinking
+- Reading comprehension
+- Math skills (coordinates, measurements)
+
+### Visual Style (Planned)
+- Colorful space environments
+- Friendly alien characters
+- Engaging sci-fi aesthetic
+- Kid-friendly space theme
+
+---
+
 ## CROSS-GAME FEATURES
 
 All games integrate with **LuminaCore** for unified progression:
@@ -479,6 +523,7 @@ All games integrate with **LuminaCore** for unified progression:
 | Pixel Quest | 10-15 min | Multi-subject | World-based | 🎵 Needs Music |
 | Rhythm Academy | 2-5 min | Multi-subject | 3 (Easy/Med/Hard) | 🎵 Needs Music |
 | Shadows in the Halls | 20-30 min | Math/Vocab | Puzzle-based | 🎵 Needs Music |
+| 99 Nights in Space | 15-25 min | Space/STEM | TBD | 🚧 Coming Soon |
 
 ---
 

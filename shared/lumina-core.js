@@ -204,6 +204,12 @@ const LuminaCore = (function() {
       icon: '🏫',
       defaultStats: { gamesPlayed: 0, gamesWon: 0, roomsExplored: 0, puzzlesSolved: 0, batteriesCollected: 0, bestTime: null }
     },
+    ninetyNineNights: {
+      id: 'ninetyNineNights',
+      name: '99 Nights in Space',
+      icon: '🚀',
+      defaultStats: { gamesPlayed: 0, planetsExplored: 0, puzzlesSolved: 0, artifactsCollected: 0, missionsCompleted: 0, bestTime: null }
+    },
   };
   
   // ==================== DEFAULT DATA ====================
