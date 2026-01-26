@@ -62,6 +62,7 @@ Create a "meta-game" layer that sits above individual educational games, making 
 |--------|-----|-------|--------------|-------|
 | Emma | 10 | 5th | The Sage | Strategic thinker |
 | Liam | 8 | 3rd | The Scout | Action-oriented |
+| Micaya | - | - | The Shadow | Mysterious observer |
 
 ## Core Features
 

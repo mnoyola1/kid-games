@@ -314,7 +314,7 @@ const LuminaCore = (function() {
       reward: 'Pizza Night Pick',
       startDate: null,
       endDate: null,
-      contributions: { emma: 0, liam: 0 },
+      contributions: { emma: 0, liam: 0, micaya: 0 },
     };
 
     data.dailyChallenges = {
@@ -335,6 +335,7 @@ const LuminaCore = (function() {
       profiles: {
         emma: { id: 'emma', pin: '1008', ...createDefaultProfile('Emma', 'The Sage', './assets/emma_profile.png?v=2') },
         liam: { id: 'liam', pin: '0830', ...createDefaultProfile('Liam', 'The Scout', './assets/liam_profile.png?v=2') },
+        micaya: { id: 'micaya', pin: '1115', ...createDefaultProfile('Micaya', 'The Shadow', './assets/micaya_profile.png?v=2') },
         guest: { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') },
         mario: { id: 'mario', pin: '0320', role: 'Parent', ...createDefaultProfile('Mario', 'The Warrior-Inventor', './assets/mario_step_profile.png?v=2', true) },
         adriana: { id: 'adriana', pin: '7979', role: 'Parent', ...createDefaultProfile('Adriana', 'The Earth-Mage', './assets/adriana_terra_profile.png?v=2', true) },
@@ -346,7 +347,7 @@ const LuminaCore = (function() {
         reward: 'Pizza Night Pick',
         startDate: null,
         endDate: null,
-        contributions: { emma: 0, liam: 0 },
+        contributions: { emma: 0, liam: 0, micaya: 0 },
       },
       dailyChallenges: {
         lastResetDate: null,
@@ -459,6 +460,17 @@ const LuminaCore = (function() {
       if (isOldPath || currentAvatar !== correctAvatar) {
         console.log('🔧 HOTFIX: Correcting Adriana avatar from', currentAvatar, 'to', correctAvatar);
         _data.profiles.adriana.avatar = correctAvatar;
+        needsSave = true;
+      }
+    }
+    
+    // HOTFIX: Ensure Micaya avatar is always correct (force update if not correct)
+    if (_data.profiles && _data.profiles.micaya) {
+      const correctAvatar = './assets/micaya_profile.png?v=2';
+      const currentAvatar = _data.profiles.micaya.avatar || '';
+      if (currentAvatar !== correctAvatar) {
+        console.log('🔧 HOTFIX: Correcting Micaya avatar from', currentAvatar, 'to', correctAvatar);
+        _data.profiles.micaya.avatar = correctAvatar;
         needsSave = true;
       }
     }
@@ -644,10 +656,16 @@ const LuminaCore = (function() {
           oldProfile.avatar = './assets/adriana_terra_profile.png?v=2';
         }
         
+        // Update Micaya profile avatar to new path (check for any old path variation)
+        if (key === 'micaya' && oldProfile.avatar && oldProfile.avatar.includes('micaya')) {
+          console.log('✅ Updating Micaya avatar to new path (was:', oldProfile.avatar, ')');
+          oldProfile.avatar = './assets/micaya_profile.png?v=2';
+        }
+        
         // Ensure profiles have PIN field (null for guest, default for others)
         if (!oldProfile.hasOwnProperty('pin')) {
           console.log('✅ Adding pin field to profile:', key);
-          oldProfile.pin = key === 'guest' ? null : (key === 'emma' ? '1008' : key === 'liam' ? '0830' : null);
+          oldProfile.pin = key === 'guest' ? null : (key === 'emma' ? '1008' : key === 'liam' ? '0830' : key === 'micaya' ? '1115' : null);
         }
         
         // Ensure all required fields exist
@@ -680,6 +698,12 @@ const LuminaCore = (function() {
     if (!oldData.profiles.guest) {
       console.log('✅ Adding guest profile');
       oldData.profiles.guest = { id: 'guest', pin: null, ...createDefaultProfile('Guest', 'The Visitor', './assets/guest-avatar.svg') };
+    }
+    
+    // Add Micaya profile if it doesn't exist
+    if (!oldData.profiles.micaya) {
+      console.log('✅ Adding Micaya profile');
+      oldData.profiles.micaya = { id: 'micaya', pin: '1115', ...createDefaultProfile('Micaya', 'The Shadow', './assets/micaya_profile.png?v=2') };
     }
     
     // Update parent PIN to new value (v1.2.1)
@@ -1279,7 +1303,7 @@ const LuminaCore = (function() {
       reward,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
-      contributions: { emma: 0, liam: 0 },
+      contributions: { emma: 0, liam: 0, micaya: 0 },
     };
     
     save();
