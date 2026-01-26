@@ -135,6 +135,7 @@ const ENEMIES = [
     id: 'slime',
     name: 'Slime',
     sprite: '../assets/sprites/word-forge/slime_realistic_rgba.png',
+    videoSrc: '../assets/sprites/word-forge/slime_video.mp4',
     animFrames: [
       '../assets/sprites/word-forge/slime_anim_01_rgba.png',
       '../assets/sprites/word-forge/slime_anim_02_rgba.png',

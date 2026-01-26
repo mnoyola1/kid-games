@@ -27,6 +27,14 @@
   text-shadow: 0 0 20px rgba(255, 191, 0, 0.7), 0 0 40px rgba(255, 191, 0, 0.4);
 }
 
+/* Enhanced text visibility */
+.text-enhanced {
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.8),
+    0 2px 6px rgba(0, 0, 0, 0.6),
+    0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 /* Animations */
 @keyframes float {
   0%, 100% {
