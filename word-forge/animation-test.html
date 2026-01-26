@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animation Comparison - Dungeon Forge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      font-family: 'Press Start 2P', system-ui;
+    }
+    
+    .sprite-animation {
+      animation: sprite-bounce 1s ease-in-out infinite;
+    }
+    
+    @keyframes sprite-bounce {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      50% { transform: translateY(-5px) scaleY(0.95); }
+    }
+    
+    .comparison-box {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(251, 191, 36, 0.5);
+      border-radius: 1rem;
+      padding: 2rem;
+      min-height: 400px;
+    }
+    
+    .info-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-8">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-4xl text-amber-400 text-center mb-8">🎬 Animation Comparison Test</h1>
+    <p class="text-center text-gray-400 mb-8">Comparing Video (Veo 3.1) vs Sprite Sheet Animations</p>
+    
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Video Animation -->
+      <div class="comparison-box">
+        <h2 class="text-2xl text-purple-400 mb-4 text-center">📹 VIDEO (Veo 3.1)</h2>
+        <div class="flex justify-center items-center h-64 bg-black/50 rounded-lg overflow-hidden">
+          <video 
+            src="../assets/sprites/word-forge/slime_animated.mp4" 
+            autoplay 
+            loop 
+            muted
+            class="max-h-full max-w-full object-contain"
+          ></video>
+        </div>
+        
+        <div class="info-box text-xs text-gray-300 space-y-2">
+          <p><strong class="text-green-400">✅ Pros:</strong></p>
+          <ul class="list-disc list-inside ml-2 space-y-1">
+            <li>Realistic, fluid movement</li>
+            <li>Natural physics & motion blur</li>
+            <li>Professional quality</li>
+            <li>Audio included (if needed)</li>
+            <li>Single file per animation</li>
+          </ul>
+          
+          <p class="mt-3"><strong class="text-red-400">❌ Cons:</strong></p>
+          <ul class="list-disc list-inside ml-2 space-y-1">
+            <li>Larger file size (~1MB)</li>
+            <li>Can't be transparent</li>
+            <li>Fixed aspect ratio (16:9 or 9:16)</li>
+            <li>Generation time: ~30 seconds</li>
+            <li>Cost: Higher per asset</li>
+          </ul>
+          
+          <div class="mt-3 p-2 bg-blue-900/30 rounded border border-blue-500/50">
+            <p><strong>File:</strong> slime_animated.mp4</p>
+            <p><strong>Size:</strong> 0.91 MB</p>
+            <p><strong>Duration:</strong> 4 seconds looping</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sprite Sheet Animation -->
+      <div class="comparison-box">
+        <h2 class="text-2xl text-green-400 mb-4 text-center">🎨 SPRITE SHEET</h2>
+        <div class="flex justify-center items-center h-64 bg-black/50 rounded-lg">
+          <img 
+            id="sprite-frame"
+            src="../assets/sprites/word-forge/slime_sheet_01.png" 
+            alt="Slime Animation"
+            class="max-h-48 object-contain sprite-animation"
+          />
+        </div>
+        
+        <div class="info-box text-xs text-gray-300 space-y-2">
+          <p><strong class="text-green-400">✅ Pros:</strong></p>
+          <ul class="list-disc list-inside ml-2 space-y-1">
+            <li>Smaller file size (4 frames total)</li>
+            <li>Transparent backgrounds</li>
+            <li>Classic game aesthetic</li>
+            <li>Easy to edit & recolor</li>
+            <li>Fast loading</li>
+            <li>More control over timing</li>
+          </ul>
+          
+          <p class="mt-3"><strong class="text-red-400">❌ Cons:</strong></p>
+          <ul class="list-disc list-inside ml-2 space-y-1">
+            <li>Less realistic movement</li>
+            <li>No motion blur</li>
+            <li>Limited to drawn frames</li>
+            <li>Need multiple images</li>
+            <li>Manual frame switching</li>
+          </ul>
+          
+          <div class="mt-3 p-2 bg-blue-900/30 rounded border border-blue-500/50">
+            <p><strong>Files:</strong> slime_sheet_01-04.png</p>
+            <p><strong>Total Size:</strong> ~200-400 KB</p>
+            <p><strong>Frames:</strong> 4 frames cycling</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance Stats -->
+    <div class="mt-8 comparison-box">
+      <h2 class="text-2xl text-amber-400 mb-4 text-center">📊 Performance & Cost Comparison</h2>
+      
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div class="bg-purple-900/30 p-4 rounded border border-purple-500/50">
+          <h3 class="text-purple-400 font-bold mb-2">Generation Time</h3>
+          <p class="text-gray-300">Video: <strong>~30 seconds</strong></p>
+          <p class="text-gray-300">Sprites: <strong>~20 seconds each</strong> (80s total for 4)</p>
+        </div>
+        
+        <div class="bg-green-900/30 p-4 rounded border border-green-500/50">
+          <h3 class="text-green-400 font-bold mb-2">File Size</h3>
+          <p class="text-gray-300">Video: <strong>~1 MB</strong></p>
+          <p class="text-gray-300">Sprites: <strong>~300 KB</strong> (4 frames)</p>
+        </div>
+        
+        <div class="bg-blue-900/30 p-4 rounded border border-blue-500/50">
+          <h3 class="text-blue-400 font-bold mb-2">Loading Speed</h3>
+          <p class="text-gray-300">Video: <strong>Slower</strong> (needs buffering)</p>
+          <p class="text-gray-300">Sprites: <strong>Faster</strong> (instant)</p>
+        </div>
+      </div>
+      
+      <div class="mt-6 text-center">
+        <a href="index.html" class="inline-block px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-800 text-white rounded-xl font-bold hover:from-amber-500 hover:to-amber-700 transition-all">
+          ← Back to Game
+        </a>
+      </div>
+    </div>
+    
+    <div class="mt-6 text-center text-gray-500 text-xs">
+      <p>Press Ctrl+Shift+R to hard refresh if assets don't load</p>
+    </div>
+  </div>
+  
+  <script>
+    // Animate sprite sheet frames
+    const spriteFrames = [
+      '../assets/sprites/word-forge/slime_sheet_01.png',
+      '../assets/sprites/word-forge/slime_sheet_02.png',
+      '../assets/sprites/word-forge/slime_sheet_03.png',
+      '../assets/sprites/word-forge/slime_sheet_04.png'
+    ];
+    
+    let currentFrame = 0;
+    const spriteImg = document.getElementById('sprite-frame');
+    
+    setInterval(() => {
+      currentFrame = (currentFrame + 1) % spriteFrames.length;
+      spriteImg.src = spriteFrames[currentFrame];
+    }, 250); // Change frame every 250ms (4 FPS for bouncing effect)
+  </script>
+</body>
+</html>
