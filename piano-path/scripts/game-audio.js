@@ -5,6 +5,9 @@ class AudioManager {
     this.context = null;
     this.masterGain = null;
     this.sfx = {};
+    this.music = {};
+    this.currentMusic = null;
+    this.musicUnlocked = false;
     this.sfxVolume = 0.6;
     this.musicVolume = 0.35;
     this.enabled = true;
@@ -38,12 +41,50 @@ class AudioManager {
     });
   }
 
+  preloadMusic() {
+    this.music = {
+      menu: new Audio('../assets/audio/shared/music/lyria2_menu_test.wav'),
+    };
+
+    Object.values(this.music).forEach((audio) => {
+      audio.volume = this.musicVolume;
+      audio.loop = true;
+      audio.preload = 'auto';
+    });
+  }
+
+  unlockAudio() {
+    if (this.musicUnlocked) return;
+    this.musicUnlocked = true;
+    this.ensureContext();
+  }
+
   playSfx(name) {
     if (!this.enabled) return;
     const audio = this.sfx[name];
     if (!audio) return;
     audio.currentTime = 0;
     audio.play().catch(() => {});
+  }
+
+  playMusic(name) {
+    if (!this.enabled || !this.musicUnlocked) return;
+    const track = this.music[name];
+    if (!track) return;
+    if (this.currentMusic === track) return;
+
+    this.stopMusic();
+    this.currentMusic = track;
+    track.currentTime = 0;
+    track.volume = this.musicVolume;
+    track.play().catch(() => {});
+  }
+
+  stopMusic() {
+    if (!this.currentMusic) return;
+    this.currentMusic.pause();
+    this.currentMusic.currentTime = 0;
+    this.currentMusic = null;
   }
 
   playNote(note, duration = 0.6, velocity = 0.7, when = 0) {
@@ -108,5 +149,8 @@ class AudioManager {
 
   setEnabled(enabled) {
     this.enabled = enabled;
+    if (!enabled) {
+      this.stopMusic();
+    }
   }
 }

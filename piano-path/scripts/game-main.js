@@ -44,6 +44,7 @@ function PianoPath() {
   const audioManager = useMemo(() => {
     const manager = new AudioManager();
     manager.preloadSfx();
+    manager.preloadMusic();
     return manager;
   }, []);
 
@@ -82,6 +83,21 @@ function PianoPath() {
   useEffect(() => {
     setTip(QUICK_TIPS[Math.floor(Math.random() * QUICK_TIPS.length)]);
   }, [screen]);
+
+  useEffect(() => {
+    if (screen === 'menu' || screen === 'select') {
+      audioManager.playMusic('menu');
+    } else {
+      audioManager.stopMusic();
+    }
+  }, [screen, audioManager]);
+
+  const unlockAudio = useCallback(() => {
+    audioManager.unlockAudio();
+    if (screen === 'menu' || screen === 'select') {
+      audioManager.playMusic('menu');
+    }
+  }, [audioManager, screen]);
 
   useEffect(() => {
     if (screen === 'select') {
@@ -466,7 +482,7 @@ function PianoPath() {
                   <button
                     className="bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-semibold px-6 py-3 rounded-full transition-all"
                     onClick={() => {
-                      audioManager.ensureContext();
+                      unlockAudio();
                       audioManager.playSfx('click');
                       setScreen('select');
                     }}
@@ -476,6 +492,7 @@ function PianoPath() {
                   <button
                     className="border border-purple-300 text-purple-100 px-6 py-3 rounded-full hover:bg-purple-700/40 transition-all"
                     onClick={() => {
+                      unlockAudio();
                       audioManager.playSfx('select');
                       setShowHelp(true);
                     }}
@@ -497,7 +514,10 @@ function PianoPath() {
               <h2 className="text-2xl font-title text-white">Choose a Song</h2>
               <button
                 className="text-purple-200 hover:text-white"
-                onClick={resetToMenu}
+                onClick={() => {
+                  unlockAudio();
+                  resetToMenu();
+                }}
               >
                 ← Back
               </button>
@@ -517,6 +537,7 @@ function PianoPath() {
                     }`}
                     onClick={() => {
                       if (!unlocked) return;
+                      unlockAudio();
                       audioManager.playSfx('select');
                       startSong(song);
                     }}
@@ -540,7 +561,10 @@ function PianoPath() {
             <div className="flex items-center justify-between pt-2">
               <button
                 className="text-purple-200 hover:text-white disabled:opacity-40"
-                onClick={() => setSongPage((prev) => Math.max(0, prev - 1))}
+                onClick={() => {
+                  unlockAudio();
+                  setSongPage((prev) => Math.max(0, prev - 1));
+                }}
                 disabled={songPage === 0}
               >
                 ← Prev
@@ -550,7 +574,10 @@ function PianoPath() {
               </div>
               <button
                 className="text-purple-200 hover:text-white disabled:opacity-40"
-                onClick={() => setSongPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                onClick={() => {
+                  unlockAudio();
+                  setSongPage((prev) => Math.min(totalPages - 1, prev + 1));
+                }}
                 disabled={songPage >= totalPages - 1}
               >
                 Next →
@@ -628,7 +655,7 @@ function PianoPath() {
                     <button
                       className="bg-green-400 text-green-950 px-5 py-2 rounded-full font-semibold"
                       onClick={() => {
-                        audioManager.ensureContext();
+                        unlockAudio();
                         audioManager.playSfx('select');
                         setIsPlaying(true);
                       }}
@@ -640,6 +667,7 @@ function PianoPath() {
                   <button
                     className="bg-purple-700/70 text-purple-100 px-5 py-2 rounded-full"
                     onClick={() => {
+                      unlockAudio();
                       audioManager.playSfx('click');
                       setScreen('select');
                       setIsPlaying(false);
@@ -704,6 +732,7 @@ function PianoPath() {
               <button
                 className="bg-yellow-400 text-purple-900 px-6 py-3 rounded-full font-semibold"
                 onClick={() => {
+                  unlockAudio();
                   audioManager.playSfx('select');
                   startSong(selectedSong);
                 }}
@@ -713,6 +742,7 @@ function PianoPath() {
               <button
                 className="bg-purple-700/70 text-purple-100 px-6 py-3 rounded-full"
                 onClick={() => {
+                  unlockAudio();
                   audioManager.playSfx('click');
                   setScreen('select');
                 }}
@@ -746,6 +776,7 @@ function PianoPath() {
             <button
               className="bg-yellow-400 text-purple-900 px-5 py-2 rounded-full font-semibold"
               onClick={() => {
+                unlockAudio();
                 audioManager.playSfx('click');
                 setShowHelp(false);
               }}
