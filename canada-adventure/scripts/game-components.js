@@ -53,7 +53,7 @@ const HPBar = ({ current, max, color = 'red', label }) => {
 };
 
 // SVG Canada Map Component
-const CanadaMap = ({ unlockedRegions, onSelectRegion, currentRegion }) => {
+const CanadaMap = ({ unlockedRegions, onSelectRegion, currentRegion, className = '' }) => {
   const provinces = [
     { id: 'atlantic', path: 'M380,180 L400,160 L420,170 L410,190 L390,200 Z', cx: 395, cy: 180 },
     { id: 'quebec', path: 'M320,140 L360,120 L380,140 L370,180 L340,190 L310,170 Z', cx: 345, cy: 155 },
@@ -65,7 +65,7 @@ const CanadaMap = ({ unlockedRegions, onSelectRegion, currentRegion }) => {
   ];
 
   return (
-    <svg viewBox="0 0 440 240" className="w-full h-full">
+    <svg viewBox="0 0 440 240" className={`w-full h-full ${className}`} preserveAspectRatio="xMidYMid meet">
       <rect x="0" y="0" width="440" height="240" fill="#0ea5e9" />
       <ellipse cx="220" cy="140" rx="200" ry="110" fill="#4ade80" />
       

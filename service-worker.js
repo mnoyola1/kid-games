@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.4.4';
+const CACHE_VERSION = 'v1.4.5';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -64,6 +64,7 @@ const CRITICAL_ASSETS = [
   '/canada-adventure/scripts/game-data.js',
   '/canada-adventure/scripts/game-sprites.js',
   '/canada-adventure/scripts/game-components.js',
+  '/canada-adventure/scripts/game-audio.js',
   '/canada-adventure/scripts/game-main.js',
   '/canada-adventure/scripts/game-init.js',
   
@@ -132,6 +133,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/pixel-quest/',
   '/assets/audio/rhythm-academy/',
   '/assets/audio/shadows-in-the-halls/',
+  '/assets/audio/canada-adventure/',
 ];
 
 // Image/sprite files (cached on-demand)

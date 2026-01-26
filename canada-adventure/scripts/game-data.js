@@ -32,14 +32,24 @@ const allQuestions = [
   { q: 'Which animal can you find in the Canadian Shield?', a: 'Deer', wrong: ['Polar bear', 'Tiger', 'Hippo'], region: 'shield' },
 ];
 
+const REGION_BACKGROUNDS = {
+  atlantic: '../assets/backgrounds/canada-adventure/atlantic.png',
+  quebec: '../assets/backgrounds/canada-adventure/quebec.png',
+  ontario: '../assets/backgrounds/canada-adventure/ontario.png',
+  shield: '../assets/backgrounds/canada-adventure/shield.png',
+  plains: '../assets/backgrounds/canada-adventure/plains.png',
+  rockies: '../assets/backgrounds/canada-adventure/rockies.png',
+  arctic: '../assets/backgrounds/canada-adventure/arctic.png',
+};
+
 const regions = [
-  { id: 'atlantic', name: 'Atlantic', color: '#3b82f6', bg: 'from-blue-400 to-blue-600', unlockLevel: 1 },
-  { id: 'quebec', name: 'Quebec', color: '#8b5cf6', bg: 'from-purple-400 to-purple-600', unlockLevel: 2 },
-  { id: 'ontario', name: 'Ontario', color: '#f59e0b', bg: 'from-amber-400 to-orange-500', unlockLevel: 3 },
-  { id: 'shield', name: 'Shield', color: '#10b981', bg: 'from-green-400 to-green-600', unlockLevel: 4 },
-  { id: 'plains', name: 'Plains', color: '#eab308', bg: 'from-yellow-400 to-amber-500', unlockLevel: 5 },
-  { id: 'rockies', name: 'Rockies', color: '#64748b', bg: 'from-gray-400 to-slate-600', unlockLevel: 6 },
-  { id: 'arctic', name: 'Arctic', color: '#06b6d4', bg: 'from-cyan-300 to-blue-500', unlockLevel: 7 },
+  { id: 'atlantic', name: 'Atlantic', color: '#3b82f6', bg: 'from-blue-400 to-blue-600', unlockLevel: 1, bgImage: REGION_BACKGROUNDS.atlantic },
+  { id: 'quebec', name: 'Quebec', color: '#8b5cf6', bg: 'from-purple-400 to-purple-600', unlockLevel: 2, bgImage: REGION_BACKGROUNDS.quebec },
+  { id: 'ontario', name: 'Ontario', color: '#f59e0b', bg: 'from-amber-400 to-orange-500', unlockLevel: 3, bgImage: REGION_BACKGROUNDS.ontario },
+  { id: 'shield', name: 'Shield', color: '#10b981', bg: 'from-green-400 to-green-600', unlockLevel: 4, bgImage: REGION_BACKGROUNDS.shield },
+  { id: 'plains', name: 'Plains', color: '#eab308', bg: 'from-yellow-400 to-amber-500', unlockLevel: 5, bgImage: REGION_BACKGROUNDS.plains },
+  { id: 'rockies', name: 'Rockies', color: '#64748b', bg: 'from-gray-400 to-slate-600', unlockLevel: 6, bgImage: REGION_BACKGROUNDS.rockies },
+  { id: 'arctic', name: 'Arctic', color: '#06b6d4', bg: 'from-cyan-300 to-blue-500', unlockLevel: 7, bgImage: REGION_BACKGROUNDS.arctic },
 ];
 
 const monsters = {
