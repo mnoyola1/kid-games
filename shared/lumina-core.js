@@ -16,7 +16,7 @@ const LuminaCore = (function() {
   'use strict';
   
   const STORAGE_KEY = 'lumina_game_data';
-  const VERSION = '1.4.2'; // Progression reset + reward pacing update
+  const VERSION = '1.4.3'; // Progression reset + half-pace rewards
   
   // Cloud sync status
   let _cloudSyncEnabled = false;
@@ -24,9 +24,9 @@ const LuminaCore = (function() {
   
   // ==================== CONSTANTS ====================
 
-  const XP_GAIN_MULTIPLIER = 0.85;
-  const COIN_GAIN_MULTIPLIER = 0.9;
-  const REWARD_POINT_MULTIPLIER = 0.9;
+  const XP_GAIN_MULTIPLIER = 0.5;
+  const COIN_GAIN_MULTIPLIER = 0.5;
+  const REWARD_POINT_MULTIPLIER = 0.5;
   
   const LEVEL_TITLES = [
     { level: 1, title: 'Apprentice', minXP: 0 },
