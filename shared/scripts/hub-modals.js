@@ -439,6 +439,54 @@ function submitPin() {
   }
 }
 
+// ==================== FULL LEADERBOARD MODAL ====================
+function showFullLeaderboard() {
+  const modal = document.getElementById('fullLeaderboardModal');
+  const content = document.getElementById('fullLeaderboardContent');
+  
+  // Get leaderboard based on current filter
+  let leaderboard = LuminaCore.getLeaderboard();
+  
+  // Apply current filter
+  switch (currentLeaderboardFilter) {
+    case 'xp':
+      leaderboard.sort((a, b) => b.totalXP - a.totalXP);
+      break;
+    case 'achievements':
+      leaderboard.sort((a, b) => b.achievementCount - a.achievementCount);
+      break;
+    case 'coins':
+      leaderboard.sort((a, b) => b.currentCoins - a.currentCoins);
+      break;
+    case 'streak':
+      leaderboard.sort((a, b) => b.streakDays - a.streakDays);
+      break;
+    default:
+      // Default sorting (already sorted by XP)
+      break;
+  }
+  
+  content.innerHTML = leaderboard.map((player, index) => `
+    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}" style="animation: slideIn 0.3s ease ${index * 0.05}s both;">
+      <div class="leaderboard-rank ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : ''}">
+        ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+      </div>
+      <img src="${player.avatar}" alt="${player.name}" class="leaderboard-avatar">
+      <div class="leaderboard-info">
+        <div class="leaderboard-name">${player.name}</div>
+        <div class="leaderboard-xp">${player.totalXP} XP • ${player.achievementCount} 🏅 • ${player.currentCoins} 💰 • ${player.streakDays}🔥</div>
+      </div>
+      <div class="leaderboard-level">Lv.${player.level}</div>
+    </div>
+  `).join('');
+  
+  modal.classList.add('active');
+}
+
+function closeFullLeaderboard() {
+  document.getElementById('fullLeaderboardModal').classList.remove('active');
+}
+
 // ==================== TOAST ====================
 function showToast(message, type = 'success') {
   const toast = document.getElementById('toast');
@@ -456,3 +504,5 @@ window.setupPinInputs = setupPinInputs;
 window.setupProfilePinInputs = setupProfilePinInputs;
 window.renderShop = renderShop;
 window.applyThemePurchase = applyThemePurchase;
+window.showFullLeaderboard = showFullLeaderboard;
+window.closeFullLeaderboard = closeFullLeaderboard;

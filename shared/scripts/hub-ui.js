@@ -42,10 +42,13 @@ function updateUI() {
 }
 
 let currentLeaderboardFilter = 'all';
+const LEADERBOARD_TOP_N = 5; // Show top 5 by default
 
 function renderLeaderboard() {
   const leaderboard = LuminaCore.getLeaderboard();
   const container = document.getElementById('leaderboardContent');
+  const topPlayers = leaderboard.slice(0, LEADERBOARD_TOP_N);
+  const hasMore = leaderboard.length > LEADERBOARD_TOP_N;
   
   // Add filter buttons
   const filterHTML = `
@@ -58,7 +61,7 @@ function renderLeaderboard() {
     </div>
   `;
   
-  container.innerHTML = filterHTML + leaderboard.map((player, index) => `
+  const playersHTML = topPlayers.map((player, index) => `
     <div class="leaderboard-item ${index === 0 ? 'leader' : ''}" data-xp="${player.totalXP}" data-achievements="${player.achievementCount}" data-coins="${player.currentCoins}" data-streak="${player.streakDays}">
       <div class="leaderboard-rank ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : ''}">
         ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
@@ -71,6 +74,14 @@ function renderLeaderboard() {
       <div class="leaderboard-level">Lv.${player.level}</div>
     </div>
   `).join('');
+  
+  const viewAllButton = hasMore ? `
+    <button class="view-all-btn" onclick="showFullLeaderboard()" style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: var(--radius-md); color: var(--text-primary); font-weight: 600; cursor: pointer; transition: all 0.3s;">
+      View All Players (${leaderboard.length})
+    </button>
+  ` : '';
+  
+  container.innerHTML = filterHTML + playersHTML + viewAllButton;
 }
 
 function filterLeaderboard(filter) {
@@ -105,11 +116,15 @@ function filterLeaderboard(filter) {
       break;
   }
   
+  // Show only top N players
+  const topPlayers = leaderboard.slice(0, LEADERBOARD_TOP_N);
+  const hasMore = leaderboard.length > LEADERBOARD_TOP_N;
+  
   // Re-render
   const container = document.getElementById('leaderboardContent');
   const filterHTML = container.querySelector('.leaderboard-filters')?.outerHTML || '';
   
-  container.innerHTML = filterHTML + leaderboard.map((player, index) => `
+  const playersHTML = topPlayers.map((player, index) => `
     <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
       <div class="leaderboard-rank ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : ''}">
         ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
@@ -122,6 +137,14 @@ function filterLeaderboard(filter) {
       <div class="leaderboard-level">Lv.${player.level}</div>
     </div>
   `).join('');
+  
+  const viewAllButton = hasMore ? `
+    <button class="view-all-btn" onclick="showFullLeaderboard()" style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: var(--radius-md); color: var(--text-primary); font-weight: 600; cursor: pointer; transition: all 0.3s;">
+      View All Players (${leaderboard.length})
+    </button>
+  ` : '';
+  
+  container.innerHTML = filterHTML + playersHTML + viewAllButton;
 }
 
 function renderFamilyQuest() {

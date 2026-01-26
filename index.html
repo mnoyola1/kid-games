@@ -318,6 +318,20 @@
     </div>
   </div>
   
+  <!-- Full Leaderboard Modal -->
+  <div class="modal-overlay" id="fullLeaderboardModal">
+    <div class="modal" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+      <h2>🏆 Full Leaderboard</h2>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1rem;">
+        Complete player rankings
+      </p>
+      <div id="fullLeaderboardContent" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <!-- Populated by JS -->
+      </div>
+      <button class="view-all-btn" onclick="closeFullLeaderboard()" style="margin-top: 1rem; background: rgba(139, 92, 246, 0.3); border: 1px solid rgba(139, 92, 246, 0.4);">Close</button>
+    </div>
+  </div>
+  
   <!-- Toast -->
   <div class="toast" id="toast"></div>
   
