@@ -3,7 +3,6 @@ const DungeonForge = () => {
   const [screen, setScreen] = useState('title');
   const [playerProfile, setPlayerProfile] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [menuMusicOption, setMenuMusicOption] = useState('menu'); // 'menu', 'menu_alt1', 'menu_alt2'
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   
   // Player state
@@ -89,7 +88,7 @@ const DungeonForge = () => {
     setDungeon(newDungeon);
     
     setScreen('dungeon');
-    if (soundEnabled) playMusic(menuMusicOption);
+    if (soundEnabled) playMusic('menu_alt1');
   };
   
   const enterRoom = (roomId) => {
@@ -358,61 +357,6 @@ const DungeonForge = () => {
             >
               {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
             </button>
-            
-            {/* Music Selector */}
-            <div className="bg-black/50 backdrop-blur rounded-lg p-3 border border-gray-700">
-              <p className="text-gray-400 text-xs mb-2">Menu Music:</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setMenuMusicOption('menu');
-                    if (soundEnabled && screen === 'title') {
-                      stopMusic();
-                      playMusic('menu');
-                    }
-                  }}
-                  className={`px-3 py-1 rounded text-xs transition-all ${
-                    menuMusicOption === 'menu'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
-                  }`}
-                >
-                  Original
-                </button>
-                <button
-                  onClick={() => {
-                    setMenuMusicOption('menu_alt1');
-                    if (soundEnabled && screen === 'title') {
-                      stopMusic();
-                      playMusic('menu_alt1');
-                    }
-                  }}
-                  className={`px-3 py-1 rounded text-xs transition-all ${
-                    menuMusicOption === 'menu_alt1'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
-                  }`}
-                >
-                  Dark
-                </button>
-                <button
-                  onClick={() => {
-                    setMenuMusicOption('menu_alt2');
-                    if (soundEnabled && screen === 'title') {
-                      stopMusic();
-                      playMusic('menu_alt2');
-                    }
-                  }}
-                  className={`px-3 py-1 rounded text-xs transition-all ${
-                    menuMusicOption === 'menu_alt2'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
-                  }`}
-                >
-                  Epic
-                </button>
-              </div>
-            </div>
           </div>
           
           {playerProfile && (
