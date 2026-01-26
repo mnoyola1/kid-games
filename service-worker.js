@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.4.5';
+const CACHE_VERSION = 'v1.4.6';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -115,6 +115,14 @@ const CRITICAL_ASSETS = [
   '/rhythm-academy/scripts/game-main.js',
   '/rhythm-academy/scripts/game-init.js',
   
+  // === PIANO PATH ===
+  '/piano-path/index.html',
+  '/piano-path/styles/game-base.css',
+  '/piano-path/scripts/game-config.js',
+  '/piano-path/scripts/game-audio.js',
+  '/piano-path/scripts/game-main.js',
+  '/piano-path/scripts/game-init.js',
+  
   // === SHADOWS IN THE HALLS ===
   '/shadows-in-the-halls/index.html',
   '/shadows-in-the-halls/styles/game-base.css',
@@ -132,6 +140,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/math-quest/',
   '/assets/audio/pixel-quest/',
   '/assets/audio/rhythm-academy/',
+  '/assets/audio/piano-path/',
   '/assets/audio/shadows-in-the-halls/',
   '/assets/audio/canada-adventure/',
 ];

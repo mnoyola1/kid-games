@@ -125,6 +125,12 @@ const LuminaCore = (function() {
     { id: 'ra_three_stars', name: 'Three Star Champion', desc: 'Get 3 stars on a song', icon: '🏆', xpBonus: 50 },
     { id: 'ra_all_songs', name: 'Song Master', desc: 'Unlock all songs', icon: '🎸', xpBonus: 75 },
     
+    // Piano Path
+    { id: 'pp_first_song', name: 'First Melody', desc: 'Complete your first song in Piano Path', icon: '🎹', xpBonus: 15 },
+    { id: 'pp_twinkle', name: 'Twinkle Star', desc: 'Complete Twinkle Twinkle', icon: '⭐', xpBonus: 25 },
+    { id: 'pp_perfect_run', name: 'Crystal Performance', desc: 'Earn a perfect run in Piano Path', icon: '💎', xpBonus: 40 },
+    { id: 'pp_song_master', name: 'Piano Explorer', desc: 'Complete 3 songs in Piano Path', icon: '🎵', xpBonus: 60 },
+    
     // Pixel Quest
     { id: 'pq_first_level', name: 'First Jump', desc: 'Complete your first level', icon: '🎮', xpBonus: 15 },
     { id: 'pq_three_stars', name: 'Star Collector', desc: 'Get 3 stars on a level', icon: '⭐', xpBonus: 40 },
@@ -179,6 +185,12 @@ const LuminaCore = (function() {
       name: 'Rhythm Academy',
       icon: '🎵',
       defaultStats: { songsCompleted: 0, gamesPlayed: 0, highScore: 0, maxCombo: 0, perfectSongs: 0, threeStarSongs: 0 }
+    },
+    pianoPath: {
+      id: 'pianoPath',
+      name: 'Piano Path',
+      icon: '🎹',
+      defaultStats: { songsCompleted: 0, gamesPlayed: 0, highScore: 0, maxCombo: 0, perfectRuns: 0, notesHit: 0, notesTotal: 0, twinkleCompleted: 0 }
     },
     pixelQuest: {
       id: 'pixelQuest',
@@ -1209,6 +1221,13 @@ const LuminaCore = (function() {
         if (stats.perfectSongs >= 1) checkAchievement(playerId, 'ra_perfect_accuracy');
         if (stats.threeStarSongs >= 1) checkAchievement(playerId, 'ra_three_stars');
         if (stats.songsCompleted >= 3) checkAchievement(playerId, 'ra_all_songs');
+        break;
+        
+      case 'pianoPath':
+        if (stats.songsCompleted >= 1) checkAchievement(playerId, 'pp_first_song');
+        if (stats.twinkleCompleted >= 1) checkAchievement(playerId, 'pp_twinkle');
+        if (stats.perfectRuns >= 1) checkAchievement(playerId, 'pp_perfect_run');
+        if (stats.songsCompleted >= 3) checkAchievement(playerId, 'pp_song_master');
         break;
         
       case 'pixelQuest':

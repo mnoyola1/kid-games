@@ -1,0 +1,163 @@
+// ==================== PIANO PATH CONFIGURATION ====================
+
+const GAME_ID = 'pianoPath';
+
+const PIANO_KEYS = [
+  { note: 'C4', label: 'C', type: 'white', order: 0 },
+  { note: 'C#4', label: 'C#', type: 'black', order: 0, offset: 0.65 },
+  { note: 'D4', label: 'D', type: 'white', order: 1 },
+  { note: 'D#4', label: 'D#', type: 'black', order: 1, offset: 0.68 },
+  { note: 'E4', label: 'E', type: 'white', order: 2 },
+  { note: 'F4', label: 'F', type: 'white', order: 3 },
+  { note: 'F#4', label: 'F#', type: 'black', order: 3, offset: 0.68 },
+  { note: 'G4', label: 'G', type: 'white', order: 4 },
+  { note: 'G#4', label: 'G#', type: 'black', order: 4, offset: 0.68 },
+  { note: 'A4', label: 'A', type: 'white', order: 5 },
+  { note: 'A#4', label: 'A#', type: 'black', order: 5, offset: 0.68 },
+  { note: 'B4', label: 'B', type: 'white', order: 6 },
+  { note: 'C5', label: 'C', type: 'white', order: 7 },
+  { note: 'C#5', label: 'C#', type: 'black', order: 7, offset: 0.65 },
+  { note: 'D5', label: 'D', type: 'white', order: 8 },
+  { note: 'D#5', label: 'D#', type: 'black', order: 8, offset: 0.68 },
+  { note: 'E5', label: 'E', type: 'white', order: 9 },
+  { note: 'F5', label: 'F', type: 'white', order: 10 },
+  { note: 'F#5', label: 'F#', type: 'black', order: 10, offset: 0.68 },
+  { note: 'G5', label: 'G', type: 'white', order: 11 },
+  { note: 'G#5', label: 'G#', type: 'black', order: 11, offset: 0.68 },
+  { note: 'A5', label: 'A', type: 'white', order: 12 },
+  { note: 'A#5', label: 'A#', type: 'black', order: 12, offset: 0.68 },
+  { note: 'B5', label: 'B', type: 'white', order: 13 },
+];
+
+const KEY_BINDS = {
+  a: 'C4',
+  w: 'C#4',
+  s: 'D4',
+  e: 'D#4',
+  d: 'E4',
+  f: 'F4',
+  t: 'F#4',
+  g: 'G4',
+  y: 'G#4',
+  h: 'A4',
+  u: 'A#4',
+  j: 'B4',
+  k: 'C5',
+  o: 'C#5',
+  l: 'D5',
+  p: 'D#5',
+  ';': 'E5',
+  "'": 'F5',
+};
+
+const SONGS = [
+  {
+    id: 'twinkle',
+    title: 'Twinkle Twinkle',
+    subtitle: 'Classic beginner song',
+    bpm: 90,
+    difficulty: 'easy',
+    unlocks: ['mary'],
+    steps: [
+      { notes: ['C4'], beats: 1 }, { notes: ['C4'], beats: 1 },
+      { notes: ['G4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['A4'], beats: 1 }, { notes: ['A4'], beats: 1 },
+      { notes: ['G4'], beats: 2 },
+      { notes: ['F4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 2 },
+      { notes: ['G4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['F4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 2 },
+      { notes: ['G4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['F4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 2 },
+      { notes: ['C4'], beats: 1 }, { notes: ['C4'], beats: 1 },
+      { notes: ['G4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['A4'], beats: 1 }, { notes: ['A4'], beats: 1 },
+      { notes: ['G4'], beats: 2 },
+      { notes: ['F4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 2 },
+    ],
+    goalAccuracy: 70
+  },
+  {
+    id: 'mary',
+    title: 'Mary Had a Little Lamb',
+    subtitle: 'Smooth finger practice',
+    bpm: 96,
+    difficulty: 'easy',
+    unlocks: ['ode'],
+    steps: [
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['E4'], beats: 2 },
+      { notes: ['D4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['D4'], beats: 2 },
+      { notes: ['E4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['G4'], beats: 2 },
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 2 },
+    ],
+    goalAccuracy: 75
+  },
+  {
+    id: 'ode',
+    title: 'Ode to Joy',
+    subtitle: 'A longer melody',
+    bpm: 100,
+    difficulty: 'medium',
+    unlocks: [],
+    steps: [
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['F4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['G4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 1 }, { notes: ['C4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['D4'], beats: 2 },
+      { notes: ['E4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['F4'], beats: 1 }, { notes: ['G4'], beats: 1 },
+      { notes: ['G4'], beats: 1 }, { notes: ['F4'], beats: 1 },
+      { notes: ['E4'], beats: 1 }, { notes: ['D4'], beats: 1 },
+      { notes: ['C4'], beats: 1 }, { notes: ['C4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['E4'], beats: 1 },
+      { notes: ['D4'], beats: 1 }, { notes: ['C4'], beats: 1 },
+      { notes: ['C4'], beats: 2 },
+    ],
+    goalAccuracy: 80
+  }
+];
+
+const MODE_INFO = {
+  guided: {
+    label: 'Guided Play',
+    description: 'Keys light up and the song plays for you.',
+    icon: '✨'
+  },
+  practice: {
+    label: 'Practice Mode',
+    description: 'Play each note to move forward.',
+    icon: '🎯'
+  }
+};
+
+const QUICK_TIPS = [
+  'Play on your real piano while the lights guide you.',
+  'Use A S D F G H J keys to play notes.',
+  'Slow down the tempo to learn tricky parts.',
+  'Aim for perfect streaks to unlock stars.',
+  'Listen first, then play along on the repeat.'
+];

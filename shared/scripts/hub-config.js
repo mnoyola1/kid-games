@@ -73,6 +73,17 @@ const GAMES = [
     tags: ['new']
   },
   {
+    id: 'piano-path',
+    name: 'Piano Path',
+    subtitle: 'Piano Learning',
+    icon: '🎹',
+    url: './piano-path/index.html',
+    description: 'Learn real songs by following glowing piano keys. Play along on your piano and build mastery!',
+    features: ['✨ Guided Lights', '🎯 Practice Mode', '🏆 Star Ratings', '🎵 Real Songs'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'pixel-quest',
     name: 'Pixel Quest',
     subtitle: 'Educational Platformer',
