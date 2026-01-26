@@ -11,7 +11,6 @@ function PianoPath() {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
         console.log('🎹 Piano Path: Playing as', profile.name);
-        LuminaCore.recordGameStart(profile.id, GAME_ID);
       }
     }
   }, []);
@@ -52,6 +51,7 @@ function PianoPath() {
   const playbackTimeoutRef = useRef(null);
   const stepStartRef = useRef(0);
   const stepHitRef = useRef(new Set());
+  const hasRecordedStartRef = useRef(false);
 
   const totalStepNotes = useMemo(() => {
     if (!selectedSong) return 0;
@@ -192,6 +192,10 @@ function PianoPath() {
   }, [selectedSong, tempo]);
 
   const startSong = useCallback((song) => {
+    if (playerProfile && !hasRecordedStartRef.current) {
+      LuminaCore.recordGameStart(playerProfile.id, GAME_ID);
+      hasRecordedStartRef.current = true;
+    }
     setSelectedSong(song);
     setScreen('practice');
     setMode('guided');
@@ -207,7 +211,7 @@ function PianoPath() {
     setSessionRewards(null);
     setIsPlaying(false);
     stepHitRef.current = new Set();
-  }, []);
+  }, [playerProfile]);
 
   const registerHit = (note) => {
     const step = selectedSong?.steps[stepIndex];
