@@ -165,7 +165,7 @@ class JuiceSystem {
       lifetime: 0.8
     });
     
-    this.createFloatingText(x, y, type === 'star' ? '⭐' : '+1', {
+    this.createFloatingText(x, y, type === 'star' ? 'STAR' : '+1', {
       color: type === 'star' ? '#FFD700' : '#FFD700',
       fontSize: type === 'star' ? 32 : 24,
       duration: 800

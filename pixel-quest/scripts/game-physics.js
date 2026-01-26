@@ -39,12 +39,12 @@ class PhysicsEngine {
     
     for (const collectible of collectibles) {
       if (collectible.collected) continue;
-      
+      const size = collectible.size || 30;
       const collectibleRect = {
-        x: collectible.x - 15,
-        y: collectible.y - 15,
-        width: 30,
-        height: 30
+        x: collectible.x - size / 2,
+        y: collectible.y - size / 2,
+        width: size,
+        height: size
       };
       
       if (this.checkCollision(playerRect, collectibleRect)) {
@@ -81,12 +81,13 @@ class PhysicsEngine {
     
     for (const checkpoint of checkpoints) {
       if (checkpoint.activated) continue;
-      
+      const checkpointWidth = checkpoint.width || 60;
+      const checkpointHeight = checkpoint.height || 60;
       const checkpointRect = {
-        x: checkpoint.x - 30,
-        y: checkpoint.y - 30,
-        width: 60,
-        height: 60
+        x: checkpoint.x - checkpointWidth / 2,
+        y: checkpoint.y - checkpointHeight / 2,
+        width: checkpointWidth,
+        height: checkpointHeight
       };
       
       if (this.checkCollision(playerRect, checkpointRect)) {
@@ -95,6 +96,19 @@ class PhysicsEngine {
     }
     
     return null;
+  }
+
+  // Check exit collision
+  checkExitCollision(x, y, width, height, exit) {
+    if (!exit) return false;
+    const playerRect = { x, y, width, height };
+    const exitRect = {
+      x: exit.x,
+      y: exit.y,
+      width: exit.width,
+      height: exit.height
+    };
+    return this.checkCollision(playerRect, exitRect);
   }
   
   // Update enemy positions

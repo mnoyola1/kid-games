@@ -12,12 +12,13 @@ class AudioManager {
   
   preloadMusic() {
     const MUSIC_TRACKS = {
-      menu: 'menu.mp3',
-      world1_math: 'world1_math.mp3',
-      world2_science: 'world2_science.mp3',
-      world3_history: 'world3_history.mp3',
-      boss: 'boss.mp3',
-      victory: 'victory.mp3'
+      menu: 'menu.wav',
+      world1_math: 'world1_math.wav',
+      world2_science: 'world2_science.wav',
+      world3_history: 'world3_history.wav',
+      world4_language: 'world4_language.wav',
+      boss: 'boss.wav',
+      victory: 'victory.wav'
     };
     
     const MUSIC_BASE_URL = '../assets/audio/pixel-quest/music/';

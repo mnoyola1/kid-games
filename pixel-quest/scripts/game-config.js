@@ -1,51 +1,79 @@
 // ==================== PIXEL QUEST CONFIGURATION ====================
 
+const PLAYER_SIZE = 48;
+
+const ASSETS = {
+  backgrounds: {
+    math: '../assets/backgrounds/pixel-quest/math_world_bg.png',
+    science: '../assets/backgrounds/pixel-quest/science_world_bg.png',
+    history: '../assets/backgrounds/pixel-quest/history_world_bg.png',
+    language: '../assets/backgrounds/pixel-quest/language_world_bg.png',
+    boss: '../assets/backgrounds/pixel-quest/boss_world_bg.png'
+  },
+  sprites: {
+    player: '../assets/sprites/pixel-quest/character_rgba.png',
+    coin: '../assets/sprites/pixel-quest/coin_rgba.png',
+    star: '../assets/sprites/pixel-quest/star_rgba.png',
+    enemy: '../assets/sprites/pixel-quest/enemy_bug_rgba.png',
+    checkpoint: '../assets/sprites/pixel-quest/checkpoint_rgba.png',
+    exit: '../assets/sprites/pixel-quest/exit_portal_rgba.png',
+    heart: '../assets/sprites/pixel-quest/heart_rgba.png',
+    gameover: '../assets/sprites/pixel-quest/gameover_skull_rgba.png',
+    platform: '../assets/sprites/pixel-quest/platform_tile_rgba.png'
+  }
+};
+
 // Worlds
 const WORLDS = [
   {
     id: 'math',
     name: 'Math World',
-    icon: '🔢',
     description: 'Numbers and equations everywhere!',
     bgGradient: 'from-blue-900 via-cyan-800 to-blue-900',
     unlocked: true,
-    levels: 3
+    levels: 3,
+    backgroundImage: ASSETS.backgrounds.math,
+    musicKey: 'world1_math'
   },
   {
     id: 'science',
     name: 'Science World',
-    icon: '🔬',
     description: 'Discover the wonders of science!',
     bgGradient: 'from-green-900 via-emerald-800 to-green-900',
     unlocked: false,
-    levels: 3
+    levels: 3,
+    backgroundImage: ASSETS.backgrounds.science,
+    musicKey: 'world2_science'
   },
   {
     id: 'history',
     name: 'History World',
-    icon: '🏛️',
     description: 'Journey through time!',
     bgGradient: 'from-amber-900 via-orange-800 to-amber-900',
     unlocked: false,
-    levels: 3
+    levels: 3,
+    backgroundImage: ASSETS.backgrounds.history,
+    musicKey: 'world3_history'
   },
   {
     id: 'language',
     name: 'Language World',
-    icon: '📚',
     description: 'Words and stories await!',
     bgGradient: 'from-purple-900 via-pink-800 to-purple-900',
     unlocked: false,
-    levels: 3
+    levels: 3,
+    backgroundImage: ASSETS.backgrounds.language,
+    musicKey: 'world4_language'
   },
   {
     id: 'boss',
     name: 'Final Challenge',
-    icon: '👑',
     description: 'The ultimate test!',
     bgGradient: 'from-red-900 via-rose-800 to-red-900',
     unlocked: false,
-    levels: 1
+    levels: 1,
+    backgroundImage: ASSETS.backgrounds.boss,
+    musicKey: 'boss'
   }
 ];
 
@@ -61,10 +89,16 @@ function generateLevel(worldId, levelNum, difficulty = 'normal') {
     collectibles: [],
     enemies: [],
     checkpoints: [],
-    startX: 50,
-    startY: 600,
+    startX: 60,
+    startY: 700 - PLAYER_SIZE,
     endX: 1950,
-    endY: 600
+    endY: 700 - PLAYER_SIZE,
+    exit: {
+      x: 1880,
+      y: 700 - 96,
+      width: 64,
+      height: 96
+    }
   };
   
   // Generate platforms based on world theme
@@ -86,6 +120,8 @@ function generateLevel(worldId, levelNum, difficulty = 'normal') {
     level.checkpoints.push({
       x: 950,
       y: 480,
+      width: 72,
+      height: 56,
       question: null, // Will be generated when reached
       activated: false
     });
@@ -97,21 +133,22 @@ function generateLevel(worldId, levelNum, difficulty = 'normal') {
         x: 300 + i * 150,
         y: 500 + Math.sin(i) * 50,
         type: 'coin',
+        size: 32,
         collected: false
       });
     }
     
     // Add stars (3 per level)
     level.collectibles.push(
-      { id: 'star_1', x: 500, y: 550, type: 'star', collected: false },
-      { id: 'star_2', x: 1200, y: 550, type: 'star', collected: false },
-      { id: 'star_3', x: 1800, y: 650, type: 'star', collected: false }
+      { id: 'star_1', x: 500, y: 550, type: 'star', size: 48, collected: false },
+      { id: 'star_2', x: 1200, y: 550, type: 'star', size: 48, collected: false },
+      { id: 'star_3', x: 1800, y: 650, type: 'star', size: 48, collected: false }
     );
     
     // Add enemies
     level.enemies.push(
-      { id: 'enemy_1', x: 400, y: 620, width: 40, height: 40, speed: 50, direction: 1, type: 'basic' },
-      { id: 'enemy_2', x: 1150, y: 570, width: 40, height: 40, speed: 50, direction: -1, type: 'basic' }
+      { id: 'enemy_1', x: 400, y: 620, width: 48, height: 48, speed: 50, direction: 1, type: 'basic' },
+      { id: 'enemy_2', x: 1150, y: 570, width: 48, height: 48, speed: 50, direction: -1, type: 'basic' }
     );
   } else {
     // Generic level structure for other worlds
@@ -128,6 +165,8 @@ function generateLevel(worldId, levelNum, difficulty = 'normal') {
     level.checkpoints.push({
       x: 700,
       y: 580,
+      width: 72,
+      height: 56,
       question: null,
       activated: false
     });
@@ -138,14 +177,15 @@ function generateLevel(worldId, levelNum, difficulty = 'normal') {
         x: 350 + i * 180,
         y: 500 + Math.sin(i) * 50,
         type: 'coin',
+        size: 32,
         collected: false
       });
     }
     
     level.collectibles.push(
-      { id: 'star_1', x: 500, y: 600, type: 'star', collected: false },
-      { id: 'star_2', x: 1000, y: 500, type: 'star', collected: false },
-      { id: 'star_3', x: 1600, y: 600, type: 'star', collected: false }
+      { id: 'star_1', x: 500, y: 600, type: 'star', size: 48, collected: false },
+      { id: 'star_2', x: 1000, y: 500, type: 'star', size: 48, collected: false },
+      { id: 'star_3', x: 1600, y: 600, type: 'star', size: 48, collected: false }
     );
   }
   

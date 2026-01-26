@@ -10,7 +10,7 @@ function PixelQuest() {
       if (profile) {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
-        console.log('🎮 Pixel Quest: Playing as', profile.name);
+        console.log('Pixel Quest: Playing as', profile.name);
         LuminaCore.recordGameStart(profile.id, 'pixelQuest');
       }
     }
@@ -58,7 +58,7 @@ function PixelQuest() {
     if (screen === 'menu') {
       audioManager.playMusic('menu');
     } else if (screen === 'playing' && selectedWorld) {
-      const musicKey = `world1_${selectedWorld.id}`;
+      const musicKey = selectedWorld.musicKey || 'world1_math';
       audioManager.playMusic(musicKey);
     }
   }, [screen, selectedWorld, audioManager]);
@@ -74,6 +74,11 @@ function PixelQuest() {
         e.preventDefault();
         jump();
       }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        exitLevel();
+      }
     };
     
     const handleKeyUp = (e) => {
@@ -87,7 +92,7 @@ function PixelQuest() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [screen]);
+  }, [screen, jump, exitLevel]);
   
   // ==================== GAME LOOP ====================
   useEffect(() => {
@@ -122,11 +127,11 @@ function PixelQuest() {
       
       // Check platform collision
       const platformCheck = physicsEngine.current.isOnPlatform(
-        newX, newY, 40, 40, currentLevel.platforms
+        newX, newY, PLAYER_SIZE, PLAYER_SIZE, currentLevel.platforms
       );
       
       if (platformCheck.onPlatform) {
-        newY = platformCheck.platformY - 40;
+        newY = platformCheck.platformY - PLAYER_SIZE;
         newVy = 0;
         setIsGrounded(true);
         setIsJumping(false);
@@ -136,7 +141,7 @@ function PixelQuest() {
       
       // Boundary checks
       if (newX < 0) newX = 0;
-      if (newX > currentLevel.width - 40) {
+      if (newX > currentLevel.width - PLAYER_SIZE) {
         // Level complete!
         completeLevel();
         return;
@@ -157,7 +162,7 @@ function PixelQuest() {
       
       // Check collectibles
       const collectible = physicsEngine.current.checkCollectibleCollision(
-        newX, newY, 40, 40, currentLevel.collectibles
+        newX, newY, PLAYER_SIZE, PLAYER_SIZE, currentLevel.collectibles
       );
       
       if (collectible) {
@@ -166,7 +171,7 @@ function PixelQuest() {
       
       // Check checkpoint
       const checkpoint = physicsEngine.current.checkCheckpointCollision(
-        newX, newY, 40, 40, currentLevel.checkpoints
+        newX, newY, PLAYER_SIZE, PLAYER_SIZE, currentLevel.checkpoints
       );
       
       if (checkpoint && !checkpoint.activated) {
@@ -175,12 +180,20 @@ function PixelQuest() {
       
       // Check enemy collision
       const enemy = physicsEngine.current.checkEnemyCollision(
-        newX, newY, 40, 40, currentLevel.enemies
+        newX, newY, PLAYER_SIZE, PLAYER_SIZE, currentLevel.enemies
       );
       
       if (enemy) {
         // Answer question to defeat enemy
         showEnemyQuestion(enemy);
+      }
+
+      const exitReached = physicsEngine.current.checkExitCollision(
+        newX, newY, PLAYER_SIZE, PLAYER_SIZE, currentLevel.exit
+      );
+      if (exitReached) {
+        completeLevel();
+        return;
       }
       
       // Update enemies
@@ -225,7 +238,7 @@ function PixelQuest() {
       audioManager.playSFX('jump');
       
       // Juice
-      juiceSystem.createParticles(playerX + 20, playerY + 40, {
+      juiceSystem.createParticles(playerX + PLAYER_SIZE / 2, playerY + PLAYER_SIZE, {
         count: 6,
         colors: ['#FFF', '#CCC'],
         velocity: { min: 1, max: 3 },
@@ -234,6 +247,11 @@ function PixelQuest() {
       });
     }
   }, [isGrounded, isJumping, playerX, playerY, audioManager, juiceSystem]);
+
+  const exitLevel = useCallback(() => {
+    audioManager.stopMusic();
+    setScreen('worldSelect');
+  }, [audioManager]);
   
   const collectItem = useCallback((collectible) => {
     collectible.collected = true;
@@ -340,6 +358,8 @@ function PixelQuest() {
         setPlayerY(currentLevel.startY);
         setPlayerVx(0);
         setPlayerVy(0);
+        setIsGrounded(true);
+        setIsJumping(false);
         audioManager.playSFX('death');
         juiceSystem.playerDeath(playerX, playerY);
       }
@@ -359,6 +379,7 @@ function PixelQuest() {
     setScreen('playing');
     
     const level = generateLevel(world.id, levelNum);
+    level.backgroundImage = world.backgroundImage;
     setCurrentLevel(level);
     setPlayerX(level.startX);
     setPlayerY(level.startY);
@@ -369,7 +390,7 @@ function PixelQuest() {
     setLevelStars(0);
     setCameraX(0);
     setPlayerLives(3);
-    setIsGrounded(false);
+    setIsGrounded(true);
     setIsJumping(false);
     
     physicsEngine.current = new PhysicsEngine(level);
@@ -404,13 +425,18 @@ function PixelQuest() {
       {screen === 'menu' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
           <div className="text-center animate-float">
-            <div className="text-8xl mb-4">🎮</div>
+            <img
+              src={ASSETS.sprites.player}
+              alt="Pixel Quest Hero"
+              className="mx-auto mb-4 w-24 h-24 object-contain"
+              style={{ imageRendering: 'pixelated' }}
+            />
             <h1 className="font-title text-6xl md:text-7xl text-amber-400 mb-2"
                 style={{ textShadow: '0 0 30px rgba(251, 191, 36, 0.5)' }}>
               PIXEL QUEST
             </h1>
             <p className="font-game text-xl text-purple-300 mb-8">
-              Jump, run, and learn! 🦊
+              Jump, run, and learn!
             </p>
           </div>
           
@@ -423,7 +449,7 @@ function PixelQuest() {
                      text-white font-title text-2xl rounded-xl shadow-lg hover:scale-105
                      border-2 border-purple-400/50 transition-all animate-pulse-glow mb-4"
           >
-            🌍 SELECT WORLD
+            Select World
           </button>
           
           {/* Audio Controls */}
@@ -435,19 +461,19 @@ function PixelQuest() {
               }}
               className="px-4 py-2 bg-slate-800/80 text-white rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
             >
-              {audioManager.musicEnabled ? '🔊' : '🔇'} Music
+              {audioManager.musicEnabled ? 'Music: On' : 'Music: Off'}
             </button>
             <button
               onClick={() => audioManager.toggleSFX()}
               className="px-4 py-2 bg-slate-800/80 text-white rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
             >
-              {audioManager.sfxEnabled ? '🔊' : '🔇'} SFX
+              {audioManager.sfxEnabled ? 'SFX: On' : 'SFX: Off'}
             </button>
           </div>
           
           {playerProfile && (
             <a href="../index.html" className="mt-8 text-purple-400 hover:text-purple-300 font-game">
-              🏠 Return to Noyola Hub
+              Return to Noyola Hub
             </a>
           )}
         </div>
@@ -471,11 +497,17 @@ function PixelQuest() {
                               ? 'border-purple-500/50 hover:border-purple-400 hover:scale-105 cursor-pointer' 
                               : 'border-slate-700/50 opacity-50 cursor-not-allowed'}`}
                 >
-                  <div className="text-4xl mb-2">{world.icon}</div>
+                  <div className="world-card-thumb mb-3">
+                    <img
+                      src={world.backgroundImage}
+                      alt={`${world.name} preview`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                  </div>
                   <div className="font-title text-xl text-white mb-1">{world.name}</div>
                   <div className="font-game text-xs text-white/70 mb-2">{world.description}</div>
                   {!isUnlocked && (
-                    <div className="mt-2 text-xs text-red-400">🔒 Locked</div>
+                    <div className="mt-2 text-xs text-red-400">Locked</div>
                   )}
                 </button>
               );
@@ -503,9 +535,24 @@ function PixelQuest() {
               {selectedWorld?.name} | Level 1
             </div>
             <div className="flex gap-6 items-center">
-              <div className="text-amber-400 font-game">
-                💰 {coins} | ⭐ {stars}/3 | ❤️ {playerLives}
+              <div className="hud-stat">
+                <img src={ASSETS.sprites.coin} alt="Coins" className="hud-icon" />
+                <span>{coins}</span>
               </div>
+              <div className="hud-stat">
+                <img src={ASSETS.sprites.star} alt="Stars" className="hud-icon" />
+                <span>{stars}/3</span>
+              </div>
+              <div className="hud-stat">
+                <img src={ASSETS.sprites.heart} alt="Lives" className="hud-icon" />
+                <span>{playerLives}</span>
+              </div>
+              <button
+                onClick={exitLevel}
+                className="px-3 py-1 bg-slate-700 text-white text-sm font-game rounded-md hover:bg-slate-600 transition-all border border-purple-500/30"
+              >
+                Exit Level
+              </button>
             </div>
           </div>
           
@@ -520,7 +567,7 @@ function PixelQuest() {
             <div className="absolute inset-0" style={{ width: `${currentLevel.width}px` }}>
               {/* Background Image */}
               <img 
-                src="../assets/backgrounds/pixel-quest/math_world_bg.png" 
+                src={currentLevel.backgroundImage || ASSETS.backgrounds.math} 
                 alt="Background" 
                 className="absolute inset-0 w-full h-full object-cover opacity-50"
                 style={{ width: `${currentLevel.width}px`, height: `${currentLevel.height}px` }}
@@ -536,8 +583,8 @@ function PixelQuest() {
                     top: `${platform.y}px`,
                     width: `${platform.width}px`,
                     height: `${platform.height}px`,
-                    backgroundImage: 'url(../assets/sprites/pixel-quest/platform_rgba.png)',
-                    backgroundSize: 'cover',
+                    backgroundImage: `url(${ASSETS.sprites.platform})`,
+                    backgroundSize: 'auto 100%',
                     backgroundRepeat: 'repeat-x',
                     imageRendering: 'pixelated'
                   }}
@@ -549,17 +596,20 @@ function PixelQuest() {
                 if (collectible.collected) return null;
                 
                 return (
-                  <div
+                  <img
                     key={collectible.id}
-                    className={`collectible absolute text-2xl ${collectible.type === 'star' ? 'text-yellow-400' : 'text-amber-400'}`}
+                    src={collectible.type === 'star' ? ASSETS.sprites.star : ASSETS.sprites.coin}
+                    alt={collectible.type}
+                    className="collectible absolute"
                     style={{
                       left: `${collectible.x}px`,
                       top: `${collectible.y}px`,
-                      transform: 'translate(-50%, -50%)'
+                      width: `${collectible.size || (collectible.type === 'star' ? 48 : 32)}px`,
+                      height: `${collectible.size || (collectible.type === 'star' ? 48 : 32)}px`,
+                      transform: 'translate(-50%, -50%)',
+                      imageRendering: 'pixelated'
                     }}
-                  >
-                    {collectible.type === 'star' ? '⭐' : '💰'}
-                  </div>
+                  />
                 );
               })}
               
@@ -571,30 +621,50 @@ function PixelQuest() {
                   style={{
                     left: `${checkpoint.x}px`,
                     top: `${checkpoint.y}px`,
-                    width: '60px',
-                    height: '60px',
-                    transform: 'translate(-50%, -50%)',
-                    borderRadius: '50%'
+                    width: `${checkpoint.width || 72}px`,
+                    height: `${checkpoint.height || 56}px`,
+                    transform: 'translate(-50%, -50%)'
                   }}
                 >
-                  {checkpoint.activated ? '✓' : '🚪'}
+                  <img
+                    src={ASSETS.sprites.checkpoint}
+                    alt="Checkpoint"
+                    className="w-full h-full object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
                 </div>
               ))}
+
+              {currentLevel.exit && (
+                <img
+                  src={ASSETS.sprites.exit}
+                  alt="Exit Portal"
+                  className="absolute"
+                  style={{
+                    left: `${currentLevel.exit.x}px`,
+                    top: `${currentLevel.exit.y}px`,
+                    width: `${currentLevel.exit.width}px`,
+                    height: `${currentLevel.exit.height}px`,
+                    imageRendering: 'pixelated'
+                  }}
+                />
+              )}
               
               {/* Enemies */}
               {currentLevel.enemies.map(enemy => (
-                <div
+                <img
                   key={enemy.id}
-                  className="enemy absolute text-3xl"
+                  src={ASSETS.sprites.enemy}
+                  alt="Enemy"
+                  className="enemy absolute"
                   style={{
                     left: `${enemy.x}px`,
                     top: `${enemy.y}px`,
                     width: `${enemy.width}px`,
-                    height: `${enemy.height}px`
+                    height: `${enemy.height}px`,
+                    imageRendering: 'pixelated'
                   }}
-                >
-                  👾
-                </div>
+                />
               ))}
               
               {/* Player */}
@@ -604,12 +674,12 @@ function PixelQuest() {
                   left: `${playerX}px`,
                   top: `${playerY}px`,
                   transform: `scaleX(${facingRight ? 1 : -1})`,
-                  width: '48px',
-                  height: '48px'
+                  width: `${PLAYER_SIZE}px`,
+                  height: `${PLAYER_SIZE}px`
                 }}
               >
                 <img 
-                  src="../assets/sprites/pixel-quest/character_rgba.png" 
+                  src={ASSETS.sprites.player} 
                   alt="Player" 
                   className="w-full h-full object-contain"
                   style={{ imageRendering: 'pixelated' }}
@@ -658,7 +728,17 @@ function PixelQuest() {
       {screen === 'levelComplete' && (
         <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/70">
           <div className="bg-slate-900 rounded-3xl p-8 max-w-md w-full mx-4 border-2 border-green-500/50 text-center">
-            <div className="text-6xl mb-4">{'⭐'.repeat(Math.max(1, Math.min(3, levelStars)))}</div>
+            <div className="flex justify-center gap-2 mb-4">
+              {Array.from({ length: Math.max(1, Math.min(3, levelStars)) }).map((_, i) => (
+                <img
+                  key={`star-${i}`}
+                  src={ASSETS.sprites.star}
+                  alt="Star"
+                  className="w-10 h-10"
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              ))}
+            </div>
             <h2 className="font-title text-3xl text-green-400 mb-4">Level Complete!</h2>
             <div className="font-game text-lg text-white mb-6 space-y-2">
               <div>Coins: {coins}</div>
@@ -693,7 +773,14 @@ function PixelQuest() {
       {screen === 'gameover' && (
         <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/70">
           <div className="bg-slate-900 rounded-3xl p-8 max-w-md w-full mx-4 border-2 border-red-500/50 text-center">
-            <div className="text-6xl mb-4">💀</div>
+            <div className="flex justify-center mb-4">
+              <img
+                src={ASSETS.sprites.gameover}
+                alt="Game Over"
+                className="w-20 h-20"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
             <h2 className="font-title text-3xl text-red-400 mb-4">Game Over!</h2>
             <div className="flex gap-4">
               <button
