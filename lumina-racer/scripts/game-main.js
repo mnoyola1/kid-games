@@ -10,26 +10,28 @@ function LuminaRacer() {
       if (profile) {
         setPlayerProfile(profile);
         setPlayerName(profile.name);
-        // Auto-select character based on logged-in profile
-        const profileId = profile.id.toLowerCase();
-        if (profileId === 'emma' || profileId === 'liam') {
+        // Preselect character based on profile (player can still choose)
+        const profileId = profile.id?.toLowerCase();
+        if (profileId && CHARACTERS[profileId]) {
           setCharacter(profileId);
           console.log('🏎️ Lumina Racer: Playing as', profile.name, `(${profileId})`);
+        } else if (CHARACTERS.guest) {
+          setCharacter('guest');
+          console.log('🏎️ Lumina Racer: Guest profile, using Guest character');
         } else {
-          // Guest profile - default to emma character
           setCharacter('emma');
           console.log('🏎️ Lumina Racer: Guest profile, using Emma character');
         }
         LuminaCore.recordGameStart(profile.id, 'luminaRacer');
       } else {
         console.warn('⚠️ No active player found for Lumina Racer.');
-        // Default to emma if no profile
-        setCharacter('emma');
+        // Default to guest if available
+        setCharacter(CHARACTERS.guest ? 'guest' : 'emma');
       }
     } else {
       // LuminaCore not available - standalone mode, default to emma
       console.log('🏎️ Lumina Racer: Standalone mode, using Emma character');
-      setCharacter('emma');
+      setCharacter(CHARACTERS.guest ? 'guest' : 'emma');
     }
   }, []);
   
@@ -39,10 +41,14 @@ function LuminaRacer() {
   const [track, setTrack] = useState(null);
   const [words, setWords] = useState(DEFAULT_WORDS);
   const [customWordsInput, setCustomWordsInput] = useState('');
+  const [aiRacers, setAiRacers] = useState([]);
+  const [unlockedTracks, setUnlockedTracks] = useState([]);
+  const [newlyUnlockedTrack, setNewlyUnlockedTrack] = useState(null);
+  const [trackHint, setTrackHint] = useState('');
   
   // Race state
   const [playerPosition, setPlayerPosition] = useState(0);
-  const [aiPositions, setAiPositions] = useState([0, 0, 0]);
+  const [aiPositions, setAiPositions] = useState([]);
   const [currentLap, setCurrentLap] = useState(1);
   const [currentWord, setCurrentWord] = useState('');
   const [typedWord, setTypedWord] = useState('');
@@ -76,6 +82,34 @@ function LuminaRacer() {
   
   const TRACK_LENGTH = 100;
   const LAP_LENGTH = track ? TRACK_LENGTH / track.laps : 25;
+
+  const orderedTracks = useMemo(
+    () => [...TRACKS].sort((a, b) => (a.order || 0) - (b.order || 0)),
+    []
+  );
+  
+  const isTrackUnlocked = useCallback(
+    (trackId) => unlockedTracks.includes(trackId),
+    [unlockedTracks]
+  );
+  
+  const getOpponentRacers = useCallback((selectedKey) => {
+    const candidates = Object.entries(CHARACTERS)
+      .filter(([key]) => key !== selectedKey);
+    const shuffled = shuffle(candidates);
+    return AI_DIFFICULTY_TIERS.map((tier, index) => {
+      const [key, char] = shuffled[index % shuffled.length];
+      return {
+        id: key,
+        name: char.name,
+        emoji: char.emoji,
+        color: char.color,
+        difficulty: tier.difficulty,
+        vehicle: char.vehicle,
+        tier: tier.label
+      };
+    });
+  }, []);
   
   // Aurora speaks
   const auroraSpeak = useCallback((category) => {
@@ -97,12 +131,38 @@ function LuminaRacer() {
     return word;
   }, [words]);
   
+  // Load track unlocks
+  useEffect(() => {
+    const saved = localStorage.getItem('luminaRacer_unlockedTracks');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setUnlockedTracks(parsed);
+          return;
+        }
+      } catch (err) {
+        console.warn('Failed to parse track unlocks:', err);
+      }
+    }
+    const defaults = orderedTracks.filter(t => t.unlocked).map(t => t.id);
+    setUnlockedTracks(defaults);
+  }, [orderedTracks]);
+  
+  // Configure AI racers for current character
+  useEffect(() => {
+    if (!character) return;
+    const opponents = getOpponentRacers(character);
+    setAiRacers(opponents);
+    setAiPositions(opponents.map(() => 0));
+  }, [character, getOpponentRacers]);
+  
   // Start countdown
   const startCountdown = useCallback(() => {
     setScreen('countdown');
     setCountdown(3);
     setPlayerPosition(0);
-    setAiPositions([0, 0, 0]);
+    setAiPositions(aiRacers.map(() => 0));
     setCurrentLap(1);
     setWordsCompleted(0);
     setMistakes(0);
@@ -112,9 +172,11 @@ function LuminaRacer() {
     setFinished(false);
     setFinalPlace(0);
     usedWordsRef.current.clear();
+    setNewlyUnlockedTrack(null);
     
     // Parse custom words or use character defaults
-    let gameWords = character === 'liam' ? LIAM_WORDS : DEFAULT_WORDS;
+    const wordList = CHARACTERS[character]?.wordList || 'default';
+    let gameWords = wordList === 'liam' ? LIAM_WORDS : DEFAULT_WORDS;
     if (customWordsInput.trim()) {
       const custom = customWordsInput
         .toLowerCase()
@@ -147,7 +209,7 @@ function LuminaRacer() {
         inputRef.current?.focus();
       }
     }, 1000);
-  }, [character, customWordsInput, auroraSpeak]);
+  }, [character, customWordsInput, auroraSpeak, aiRacers]);
   
   // Game loop
   useEffect(() => {
@@ -157,7 +219,7 @@ function LuminaRacer() {
       // Move AI racers
       setAiPositions(prev => prev.map((pos, i) => {
         if (pos >= TRACK_LENGTH) return pos;
-        const racer = AI_RACERS[i];
+        const racer = aiRacers[i];
         const baseSpeed = 0.10 * racer.difficulty;
         const variance = (Math.random() - 0.5) * 0.1;
         return Math.min(TRACK_LENGTH, pos + baseSpeed + variance);
@@ -169,7 +231,7 @@ function LuminaRacer() {
     
     gameLoopRef.current = loop;
     return () => clearInterval(loop);
-  }, [screen, finished]);
+  }, [screen, finished, aiRacers]);
   
   // Check for race completion
   useEffect(() => {
@@ -206,10 +268,10 @@ function LuminaRacer() {
     }
     
     // Check if all AI finished (player loses)
-    if (aiPositions.every(p => p >= TRACK_LENGTH) && !finished) {
+    if (aiPositions.length > 0 && aiPositions.every(p => p >= TRACK_LENGTH) && !finished) {
       setFinished(true);
       audioManager.playSFX('finish');
-      setFinalPlace(4);
+      setFinalPlace(aiPositions.length + 1);
       auroraSpeak('lostRace');
       setTimeout(() => setScreen('results'), 1500);
     }
@@ -364,6 +426,20 @@ function LuminaRacer() {
     }
   }, [screen, playerProfile, recordGameResults]);
   
+  // Unlock next track on strong finish
+  useEffect(() => {
+    if (screen !== 'results' || !track) return;
+    if (finalPlace > 2) return;
+    const currentIndex = orderedTracks.findIndex(t => t.id === track.id);
+    if (currentIndex === -1) return;
+    const nextTrack = orderedTracks[currentIndex + 1];
+    if (!nextTrack || isTrackUnlocked(nextTrack.id)) return;
+    const updated = [...unlockedTracks, nextTrack.id];
+    setUnlockedTracks(updated);
+    localStorage.setItem('luminaRacer_unlockedTracks', JSON.stringify(updated));
+    setNewlyUnlockedTrack(nextTrack);
+  }, [screen, track, finalPlace, orderedTracks, unlockedTracks, isTrackUnlocked]);
+  
   // ==================== RENDER ====================
   return (
     <div className="w-full h-screen game-bg overflow-hidden relative">
@@ -408,12 +484,7 @@ function LuminaRacer() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Skip character select if profile is already set
-                if (character) {
-                  setScreen('trackSelect');
-                } else {
-                  setScreen('charSelect');
-                }
+                setScreen('charSelect');
               }}
               style={{
                 position: 'relative',
@@ -430,6 +501,13 @@ function LuminaRacer() {
             >
               🏁 START RACING
             </button>
+            
+            <a
+              href="../index.html"
+              className="px-6 py-2 bg-slate-800/80 text-slate-200 font-game rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
+            >
+              🏠 Return to Noyola Hub
+            </a>
             
             {/* Audio Controls */}
             <div className="flex gap-4 mt-4">
@@ -468,105 +546,224 @@ function LuminaRacer() {
       
       {/* ==================== CHARACTER SELECT ==================== */}
       {screen === 'charSelect' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4">
-          <h2 className="font-title text-4xl text-amber-400 mb-8 animate-float">
-            Choose Your Racer
-          </h2>
-          
-          <div className="flex gap-6 mb-8">
-            {Object.entries(CHARACTERS).map(([key, char]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  setCharacter(key);
-                  setScreen('trackSelect');
-                }}
-                className={`bg-slate-900/80 rounded-2xl p-6 border-2 transition-all hover:scale-105
-                          ${char.color === 'purple' ? 'border-purple-500/50 hover:border-purple-400' : 'border-orange-500/50 hover:border-orange-400'}
-                          ${char.color === 'purple' ? 'hover:shadow-[0_0_30px_rgba(147,51,234,0.3)]' : 'hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]'}`}
-              >
-                <div className="w-32 h-32 mx-auto mb-4 overflow-hidden">
-                  <img 
-                    src={char.portrait || char.avatar} 
-                    alt={char.name}
-                    className="w-full h-full object-contain"
-                    style={{ filter: 'drop-shadow(0 0 10px rgba(147, 51, 234, 0.5))' }}
-                    onError={(e) => { 
-                      e.target.style.display = 'none'; 
-                      const fallback = document.createElement('div');
-                      fallback.className = 'w-full h-full flex items-center justify-center';
-                      fallback.innerHTML = `<span class="text-5xl">${char.emoji}</span>`;
-                      e.target.parentElement.appendChild(fallback);
-                    }}
-                  />
-                </div>
-                <div className="font-title text-2xl text-white mb-1">{char.name}</div>
-                <div className={`font-game text-sm mb-3 ${char.color === 'purple' ? 'text-purple-400' : 'text-orange-400'}`}>
-                  {char.title}
-                </div>
-                <div className="bg-slate-800 rounded-lg p-2">
-                  <div className="font-game text-xs text-amber-400">✨ {char.special}</div>
-                  <div className="font-game text-xs text-slate-400">{char.specialDesc}</div>
-                </div>
-              </button>
-            ))}
+        <div className="absolute inset-0 z-20">
+          {/* Background Image */}
+          <div className="absolute inset-0 pointer-events-none"
+               style={{
+                 backgroundImage: `url(${GAME_ASSETS.backgrounds.characterSelect})`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center'
+               }}>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-slate-900/40 to-black/70" />
           </div>
           
-          <button
-            onClick={() => setScreen('menu')}
-            className="px-6 py-2 bg-slate-700 text-slate-300 font-game rounded-lg hover:bg-slate-600 transition-all"
-          >
-            ← Back
-          </button>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4">
+            <h2 className="font-title text-4xl text-amber-400 mb-3 animate-float">
+              Choose Your Racer
+            </h2>
+            <p className="font-game text-purple-300 mb-6 text-center max-w-lg">
+              Pick a racer that feels like you. Each has a unique style to cheer you on!
+            </p>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 max-w-5xl">
+              {Object.entries(CHARACTERS).map(([key, char]) => {
+                const isSelected = key === character;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setCharacter(key);
+                      setScreen('trackSelect');
+                    }}
+                    className={`bg-slate-900/85 rounded-2xl p-5 border-2 transition-all hover:scale-[1.03]
+                              ${char.ui?.borderClass || 'border-purple-500/50 hover:border-purple-400'}
+                              ${char.ui?.glowClass || 'hover:shadow-[0_0_30px_rgba(147,51,234,0.3)]'}
+                              ${isSelected ? 'ring-2 ring-amber-400/70 shadow-[0_0_30px_rgba(251,191,36,0.35)]' : ''}`}
+                  >
+                    <div className="w-28 h-28 mx-auto mb-3 overflow-hidden">
+                      <img 
+                        src={char.portrait || char.avatar} 
+                        alt={char.name}
+                        className="w-full h-full object-contain"
+                        style={{ filter: 'drop-shadow(0 0 10px rgba(147, 51, 234, 0.5))' }}
+                        onError={(e) => { 
+                          e.target.style.display = 'none'; 
+                          const fallback = document.createElement('div');
+                          fallback.className = 'w-full h-full flex items-center justify-center';
+                          fallback.innerHTML = `<span class="text-5xl">${char.emoji}</span>`;
+                          e.target.parentElement.appendChild(fallback);
+                        }}
+                      />
+                    </div>
+                    <div className="font-title text-xl text-white mb-1">{char.name}</div>
+                    <div className={`font-game text-xs mb-3 ${char.ui?.titleClass || 'text-purple-400'}`}>
+                      {char.title}
+                    </div>
+                    <div className="bg-slate-800/80 rounded-lg p-2">
+                      <div className="font-game text-xs text-amber-400">✨ {char.special}</div>
+                      <div className="font-game text-xs text-slate-400">{char.specialDesc}</div>
+                    </div>
+                    {isSelected && (
+                      <div className="mt-3 text-xs font-game text-amber-300">
+                        ✔ Selected
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => setScreen('menu')}
+              className="px-6 py-2 bg-slate-700 text-slate-300 font-game rounded-lg hover:bg-slate-600 transition-all"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
       )}
       
       {/* ==================== TRACK SELECT ==================== */}
       {screen === 'trackSelect' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 overflow-auto">
-          <h2 className="font-title text-4xl text-amber-400 mb-6">
-            Select Your Track
-          </h2>
-          
-          {/* Custom words input */}
-          <div className="w-full max-w-lg mb-6">
-            <label className="block text-purple-300 font-game mb-2 text-sm">
-              📝 Custom Spelling Words (optional)
-            </label>
-            <textarea
-              value={customWordsInput}
-              onChange={(e) => setCustomWordsInput(e.target.value)}
-              placeholder="Paste weekly spelling words here..."
-              className="w-full h-20 bg-slate-800 border-2 border-slate-600 rounded-lg p-3
-                       text-white font-game text-sm resize-none focus:border-purple-500 focus:outline-none"
-            />
+        <div className="absolute inset-0 z-20 overflow-auto">
+          {/* Background Image */}
+          <div className="absolute inset-0 pointer-events-none"
+               style={{
+                 backgroundImage: `url(${GAME_ASSETS.backgrounds.trackSelect})`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center'
+               }}>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-slate-900/40 to-black/70" />
           </div>
           
-          <div className="grid grid-cols-2 gap-4 mb-6 max-w-2xl">
-            {TRACKS.map(t => (
+          <div className="relative z-10 flex flex-col items-center justify-center p-4">
+            <h2 className="font-title text-4xl text-amber-400 mb-2">
+              Select Your Track
+            </h2>
+            <p className="font-game text-purple-300 mb-6 text-center max-w-lg">
+              More tracks unlock as you win races — scroll right to discover them.
+            </p>
+            
+            {/* Selected racer */}
+            <div className="w-full max-w-3xl mb-6 bg-slate-900/80 border border-purple-500/30 rounded-2xl p-4 flex items-center gap-4">
+              <div className="w-16 h-16 bg-slate-800/80 rounded-xl flex items-center justify-center overflow-hidden">
+                {CHARACTERS[character]?.portrait ? (
+                  <img 
+                    src={CHARACTERS[character].portrait} 
+                    alt={CHARACTERS[character].name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <span className="text-3xl">{CHARACTERS[character]?.emoji || '🏎️'}</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="font-game text-slate-400 text-xs">Selected Racer</div>
+                <div className="font-title text-white text-xl">
+                  {CHARACTERS[character]?.name || 'Choose a racer'}
+                </div>
+                <div className="font-game text-xs text-amber-300">
+                  ✨ {CHARACTERS[character]?.special || 'Ready to race'}
+                </div>
+              </div>
               <button
-                key={t.id}
-                onClick={() => {
-                  setTrack(t);
-                  startCountdown();
-                }}
-                className={`bg-gradient-to-br ${t.bg} rounded-2xl p-4 border-2 border-white/20 
-                          transition-all hover:scale-105 hover:border-white/40 text-left`}
+                onClick={() => setScreen('charSelect')}
+                className="px-4 py-2 bg-slate-700 text-slate-200 font-game rounded-lg hover:bg-slate-600 transition-all"
               >
-                <div className="text-4xl mb-2">{t.emoji}</div>
-                <div className="font-title text-xl text-white">{t.name}</div>
-                <div className="font-game text-xs text-white/70 mb-2">{t.description}</div>
-                <div className="font-game text-xs text-amber-400">{t.laps} Laps</div>
+                Change
               </button>
-            ))}
+            </div>
+            
+            {/* Custom words input */}
+            <div className="w-full max-w-lg mb-6">
+              <label className="block text-purple-300 font-game mb-2 text-sm">
+                📝 Custom Spelling Words (optional)
+              </label>
+              <textarea
+                value={customWordsInput}
+                onChange={(e) => setCustomWordsInput(e.target.value)}
+                placeholder="Paste weekly spelling words here..."
+                className="w-full h-20 bg-slate-800 border-2 border-slate-600 rounded-lg p-3
+                         text-white font-game text-sm resize-none focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            
+            <div className="flex gap-5 mb-4 max-w-5xl w-full overflow-x-auto pb-4 px-2">
+              {orderedTracks.map((t, index) => {
+                const unlocked = isTrackUnlocked(t.id);
+                const requiredTrack = orderedTracks[index - 1];
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      if (!unlocked) {
+                        setTrackHint(`Win on ${requiredTrack?.name || 'the previous track'} to unlock ${t.name}.`);
+                        return;
+                      }
+                      setTrackHint('');
+                      setTrack(t);
+                      startCountdown();
+                    }}
+                    className={`track-card bg-slate-900/80 rounded-2xl border-2 border-white/10 
+                             transition-all hover:scale-[1.02] hover:border-white/30 text-left overflow-hidden
+                             flex-shrink-0 w-72 ${unlocked ? '' : 'track-card--locked'}`}
+                  >
+                    <div
+                      className="relative h-36 w-full bg-cover bg-center"
+                      style={{ backgroundImage: `url(${t.cardImage || t.bgImage})` }}
+                    >
+                      <div className="h-full w-full bg-gradient-to-t from-black/70 via-black/30 to-transparent p-4 flex items-end justify-between">
+                        <div className="text-xs font-game text-amber-300 bg-black/50 px-2 py-1 rounded-full">
+                          {unlocked ? 'Unlocked' : 'Locked'}
+                        </div>
+                      </div>
+                      {!unlocked && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <span className="font-game text-xs text-amber-200">Locked</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="font-title text-xl text-white">{t.name}</div>
+                        <div className="font-game text-xs text-purple-300">Track {t.order}</div>
+                      </div>
+                      <div className="font-game text-xs text-white/70 mb-2">{t.description}</div>
+                      <div className="flex items-center justify-between">
+                        <div className="font-game text-xs text-amber-400">{t.laps} Laps</div>
+                        <div className="font-game text-xs text-slate-300">{t.difficulty}</div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {trackHint && (
+              <div className="bg-slate-900/70 border border-amber-500/30 rounded-xl px-4 py-2 text-sm font-game text-amber-200 mb-4">
+                🔒 {trackHint}
+              </div>
+            )}
+            
+            <div className="bg-slate-900/70 border border-purple-500/30 rounded-xl px-4 py-2 text-sm font-game text-purple-200 mb-6">
+              💡 Tip: Build combos to trigger turbo bursts and zoom ahead!
+            </div>
+            
+            <div className="flex gap-4">
+              <button
+                onClick={() => setScreen('menu')}
+                className="px-6 py-2 bg-slate-700 text-slate-300 font-game rounded-lg hover:bg-slate-600 transition-all"
+              >
+                ← Main Menu
+              </button>
+              <a
+                href="../index.html"
+                className="px-6 py-2 bg-slate-800/80 text-slate-200 font-game rounded-lg hover:bg-slate-700 transition-all border border-purple-500/30"
+              >
+                🏠 Return to Noyola Hub
+              </a>
+            </div>
           </div>
-          
-          <button
-            onClick={() => setScreen('charSelect')}
-            className="px-6 py-2 bg-slate-700 text-slate-300 font-game rounded-lg hover:bg-slate-600 transition-all"
-          >
-            ← Change Character
-          </button>
         </div>
       )}
       
@@ -654,7 +851,7 @@ function LuminaRacer() {
             <div className="absolute right-0 top-0 bottom-0 w-4 finish-line rounded-r" />
             
             {/* AI Racers */}
-            {AI_RACERS.map((racer, i) => (
+            {aiRacers.map((racer, i) => (
               <div
                 key={i}
                 className="racer-track h-12 mb-2 relative rounded-lg flex items-center"
@@ -663,7 +860,7 @@ function LuminaRacer() {
                   className="absolute transition-all duration-100"
                   style={{ 
                     left: `${Math.min(95, aiPositions[i])}%`,
-                    filter: `drop-shadow(0 0 10px ${racer.color})`
+                    filter: `drop-shadow(0 0 10px ${racer.color || '#ffffff'})`
                   }}
                 >
                   {racer.vehicle ? (
@@ -677,7 +874,7 @@ function LuminaRacer() {
                   )}
                 </div>
                 <div className="absolute left-2 font-game text-xs text-white/50">
-                  {racer.name}
+                  {racer.name} {racer.tier ? `· ${racer.tier}` : ''}
                 </div>
               </div>
             ))}
@@ -802,6 +999,12 @@ function LuminaRacer() {
             <p className="font-game text-slate-400 mb-6">
               {finalPlace === 1 ? 'You conquered the track!' : 'Great effort, keep practicing!'}
             </p>
+            
+            {newlyUnlockedTrack && (
+              <div className="bg-emerald-500/10 border border-emerald-400/40 rounded-xl px-4 py-2 text-sm font-game text-emerald-200 mb-4">
+                ✅ New Track Unlocked: {newlyUnlockedTrack.name}
+              </div>
+            )}
             
             {/* Stats */}
             <div className="bg-slate-800 rounded-xl p-4 mb-6 text-left font-game">

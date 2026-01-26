@@ -19,6 +19,36 @@ Create a high-quality digital illustration of a 10-year-old girl racer character
 Create a high-quality digital illustration of an 8-year-old boy racer character portrait for a futuristic racing game. Energetic and action-oriented with excited expression, wearing a bold red and orange racing suit with speed stripe patterns and flame decals. Messy brown hair with racing goggles on top. Adventure racer aesthetic with dynamic energy. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
 ```
 
+### Mario the Builder (Player Character)
+```
+Create a high-quality digital illustration of an adult male racer character portrait for a futuristic racing game. Confident, friendly dad vibe with warm smile, wearing a sleek emerald and silver racing suit with tool-inspired accents and glowing tech seams. Short dark hair, light stubble, and a practical racing headset. Tech-craftsman aesthetic blending advanced technology with builder motifs. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
+### Adri the Navigator (Player Character)
+```
+Create a high-quality digital illustration of an adult female racer character portrait for a futuristic racing game. Calm and precise expression, wearing a stylish rose and white racing suit with holographic compass patterns and luminous accents. Long dark hair tied back, sleek visor, elegant tech-mage aesthetic. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
+### Guest the Drifter (Player Character)
+```
+Create a high-quality digital illustration of a mysterious guest racer character portrait for a futuristic racing game. Friendly but anonymous vibe, wearing a sleek sky-blue and graphite racing suit with a reflective helmet visor that hides the face. Minimalistic tech style with glowing trim. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
+### Nova the Comet (Player Character)
+```
+Create a high-quality digital illustration of a youthful racer character portrait for a futuristic racing game. Bright, energetic expression, wearing a teal and violet racing suit with comet trails and star particles. Short hair with a streak of glowing color, lightweight racer headset. Tech-fantasy comet aesthetic with glowing accents. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
+### Kai the Wave (Player Character)
+```
+Create a high-quality digital illustration of a youthful racer character portrait for a futuristic racing game. Calm and focused expression, wearing a cyan and navy racing suit with wave patterns and liquid-light highlights. Short hair with a subtle undercut, sleek aqua visor. Tech-fantasy waterflow aesthetic. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
+### Zara the Spark (Player Character)
+```
+Create a high-quality digital illustration of a youthful racer character portrait for a futuristic racing game. Cheerful expression, wearing a gold and white racing suit with sparkling energy lines and radiant highlights. Curly hair with a small glowing hairclip, lightweight racer headset. Tech-fantasy spark aesthetic with light particles. Professional game character art quality, clean cel-shaded or semi-realistic style, vibrant colors. Portrait orientation showing head and shoulders. Transparent background. High resolution 1024x1024px.
+```
+
 ### Aurora the Fox (Companion)
 ```
 Create a high-quality digital illustration of a magical ethereal fox character for a racing game companion. Sleek fox with shimmering blue-white fur that has glowing circuit-like magical patterns running through it. Wearing a small futuristic racing headset. Friendly, encouraging expression with bright intelligent eyes. Mystical yet modern aesthetic, blending fantasy creature with sci-fi technology. Sparkling particle effects around the character. Professional game art quality, polished 3D-render look or high-end 2D illustration. Full body pose showing personality. Transparent background. High resolution 1024x1024px.
@@ -35,12 +65,42 @@ Create a high-quality digital illustration of Aurora the magical fox in an excit
 
 ### Emma's Racing Vehicle
 ```
-Create a professional 3D-rendered futuristic hover racer with sleek, elegant aerodynamic design. Purple and silver metallic color scheme with iridescent finish. Glowing neon circuit patterns and magical energy trails flowing along the body. Holographic AI interface displays visible on dashboard. Book and scroll symbols elegantly etched into side panels with luminous details. Low, streamlined profile suggesting intelligence and precision. Anti-gravity propulsion with visible energy field beneath. Tech-mage aesthetic blending advanced technology with mystical elements. Professional racing game vehicle quality, dramatic studio lighting, reflective surfaces, neon accents. 3/4 view angle showing personality. Transparent background. High resolution 1920x1080px.
+Create a professional 3D-rendered futuristic hover racer with sleek, elegant aerodynamic design. Purple and silver metallic color scheme with iridescent finish. Glowing neon circuit patterns and magical energy trails flowing along the body. Holographic AI interface displays visible on dashboard. Book and scroll symbols elegantly etched into side panels with luminous details. Low, streamlined profile suggesting intelligence and precision. Anti-gravity propulsion with visible energy field beneath. Include Emma seated in the cockpit, visible and waving confidently. Vehicle and character must face RIGHT (direction of travel). Tech-mage aesthetic blending advanced technology with mystical elements. Professional racing game vehicle quality, dramatic studio lighting, reflective surfaces, neon accents. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
 ```
 
 ### Liam's Racing Vehicle
 ```
-Create a professional 3D-rendered futuristic hover racer with aggressive, sporty design. Bold red and orange color scheme with flame gradient effects. Sharp angular lines suggesting speed and agility. Racing stripes and speed boost vents glowing with orange energy. Scout emblem prominently displayed on hood. Compact, nimble appearance with forward-leaning stance. Dynamic flame trails and particle effects. Adventure racer aesthetic emphasizing action and excitement. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. 3/4 view angle showing character. Transparent background. High resolution 1920x1080px.
+Create a professional 3D-rendered futuristic hover racer with aggressive, sporty design. Bold red and orange color scheme with flame gradient effects. Sharp angular lines suggesting speed and agility. Racing stripes and speed boost vents glowing with orange energy. Scout emblem prominently displayed on hood. Compact, nimble appearance with forward-leaning stance. Dynamic flame trails and particle effects. Include Liam seated in the cockpit, visible and excited. Vehicle and character must face RIGHT (direction of travel). Adventure racer aesthetic emphasizing action and excitement. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Mario's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with sturdy, crafted design. Emerald and silver metallic color scheme with subtle tool-inspired accents and glowing tech seams. Reinforced chassis with elegant lines, balanced between strength and speed. Builder emblem on the side panel. Include Mario seated in the cockpit, visible and confident. Vehicle and character must face RIGHT (direction of travel). Tech-craftsman aesthetic blending advanced technology with maker motifs. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Adri's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with graceful, precise design. Rose, white, and gold color scheme with compass and navigation glyphs glowing softly. Sleek curves with elegant aero fins and stable hover pods. Navigator emblem on the hood. Include Adri seated in the cockpit, visible and composed. Vehicle and character must face RIGHT (direction of travel). Tech-mage navigator aesthetic blending advanced technology with magical guidance. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Guest's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with sleek, minimalistic design. Sky-blue and graphite color scheme with clean neon accents and a mysterious aura. Subtle stealth curves with glowing trim. Include the Guest racer seated in the cockpit wearing a reflective visor helmet. Vehicle and character must face RIGHT (direction of travel). Mystery tech aesthetic with polished surfaces and soft glow. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Nova's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with comet-inspired design. Teal and violet color scheme with star trails and glowing streaks. Swept-back body with celestial fins and bright tail light. Include Nova seated in the cockpit, visible and energized. Vehicle and character must face RIGHT (direction of travel). Tech-fantasy comet aesthetic with motion trails and particle sparkles. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Kai's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with fluid, wave-inspired design. Cyan and deep navy color scheme with flowing light patterns. Smooth contours and ripple-like energy vents. Include Kai seated in the cockpit, visible and focused. Vehicle and character must face RIGHT (direction of travel). Tech-fantasy waterflow aesthetic with subtle mist particles. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
+```
+
+### Zara's Racing Vehicle
+```
+Create a professional 3D-rendered futuristic hover racer with radiant, spark-inspired design. Gold and white metallic color scheme with glowing light trails and star-like highlights. Bright energy core and shimmering accents. Include Zara seated in the cockpit, visible and cheerful. Vehicle and character must face RIGHT (direction of travel). Tech-fantasy spark aesthetic with glittering particles. Professional racing game vehicle quality with metallic paint, reflections, and dramatic lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
 ```
 
 ---
@@ -49,17 +109,17 @@ Create a professional 3D-rendered futuristic hover racer with aggressive, sporty
 
 ### Shadow Runner (Easy Opponent)
 ```
-Create a professional 3D-rendered dark mysterious hover racer for beginner AI opponent. Sleek black and deep purple color scheme with matte finish. Shadow and smoke trail effects. Less complex design with fewer details compared to player vehicles. Mysterious purple energy glow from engine. Streamlined but not overly aggressive. Professional racing game quality with moody lighting. 3/4 view angle. Transparent background. High resolution 1920x1080px.
+Create a professional 3D-rendered dark mysterious hover racer for beginner AI opponent. Sleek black and deep purple color scheme with matte finish. Shadow and smoke trail effects. Less complex design with fewer details compared to player vehicles. Mysterious purple energy glow from engine. Streamlined but not overly aggressive. Vehicle must face RIGHT (direction of travel). Professional racing game quality with moody lighting. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
 ```
 
 ### Crystal Dasher (Medium Opponent)
 ```
-Create a professional 3D-rendered crystalline hover racer for medium difficulty AI opponent. Transparent crystal body structure with rainbow light refraction effects. Prismatic surfaces catching and splitting light. Magical gem aesthetic with glowing core. Balanced design between elegance and speed. Crystalline energy trails. Semi-transparent materials with internal glow. Professional racing game quality with complex light refraction and caustics. 3/4 view angle. Transparent background. High resolution 1920x1080px.
+Create a professional 3D-rendered crystalline hover racer for medium difficulty AI opponent. Transparent crystal body structure with rainbow light refraction effects. Prismatic surfaces catching and splitting light. Magical gem aesthetic with glowing core. Balanced design between elegance and speed. Crystalline energy trails. Semi-transparent materials with internal glow. Vehicle must face RIGHT (direction of travel). Professional racing game quality with complex light refraction and caustics. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
 ```
 
 ### Storm Chaser (Hard Opponent)
 ```
-Create a professional 3D-rendered lightning-themed hover racer for hard difficulty AI opponent. Electric blue and white color scheme with crackling energy effects. Lightning bolt decals and patterns across body. Aggressive, advanced aerodynamic design suggesting high performance. Electrical arcs and plasma trails. Intimidating presence with sharp angles and dramatic lighting. Storm cloud effects around vehicle. Professional racing game quality with glowing effects and electrical particle systems. 3/4 view angle. Transparent background. High resolution 1920x1080px.
+Create a professional 3D-rendered lightning-themed hover racer for hard difficulty AI opponent. Electric blue and white color scheme with crackling energy effects. Lightning bolt decals and patterns across body. Aggressive, advanced aerodynamic design suggesting high performance. Electrical arcs and plasma trails. Intimidating presence with sharp angles and dramatic lighting. Storm cloud effects around vehicle. Vehicle must face RIGHT (direction of travel). Professional racing game quality with glowing effects and electrical particle systems. Side/3-4 view facing right. Transparent background. High resolution 1920x1080px.
 ```
 
 ---
@@ -99,6 +159,16 @@ Create a set of professional 3D-rendered castle obstacles for sanctuary racing t
 ### Track 4: Fog Frontier - Full Background
 ```
 Create a stunning professional racing game background for a mysterious edge-world racing track. Abstract realm at the boundary of reality with swirling dimensional fog. Reality-bending effects creating impossible geometry. Mysterious floating platforms and fractured terrain pieces suspended in void. Unknown ancient artifacts partially visible through mist. Track surface is semi-transparent energy construct fading into fog. Gray, purple, teal, and black color scheme with ethereal lighting. Unknown world atmosphere with cosmic mystery. Volumetric fog and particle effects. Professional racing game quality environment art with surreal, dreamlike aesthetic. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
+```
+
+### Track 5: Starlight Circuit - Full Background
+```
+Create a stunning professional racing game background for a cosmic starlight racing track. Deep space sky with shimmering auroras and starfields, glowing nebula ribbons, and luminous constellations forming subtle track markers. Floating crystal platforms and celestial arches. Track surface is sleek with iridescent starlight reflections and soft neon edges. Indigo, blue, teal, and violet color palette with sparkling particles. Strong sense of speed with motion blur and light trails. Professional racing game quality environment art with magical sci-fi atmosphere. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
+```
+
+### Track 6: Pulse Canyon - Full Background
+```
+Create a stunning professional racing game background for a neon pulse canyon racing track. Massive canyon walls with glowing energy veins, luminous geometric rock faces, and vibrant plasma rivers below. Pulsing neon grids embedded in the cliff sides, with lightning arcs and energy bursts. Track surface is a smooth energy bridge with rhythmic light waves and glowing rails. Red, magenta, purple, and electric blue palette. Intense speed and power atmosphere with dramatic lighting and motion blur. Professional racing game quality environment art with tech-fantasy canyon feel. Landscape orientation, ultra-wide view. High resolution 2560x1440px.
 ```
 
 ### Track 4: Fog Frontier - 3D Props

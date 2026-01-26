@@ -67,6 +67,11 @@ body {
   border-bottom: 2px solid rgba(139, 92, 246, 0.3);
 }
 
+.track-card--locked {
+  opacity: 0.7;
+  filter: grayscale(0.4);
+}
+
 .finish-line {
   background: repeating-linear-gradient(
     90deg,
