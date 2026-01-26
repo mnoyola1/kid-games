@@ -33,13 +33,14 @@ const GAMES = [
   },
   {
     id: 'word-forge',
-    name: 'Word Forge',
-    subtitle: 'Crafting & Spelling',
+    name: 'Dungeon Forge',
+    subtitle: 'Roguelike Spelling',
     icon: '⚒️',
     url: './word-forge/index.html',
-    description: 'Become a master blacksmith! Forge magical items and weapons by spelling correctly.',
-    features: ['🗡️ Crafting', '📦 Collection', '⭐ Items', '🎨 Pixel Art'],
-    active: true
+    description: 'Explore procedural dungeons where spelling saves your life! Battle monsters, craft items, and survive the depths in this addictive roguelike.',
+    features: ['🗡️ Roguelike', '⚔️ Combat', '🎲 Procedural', '⬆️ Upgrades'],
+    active: true,
+    tags: ['popular']
   },
   {
     id: 'shadows-in-the-halls',

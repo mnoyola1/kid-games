@@ -1,616 +1,773 @@
-const WordForge = () => {
-      // ==================== LUMINA CORE INTEGRATION ====================
-      const [playerProfile, setPlayerProfile] = useState(null);
-      
-      useEffect(() => {
-        if (typeof LuminaCore !== 'undefined') {
-          const profile = LuminaCore.getActiveProfile();
-          if (profile) {
-            setPlayerProfile(profile);
-            setPlayerName(profile.name);
-            console.log('⚒️ Word Forge: Playing as', profile.name);
-            LuminaCore.recordGameStart(profile.id, 'wordForge');
-          } else {
-            console.warn('⚠️ No active player found for Word Forge.');
-          }
-        }
-      }, []);
-      
-      const [screen, setScreen] = useState('title');
-      const [playerName, setPlayerName] = useState('Blacksmith');
-      const [coins, setCoins] = useState(0);
-      const [level, setLevel] = useState(1);
-      const [xp, setXp] = useState(0);
-      const [collection, setCollection] = useState([]);
-      const [currentRecipe, setCurrentRecipe] = useState(null);
-      const [ingredientsCollected, setIngredientsCollected] = useState(0);
-      const [currentWord, setCurrentWord] = useState('');
-      const [userInput, setUserInput] = useState('');
-      const [combo, setCombo] = useState(0);
-      const [feedback, setFeedback] = useState(null);
-      const [showForgeAnimation, setShowForgeAnimation] = useState(false);
-      const [justForgedItem, setJustForgedItem] = useState(null);
-      const [itemsForged, setItemsForged] = useState(0);
-      const [soundEnabled, setSoundEnabled] = useState(true);
-      
-      const inputRef = useRef(null);
-      const xpToLevel = level * 150;
-      
-      // Get available recipes based on level
-      const availableRecipes = useMemo(() => {
-        const rarityUnlocks = {
-          common: 1,
-          uncommon: 2,
-          rare: 4,
-          epic: 6,
-          legendary: 8
-        };
-        return RECIPES.filter(r => level >= rarityUnlocks[r.rarity] && !collection.some(c => c.id === r.id));
-      }, [level, collection]);
-      
-      // Pick a random word based on difficulty
-      const pickWord = useCallback(() => {
-        let list = WORD_LISTS.easy;
-        if (level >= 5) list = [...WORD_LISTS.easy, ...WORD_LISTS.medium];
-        if (level >= 8) list = [...WORD_LISTS.easy, ...WORD_LISTS.medium, ...WORD_LISTS.hard];
-        return list[Math.floor(Math.random() * list.length)].toLowerCase();
-      }, [level]);
-      
-      // Start forging a new item
-      const startForging = useCallback((recipe) => {
-        setCurrentRecipe(recipe);
-        setIngredientsCollected(0);
-        setCurrentWord(pickWord());
-        setUserInput('');
-        setScreen('forging');
-        setTimeout(() => inputRef.current?.focus(), 100);
-      }, [pickWord]);
-      
-      // Select random recipe
-      const selectRandomRecipe = useCallback(() => {
-        if (availableRecipes.length === 0) {
-          // All items collected! Pick a random one to re-forge
-          const recipe = RECIPES[Math.floor(Math.random() * RECIPES.length)];
-          startForging(recipe);
-        } else {
-          // Weight towards rarer items as you level up
-          let pool = [...availableRecipes];
-          if (level >= 4 && Math.random() < 0.3) {
-            pool = pool.filter(r => ['rare', 'epic', 'legendary'].includes(r.rarity));
-          }
-          if (pool.length === 0) pool = availableRecipes;
-          const recipe = pool[Math.floor(Math.random() * pool.length)];
-          startForging(recipe);
-        }
-      }, [availableRecipes, level, startForging]);
-      
-      // Handle input change
-      const handleInputChange = (e) => {
-        const value = e.target.value.toLowerCase();
-        setUserInput(value);
-        if (soundEnabled) playSound('type');
+const DungeonForge = () => {
+  // ==================== STATE ====================
+  const [screen, setScreen] = useState('title');
+  const [playerProfile, setPlayerProfile] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  
+  // Player state
+  const [player, setPlayer] = useState(null);
+  const [metaProgress, setMetaProgress] = useState({
+    fragments: 0,
+    upgrades: {},
+    runsCompleted: 0,
+    furthestFloor: 0,
+    blueprints: []
+  });
+  
+  // Run state
+  const [dungeon, setDungeon] = useState(null);
+  const [combat, setCombat] = useState(null);
+  const [currentWord, setCurrentWord] = useState('');
+  const [userInput, setUserInput] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  
+  const inputRef = useRef(null);
+  
+  // ==================== LUMINA CORE INTEGRATION ====================
+  useEffect(() => {
+    if (typeof LuminaCore !== 'undefined') {
+      const profile = LuminaCore.getActiveProfile();
+      if (profile) {
+        setPlayerProfile(profile);
+        console.log('⚒️ Dungeon Forge: Playing as', profile.name);
+        LuminaCore.recordGameStart(profile.id, GAME_ID);
         
-        if (value === currentWord) {
-          // Correct!
-          const newCombo = combo + 1;
-          setCombo(newCombo);
-          setIngredientsCollected(prev => prev + 1);
-          
-          if (soundEnabled) {
-            if (newCombo >= 5) playSound('combo');
-            else playSound('correct');
-            playSound('hammer');
-          }
-          
-          // XP and coins
-          const baseXp = 10 + currentWord.length * 2;
-          const comboBonus = Math.floor(baseXp * (newCombo * 0.1));
-          const totalXp = baseXp + comboBonus;
-          
-          const baseCoin = 5 + Math.floor(currentWord.length / 2);
-          const coinBonus = newCombo >= 3 ? Math.floor(baseCoin * 0.5) : 0;
-          setCoins(c => c + baseCoin + coinBonus);
-          
-          setFeedback({ type: 'correct', combo: newCombo, xp: totalXp, coins: baseCoin + coinBonus });
-          
-          // Check if recipe complete
-          if (ingredientsCollected + 1 >= currentRecipe.ingredients) {
-            // Forge the item!
-            setTimeout(() => {
-              forgeItem(totalXp);
-            }, 500);
-          } else {
-            // Next word
-            setTimeout(() => {
-              setUserInput('');
-              setCurrentWord(pickWord());
-              setFeedback(null);
-            }, 600);
-          }
-          
-          // Gain XP
-          setXp(prev => {
-            const newXp = prev + totalXp;
-            if (newXp >= xpToLevel) {
-              setLevel(l => l + 1);
-              return newXp - xpToLevel;
-            }
-            return newXp;
-          });
-          
-        } else if (value.length > 0 && !currentWord.startsWith(value)) {
-          // Wrong!
-          setCombo(0);
-          if (soundEnabled) playSound('wrong');
-          setFeedback({ type: 'wrong' });
-          setUserInput('');
-          setTimeout(() => setFeedback(null), 400);
+        // Load meta progress
+        const stats = LuminaCore.getGameStats(profile.id, GAME_ID);
+        if (stats && stats.metaProgress) {
+          setMetaProgress(stats.metaProgress);
         }
-      };
+      }
+    }
+  }, []);
+  
+  // ==================== GAME FUNCTIONS ====================
+  
+  const startNewRun = () => {
+    initAudio();
+    
+    // Initialize player
+    const newPlayer = {
+      ...PLAYER_DEFAULTS,
+      health: PLAYER_DEFAULTS.maxHealth + (metaProgress.upgrades.max_health || 0) * 10,
+      maxHealth: PLAYER_DEFAULTS.maxHealth + (metaProgress.upgrades.max_health || 0) * 10,
+      inventory: [],
+      equipped: {
+        weapon: null,
+        armor: null,
+        accessory: null
+      }
+    };
+    
+    // Starting items from upgrades
+    if (metaProgress.upgrades.starting_items) {
+      const startingWeapon = ITEMS.find(i => i.id === 'iron_sword');
+      newPlayer.inventory.push(startingWeapon);
+    }
+    
+    setPlayer(newPlayer);
+    
+    // Generate first floor
+    const newDungeon = generateDungeon(1);
+    setDungeon(newDungeon);
+    
+    setScreen('dungeon');
+    if (soundEnabled) playMusic('menu');
+  };
+  
+  const enterRoom = (roomId) => {
+    moveToRoom(dungeon, roomId);
+    const room = dungeon.rooms[roomId];
+    
+    if (soundEnabled) playSound('door');
+    
+    if (room.type === ROOM_TYPES.COMBAT) {
+      startCombat(room);
+    } else if (room.type === ROOM_TYPES.BOSS) {
+      startCombat(room, true);
+    } else if (room.type === ROOM_TYPES.FORGE) {
+      setScreen('forge');
+    } else if (room.type === ROOM_TYPES.TREASURE) {
+      setScreen('treasure');
+    }
+    
+    setDungeon({...dungeon});
+  };
+  
+  const startCombat = (room, isBoss = false) => {
+    const enemies = room.enemies || [room.enemy];
+    const newCombat = initCombat(enemies, player);
+    setCombat(newCombat);
+    setScreen('combat');
+    
+    if (soundEnabled) playMusic(isBoss ? 'boss' : 'combat');
+    
+    // Start first turn
+    setTimeout(() => {
+      const word = startPlayerTurn(newCombat, dungeon.floor);
+      setCurrentWord(word);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }, 500);
+  };
+  
+  const handleSpellInput = (e) => {
+    const value = e.target.value.toLowerCase();
+    setUserInput(value);
+    
+    if (value === currentWord) {
+      // Correct!
+      setFeedback({ type: 'correct' });
+      if (soundEnabled) playSound('correct');
       
-      // Forge the item
-      const forgeItem = (finalXp) => {
-        setShowForgeAnimation(true);
+      setTimeout(() => {
+        // Attack enemy
+        const result = playerAttack(combat, 0);
         if (soundEnabled) {
-          playSound('forge');
-          if (currentRecipe.rarity === 'legendary') {
-            setTimeout(() => playSound('legendary'), 500);
+          playSound('attack');
+          if (result.killed) {
+            playSound('enemy_death');
           }
         }
         
-        setTimeout(() => {
-          const newItem = { ...currentRecipe, forgedAt: Date.now() };
-          setCollection(prev => {
-            if (!prev.some(i => i.id === newItem.id)) {
-              return [...prev, newItem];
+        // Check if combat over
+        const status = isCombatOver(combat);
+        if (status.over) {
+          endCombat(status.victory);
+        } else {
+          // Enemy turn
+          setTimeout(() => {
+            const enemyResult = enemyTurn(combat);
+            if (soundEnabled && enemyResult.totalDamage > 0) {
+              playSound('damage');
             }
-            return prev;
-          });
-          setJustForgedItem(newItem);
-          setItemsForged(i => i + 1);
-          setShowForgeAnimation(false);
-          setScreen('forged');
-        }, 1500);
-      };
-      
-      // Get rarity styles
-      const getRarityClass = (rarity) => `rarity-${rarity}`;
-      const getRarityBgClass = (rarity) => `rarity-bg-${rarity}`;
-      
-      // ==================== TITLE SCREEN ====================
-      if (screen === 'title') {
-        return (
-          <div className="forge-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
-            <EmberParticles />
-            <div className="fire-pit" />
             
-            <div className="relative z-10 text-center">
-              <div className="text-8xl mb-4 animate-float filter drop-shadow-lg">⚒️</div>
-              <h1 className="font-title text-5xl md:text-6xl text-forge-gold mb-2" style={{ textShadow: '0 0 30px rgba(255, 215, 0, 0.5)' }}>
-                WORD FORGE
-              </h1>
-              <p className="text-forge-ember text-lg mb-8">Master Blacksmith Academy</p>
-              
-              <div className="bg-black/50 backdrop-blur rounded-2xl p-6 mb-6 max-w-md mx-auto border-2 border-forge-steel/30">
-                <p className="text-gray-400 text-sm mb-3">Enter your name, Blacksmith:</p>
-                <input
-                  type="text"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value || 'Blacksmith')}
-                  className="w-full p-3 text-center text-xl font-bold forge-input rounded-xl text-forge-gold"
-                  maxLength={12}
-                  onClick={() => initAudio()}
+            // Check if player died
+            if (enemyResult.playerDead) {
+              endCombat(false);
+            } else {
+              // Next player turn
+              setPlayer({...combat.player});
+              const word = startPlayerTurn(combat, dungeon.floor);
+              setCurrentWord(word);
+              setUserInput('');
+              setFeedback(null);
+              setTimeout(() => inputRef.current?.focus(), 100);
+            }
+          }, 1000);
+        }
+        
+        setCombat({...combat});
+      }, 600);
+    } else if (value.length > 0 && !currentWord.startsWith(value)) {
+      // Wrong
+      setFeedback({ type: 'wrong' });
+      if (soundEnabled) playSound('wrong');
+      setUserInput('');
+      setTimeout(() => setFeedback(null), 400);
+    }
+  };
+  
+  const endCombat = (victory) => {
+    if (victory) {
+      const rewards = calculateRewards(combat);
+      
+      // Award XP and coins
+      if (playerProfile) {
+        LuminaCore.addXP(playerProfile.id, rewards.xp, GAME_ID);
+        LuminaCore.addCoins(playerProfile.id, rewards.coins, GAME_ID);
+        LuminaCore.addRewardPoints(playerProfile.id, Math.floor(rewards.xp / 20));
+      }
+      
+      // Meta fragments
+      setMetaProgress(prev => ({
+        ...prev,
+        fragments: prev.fragments + Math.floor(rewards.xp / 10)
+      }));
+      
+      clearRoom(dungeon);
+      setPlayer({...combat.player});
+      setScreen('victory');
+      
+      if (soundEnabled) playMusic('victory', false);
+      
+    } else {
+      // Player died
+      setScreen('death');
+      if (soundEnabled) playMusic('death', false);
+      
+      // Save meta progress
+      if (playerProfile) {
+        const stats = {
+          metaProgress: {
+            ...metaProgress,
+            runsCompleted: metaProgress.runsCompleted + 1,
+            furthestFloor: Math.max(metaProgress.furthestFloor, dungeon.floor)
+          }
+        };
+        LuminaCore.recordGameEnd(playerProfile.id, GAME_ID, stats);
+      }
+    }
+  };
+  
+  const continueExploring = () => {
+    setScreen('dungeon');
+    setCombat(null);
+    setUserInput('');
+    setFeedback(null);
+    if (soundEnabled) playMusic('menu');
+  };
+  
+  const craftItem = (item, words) => {
+    // Check if player spelled all words
+    if (words.every(w => w.spelled)) {
+      player.inventory.push(item);
+      setPlayer({...player});
+      
+      if (soundEnabled) playSound('craft');
+      setFeedback({ type: 'crafted', item });
+      
+      setTimeout(() => {
+        setFeedback(null);
+        clearRoom(dungeon);
+        continueExploring();
+      }, 2000);
+    }
+  };
+  
+  const openChest = () => {
+    const room = dungeon.rooms[dungeon.currentRoom];
+    if (room.chest) {
+      if (room.chest.item) {
+        player.inventory.push(room.chest.item);
+      }
+      
+      if (playerProfile && room.chest.coins) {
+        LuminaCore.addCoins(playerProfile.id, room.chest.coins, GAME_ID);
+      }
+      
+      if (soundEnabled) playSound('chest');
+      
+      setPlayer({...player});
+      clearRoom(dungeon);
+      
+      setTimeout(() => continueExploring(), 1500);
+    }
+  };
+  
+  const equipItem = (item) => {
+    const slot = item.type === 'weapon' ? 'weapon' : 
+                 item.type === 'armor' ? 'armor' : 'accessory';
+    
+    player.equipped[slot] = item;
+    
+    // Update player stats
+    if (item.type === 'armor') {
+      player.defense = item.defense;
+    }
+    if (item.type === 'accessory' && item.health) {
+      player.maxHealth += item.health;
+      player.health = Math.min(player.health + item.health, player.maxHealth);
+    }
+    
+    setPlayer({...player});
+    if (soundEnabled) playSound('equip');
+  };
+  
+  const descendFloor = () => {
+    const newFloor = dungeon.floor + 1;
+    const newDungeon = generateDungeon(newFloor);
+    setDungeon(newDungeon);
+    setScreen('dungeon');
+    
+    if (soundEnabled) playSound('door');
+  };
+  
+  // ==================== RENDER TITLE SCREEN ====================
+  if (screen === 'title') {
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        <div className="relative z-10 text-center max-w-2xl">
+          <div className="text-8xl mb-4 animate-float">⚒️</div>
+          <h1 className="font-title text-5xl md:text-7xl text-amber-400 mb-2 drop-shadow-glow">
+            DUNGEON FORGE
+          </h1>
+          <p className="text-orange-400 text-xl mb-2">Roguelike Spelling Adventure</p>
+          <p className="text-gray-400 text-sm mb-8">Craft items • Battle monsters • Spell words to survive</p>
+          
+          {playerProfile && (
+            <div className="bg-black/70 backdrop-blur rounded-xl p-4 mb-6 border border-amber-900/50">
+              <p className="text-amber-400 mb-2">Playing as: <span className="font-bold">{playerProfile.name}</span></p>
+              <p className="text-gray-400 text-sm">Furthest Floor: {metaProgress.furthestFloor || 0} • Fragments: {metaProgress.fragments || 0}</p>
+            </div>
+          )}
+          
+          <div className="flex gap-4 justify-center mb-4">
+            <button
+              onClick={startNewRun}
+              className="px-8 py-4 bg-gradient-to-b from-amber-600 to-amber-800 text-white rounded-xl text-xl font-bold 
+                       border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all transform hover:scale-105
+                       shadow-lg"
+            >
+              🗡️ START RUN
+            </button>
+            
+            <button
+              onClick={() => setScreen('upgrades')}
+              className="px-6 py-4 bg-gradient-to-b from-purple-600 to-purple-800 text-white rounded-xl font-bold 
+                       border-b-4 border-purple-900 hover:from-purple-500 hover:to-purple-700 transition-all"
+            >
+              ⬆️ Upgrades
+            </button>
+          </div>
+          
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
+          >
+            {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
+          </button>
+          
+          {playerProfile && (
+            <div className="mt-6">
+              <a
+                href="../index.html"
+                className="text-purple-400 hover:text-purple-300 text-sm"
+              >
+                🏠 Return to Noyola Hub
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER DUNGEON EXPLORATION ====================
+  if (screen === 'dungeon' && dungeon) {
+    const currentRoom = dungeon.rooms[dungeon.currentRoom];
+    const exits = getAvailableExits(dungeon);
+    
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        {/* Header */}
+        <div className="relative z-10 bg-black/70 backdrop-blur rounded-xl p-4 mb-4 border border-amber-900/30">
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="text-amber-400 font-bold text-lg">Floor {dungeon.floor}</div>
+              <div className="text-sm text-gray-400">Room {dungeon.currentRoom + 1}/{dungeon.rooms.length}</div>
+            </div>
+            <div>
+              <div className="text-red-400 font-bold text-lg">❤️ {player.health}/{player.maxHealth}</div>
+              <div className="text-sm text-gray-400">{player.inventory.length} items</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Room Display */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+          <div className="bg-black/80 backdrop-blur rounded-2xl p-8 max-w-lg w-full border-2 border-amber-900/50">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">
+                {currentRoom.type === ROOM_TYPES.START && '🚪'}
+                {currentRoom.type === ROOM_TYPES.COMBAT && '⚔️'}
+                {currentRoom.type === ROOM_TYPES.FORGE && '⚒️'}
+                {currentRoom.type === ROOM_TYPES.TREASURE && '📦'}
+                {currentRoom.type === ROOM_TYPES.BOSS && '🐉'}
+                {currentRoom.type === ROOM_TYPES.EMPTY && '🌑'}
+              </div>
+              <h2 className="font-title text-2xl text-amber-400 mb-2">
+                {currentRoom.type === ROOM_TYPES.START && 'Starting Chamber'}
+                {currentRoom.type === ROOM_TYPES.COMBAT && 'Monster Lair'}
+                {currentRoom.type === ROOM_TYPES.FORGE && 'Ancient Forge'}
+                {currentRoom.type === ROOM_TYPES.TREASURE && 'Treasure Room'}
+                {currentRoom.type === ROOM_TYPES.BOSS && 'Boss Arena'}
+                {currentRoom.type === ROOM_TYPES.EMPTY && 'Empty Hall'}
+              </h2>
+              <p className="text-gray-400 text-sm">
+                {currentRoom.cleared && '✓ Cleared'}
+                {!currentRoom.cleared && currentRoom.type === ROOM_TYPES.START && 'Choose your path'}
+                {!currentRoom.cleared && currentRoom.type !== ROOM_TYPES.START && 'Unexplored'}
+              </p>
+            </div>
+            
+            {/* Exits */}
+            {currentRoom.cleared && exits.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm text-center mb-3">Choose your path:</p>
+                {exits.map(room => (
+                  <button
+                    key={room.id}
+                    onClick={() => enterRoom(room.id)}
+                    className="w-full p-4 bg-gradient-to-r from-amber-900/50 to-orange-900/50 rounded-xl border border-amber-700/50
+                             hover:from-amber-800/70 hover:to-orange-800/70 transition-all transform hover:scale-[1.02]
+                             flex items-center justify-between"
+                  >
+                    <span className="text-amber-300">
+                      {room.type === ROOM_TYPES.COMBAT && '⚔️ Combat'}
+                      {room.type === ROOM_TYPES.FORGE && '⚒️ Forge'}
+                      {room.type === ROOM_TYPES.TREASURE && '📦 Treasure'}
+                      {room.type === ROOM_TYPES.BOSS && '🐉 BOSS'}
+                      {room.type === ROOM_TYPES.EMPTY && '🌑 Empty'}
+                    </span>
+                    <span className="text-gray-500 text-sm">→</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Floor complete */}
+            {currentRoom.type === ROOM_TYPES.BOSS && currentRoom.cleared && (
+              <button
+                onClick={descendFloor}
+                className="w-full p-4 bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl font-bold text-white
+                         border-b-4 border-purple-900 hover:from-purple-500 hover:to-purple-700 transition-all"
+              >
+                ⬇️ Descend to Floor {dungeon.floor + 1}
+              </button>
+            )}
+          </div>
+          
+          {/* Inventory */}
+          <div className="mt-4 bg-black/70 backdrop-blur rounded-xl p-4 max-w-lg w-full border border-amber-900/30">
+            <p className="text-amber-400 font-bold mb-2">Inventory</p>
+            <div className="grid grid-cols-4 gap-2">
+              {player.inventory.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => equipItem(item)}
+                  className={`aspect-square rounded-lg border-2 flex items-center justify-center text-2xl
+                    ${player.equipped[item.type === 'weapon' ? 'weapon' : item.type === 'armor' ? 'armor' : 'accessory']?.id === item.id
+                      ? 'border-amber-400 bg-amber-900/30'
+                      : 'border-gray-700 bg-black/50'}`}
+                  title={item.name}
+                >
+                  {item.emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER COMBAT ====================
+  if (screen === 'combat' && combat) {
+    const livingEnemies = combat.enemies.filter(e => e.currentHealth > 0);
+    
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+        <div className="dungeon-overlay dungeon-combat" />
+        
+        {/* Header */}
+        <div className="relative z-10 flex justify-between items-center mb-4">
+          <div className="bg-black/70 backdrop-blur rounded-lg px-4 py-2 border border-red-900/50">
+            <div className="text-red-400 font-bold">❤️ {combat.player.currentHealth}/{combat.player.maxHealth}</div>
+          </div>
+          <div className="bg-black/70 backdrop-blur rounded-lg px-4 py-2 border border-amber-900/50">
+            {combat.combo > 0 && (
+              <div className="text-orange-400 font-bold">🔥 {combat.combo}x Combo</div>
+            )}
+          </div>
+        </div>
+        
+        {/* Enemies */}
+        <div className="relative z-10 flex justify-center gap-4 mb-6">
+          {livingEnemies.map((enemy, i) => (
+            <div key={i} className="bg-black/70 backdrop-blur rounded-xl p-4 border-2 border-red-900/50">
+              <div className="text-4xl mb-2">{enemy.emoji}</div>
+              <div className="text-sm text-amber-400 font-bold">{enemy.name}</div>
+              <div className="text-xs text-gray-400">{Math.ceil(enemy.currentHealth)}/{enemy.maxHealth} HP</div>
+              <div className="w-24 h-2 bg-black/50 rounded-full mt-2 border border-red-900/50">
+                <div 
+                  className="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full transition-all"
+                  style={{ width: `${(enemy.currentHealth / enemy.maxHealth) * 100}%` }}
                 />
               </div>
-              
-              <button
-                onClick={() => { initAudio(); setScreen('menu'); }}
-                className="px-8 py-4 bg-gradient-to-b from-forge-ember to-red-700 text-white rounded-xl text-xl font-bold 
-                         border-b-4 border-red-900 hover:from-forge-fire hover:to-forge-ember transition-all transform hover:scale-105
-                         shadow-lg shadow-red-900/50"
-              >
-                🔥 START FORGING 🔥
-              </button>
-              
-              <p className="text-gray-500 text-sm mt-6">Spell words to forge legendary items!</p>
             </div>
-          </div>
-        );
-      }
-      
-      // ==================== MENU SCREEN ====================
-      if (screen === 'menu') {
-        return (
-          <div className="forge-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
-            <EmberParticles />
-            <div className="fire-pit" />
+          ))}
+        </div>
+        
+        {/* Spell Input */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+          <div className="bg-black/80 backdrop-blur rounded-2xl p-6 max-w-md w-full border-2 border-amber-900/50">
+            <p className="text-center text-gray-400 text-sm mb-3">Spell this word to attack:</p>
             
-            {/* Header */}
-            <div className="relative z-10 bg-black/60 backdrop-blur rounded-2xl p-4 mb-4 border border-forge-steel/30">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-forge-ember to-red-700 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-forge-gold">
-                    {level}
-                  </div>
-                  <div>
-                    <div className="text-forge-gold font-bold">{playerName}</div>
-                    <div className="text-xs text-gray-400">Master Blacksmith</div>
-                  </div>
+            <div className="flex justify-center gap-1 mb-4">
+              {currentWord.split('').map((letter, i) => (
+                <div 
+                  key={i}
+                  className={`w-10 h-12 flex items-center justify-center text-2xl font-bold rounded-lg border-2 transition-all ${
+                    i < userInput.length
+                      ? userInput[i] === letter
+                        ? 'bg-green-500/30 border-green-500 text-green-400'
+                        : 'bg-red-500/30 border-red-500 text-red-400 animate-shake'
+                      : 'bg-black/50 border-amber-700 text-amber-400'
+                  }`}
+                >
+                  {i < userInput.length ? userInput[i].toUpperCase() : letter.toUpperCase()}
                 </div>
-                <div className="text-right">
-                  <div className="text-forge-gold font-bold text-lg">🪙 {coins}</div>
-                  <div className="text-xs text-gray-400">{collection.length}/{RECIPES.length} items</div>
-                </div>
+              ))}
+            </div>
+            
+            <input
+              ref={inputRef}
+              type="text"
+              value={userInput}
+              onChange={handleSpellInput}
+              className="w-full p-4 text-center text-2xl font-bold bg-black/70 border-2 border-amber-700 rounded-xl 
+                       text-white tracking-widest focus:border-amber-500 focus:outline-none"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck="false"
+            />
+            
+            {feedback && (
+              <div className={`mt-3 text-center p-2 rounded-lg ${
+                feedback.type === 'correct' 
+                  ? 'bg-green-500/20 text-green-400' 
+                  : 'bg-red-500/20 text-red-400'
+              }`}>
+                {feedback.type === 'correct' ? '✓ Correct! Attacking...' : '✗ Try again!'}
               </div>
-              
-              {/* XP Bar */}
-              <div className="mt-3">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
-                  <span>Level {level}</span>
-                  <span>{xp}/{xpToLevel} XP</span>
-                </div>
-                <div className="h-2 bg-black/50 rounded-full overflow-hidden border border-forge-steel/30">
-                  <div 
-                    className="h-full bg-gradient-to-r from-forge-ember to-forge-gold transition-all"
-                    style={{ width: `${(xp / xpToLevel) * 100}%` }}
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER FORGE ====================
+  if (screen === 'forge' && dungeon) {
+    const room = dungeon.rooms[dungeon.currentRoom];
+    const [craftingWords, setCraftingWords] = useState(room.craftingWords.map(w => ({ word: w, spelled: false, input: '' })));
+    const [selectedItem, setSelectedItem] = useState(room.availableItems[0]);
+    
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+          <div className="bg-black/80 backdrop-blur rounded-2xl p-6 max-w-lg w-full border-2 border-amber-900/50">
+            <h2 className="font-title text-2xl text-amber-400 text-center mb-4">⚒️ Ancient Forge</h2>
+            
+            <p className="text-gray-400 text-sm text-center mb-6">
+              Spell all words to craft: <span className="text-amber-400 font-bold">{selectedItem.name}</span>
+            </p>
+            
+            <div className="space-y-3 mb-6">
+              {craftingWords.map((word, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={word.input}
+                    onChange={(e) => {
+                      const newWords = [...craftingWords];
+                      newWords[i].input = e.target.value.toLowerCase();
+                      if (newWords[i].input === word.word) {
+                        newWords[i].spelled = true;
+                        if (soundEnabled) playSound('correct');
+                      }
+                      setCraftingWords(newWords);
+                    }}
+                    disabled={word.spelled}
+                    placeholder={word.word}
+                    className="flex-1 p-3 bg-black/70 border-2 border-amber-700 rounded-lg text-white text-center
+                             disabled:bg-green-900/30 disabled:border-green-500"
                   />
+                  {word.spelled && <span className="text-green-400 text-2xl">✓</span>}
                 </div>
-              </div>
+              ))}
             </div>
             
-            {/* Main Actions */}
-            <div className="relative z-10 flex-1 flex flex-col gap-4 max-w-md mx-auto w-full">
-              <button
-                onClick={selectRandomRecipe}
-                className="flex-1 min-h-[140px] bg-gradient-to-br from-forge-ember/80 to-red-800/80 backdrop-blur rounded-2xl p-6 
-                         border-2 border-forge-gold/50 hover:border-forge-gold transition-all transform hover:scale-[1.02]
-                         flex flex-col items-center justify-center gap-3 shadow-xl shadow-red-900/30"
-              >
-                <div className="text-5xl animate-float">🔨</div>
-                <div className="font-title text-2xl text-forge-gold">FORGE ITEM</div>
-                <div className="text-sm text-orange-200">Spell ingredients to craft!</div>
-              </button>
-              
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setScreen('collection')}
-                  className="flex-1 bg-black/60 backdrop-blur rounded-2xl p-4 border border-forge-steel/30 
-                           hover:border-forge-gold/50 transition-all flex flex-col items-center gap-2"
-                >
-                  <div className="text-3xl">📦</div>
-                  <div className="font-bold text-white">Collection</div>
-                  <div className="text-xs text-gray-400">{collection.length} items</div>
-                </button>
-                
-                <button
-                  onClick={() => setScreen('recipes')}
-                  className="flex-1 bg-black/60 backdrop-blur rounded-2xl p-4 border border-forge-steel/30 
-                           hover:border-forge-gold/50 transition-all flex flex-col items-center gap-2"
-                >
-                  <div className="text-3xl">📜</div>
-                  <div className="font-bold text-white">Recipes</div>
-                  <div className="text-xs text-gray-400">{availableRecipes.length} available</div>
-                </button>
-              </div>
-              
-              <button
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className="bg-black/40 backdrop-blur rounded-xl p-3 border border-forge-steel/20 text-gray-400 text-sm"
-              >
-                {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
-              </button>
-            </div>
+            <button
+              onClick={() => craftItem(selectedItem, craftingWords)}
+              disabled={!craftingWords.every(w => w.spelled)}
+              className="w-full p-4 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl font-bold text-white
+                       border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              🔨 Forge {selectedItem.name}
+            </button>
             
-            {/* Stats */}
-            <div className="relative z-10 mt-4 grid grid-cols-3 gap-3 max-w-md mx-auto w-full">
-              <div className="bg-black/40 rounded-xl p-3 text-center border border-forge-steel/20">
-                <div className="text-2xl font-bold text-forge-gold">{itemsForged}</div>
-                <div className="text-xs text-gray-500">Forged</div>
-              </div>
-              <div className="bg-black/40 rounded-xl p-3 text-center border border-forge-steel/20">
-                <div className="text-2xl font-bold text-green-400">{combo > 0 ? combo : '-'}</div>
-                <div className="text-xs text-gray-500">Best Combo</div>
-              </div>
-              <div className="bg-black/40 rounded-xl p-3 text-center border border-forge-steel/20">
-                <div className="text-2xl font-bold text-purple-400">Lv.{level}</div>
-                <div className="text-xs text-gray-500">Rank</div>
-              </div>
-            </div>
+            <button
+              onClick={continueExploring}
+              className="w-full mt-2 p-3 bg-black/50 text-gray-400 rounded-lg hover:bg-black/70 transition-all"
+            >
+              Skip
+            </button>
           </div>
-        );
-      }
-      
-      // ==================== FORGING SCREEN ====================
-      if (screen === 'forging' && currentRecipe) {
-        return (
-          <div className="forge-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
-            <EmberParticles />
-            <div className="fire-pit" />
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER TREASURE ====================
+  if (screen === 'treasure' && dungeon) {
+    const room = dungeon.rooms[dungeon.currentRoom];
+    
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        <div className="relative z-10 text-center">
+          <div className="text-8xl mb-4 animate-float">📦</div>
+          <h2 className="font-title text-3xl text-amber-400 mb-6">Treasure Found!</h2>
+          
+          <div className="bg-black/80 backdrop-blur rounded-2xl p-8 max-w-md border-2 border-amber-900/50">
+            {room.chest.item && (
+              <div className="mb-4">
+                <div className="text-6xl mb-2">{room.chest.item.emoji}</div>
+                <div className="text-xl text-amber-400 font-bold">{room.chest.item.name}</div>
+                <div className="text-sm text-gray-400">{room.chest.item.description}</div>
+              </div>
+            )}
             
-            {/* Header */}
-            <div className="relative z-10 flex justify-between items-center mb-4">
-              <button
-                onClick={() => { setScreen('menu'); setCurrentRecipe(null); setCombo(0); }}
-                className="px-4 py-2 bg-black/50 rounded-lg text-gray-300 text-sm border border-forge-steel/30"
-              >
-                ← Back
-              </button>
+            {room.chest.coins && (
+              <div className="text-lg text-yellow-400">+{room.chest.coins} 🪙 Coins</div>
+            )}
+            
+            <button
+              onClick={openChest}
+              className="mt-6 px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl font-bold text-white
+                       border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all"
+            >
+              Take Loot
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER VICTORY ====================
+  if (screen === 'victory') {
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        <div className="relative z-10 text-center">
+          <div className="text-8xl mb-4 animate-float">🎉</div>
+          <h2 className="font-title text-4xl text-amber-400 mb-6">VICTORY!</h2>
+          
+          <button
+            onClick={continueExploring}
+            className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl font-bold text-white text-lg
+                     border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all"
+          >
+            Continue Exploring
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER DEATH ====================
+  if (screen === 'death') {
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" style={{opacity: 0.3}} />
+        
+        <div className="relative z-10 text-center">
+          <div className="text-8xl mb-4">💀</div>
+          <h2 className="font-title text-4xl text-red-400 mb-2">You Died</h2>
+          <p className="text-gray-400 mb-6">Reached Floor {dungeon.floor}</p>
+          
+          <div className="bg-black/80 backdrop-blur rounded-2xl p-6 max-w-md mb-6 border border-gray-700">
+            <p className="text-amber-400 font-bold mb-2">Fragments Collected: {metaProgress.fragments}</p>
+            <p className="text-sm text-gray-400">Use fragments to unlock permanent upgrades</p>
+          </div>
+          
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => setScreen('title')}
+              className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl font-bold text-white
+                       border-b-4 border-amber-900 hover:from-amber-500 hover:to-amber-700 transition-all"
+            >
+              Return to Hub
+            </button>
+            
+            <button
+              onClick={startNewRun}
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl font-bold text-white
+                       border-b-4 border-purple-900 hover:from-purple-500 hover:to-purple-700 transition-all"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // ==================== RENDER UPGRADES ====================
+  if (screen === 'upgrades') {
+    return (
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+        <div className="dungeon-overlay" />
+        
+        <div className="relative z-10 max-w-2xl mx-auto w-full">
+          <div className="flex justify-between items-center mb-6">
+            <button
+              onClick={() => setScreen('title')}
+              className="px-4 py-2 bg-black/50 text-gray-300 rounded-lg"
+            >
+              ← Back
+            </button>
+            <div className="text-amber-400 font-bold">Fragments: {metaProgress.fragments}</div>
+          </div>
+          
+          <h2 className="font-title text-3xl text-amber-400 text-center mb-6">⬆️ Permanent Upgrades</h2>
+          
+          <div className="space-y-3">
+            {META_UPGRADES.map(upgrade => {
+              const level = metaProgress.upgrades[upgrade.id] || 0;
+              const canAfford = metaProgress.fragments >= upgrade.cost;
+              const maxed = level >= upgrade.maxLevel;
               
-              <div className="flex items-center gap-4">
-                {combo >= 3 && (
-                  <div className="px-3 py-1 bg-orange-500/80 rounded-full text-white font-bold animate-combo-pop">
-                    🔥 {combo}x Combo!
-                  </div>
-                )}
-                <div className="text-forge-gold font-bold">🪙 {coins}</div>
-              </div>
-            </div>
-            
-            {/* Recipe Info */}
-            <div className={`relative z-10 bg-black/60 backdrop-blur rounded-2xl p-4 mb-4 border-2 ${getRarityBgClass(currentRecipe.rarity)}`}>
-              <div className="flex items-center gap-4">
-                <div className="text-5xl">{currentRecipe.emoji}</div>
-                <div className="flex-1">
-                  <div className={`font-title text-xl ${getRarityClass(currentRecipe.rarity)}`}>{currentRecipe.name}</div>
-                  <div className="text-sm text-gray-400">{currentRecipe.description}</div>
-                  <div className="text-xs text-gray-500 mt-1 capitalize">{currentRecipe.rarity}</div>
-                </div>
-              </div>
-              
-              {/* Progress */}
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-400 mb-2">
-                  <span>Ingredients</span>
-                  <span>{ingredientsCollected}/{currentRecipe.ingredients}</span>
-                </div>
-                <div className="flex gap-2">
-                  {[...Array(currentRecipe.ingredients)].map((_, i) => (
-                    <div 
-                      key={i}
-                      className={`flex-1 h-3 rounded-full transition-all ${
-                        i < ingredientsCollected 
-                          ? 'bg-gradient-to-r from-forge-ember to-forge-gold shadow-lg shadow-orange-500/30' 
-                          : 'bg-black/50 border border-forge-steel/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Forge Area */}
-            <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
-              {showForgeAnimation ? (
-                <div className="text-center">
-                  <div className="text-8xl animate-item-forge mb-4">{currentRecipe.emoji}</div>
-                  <div className={`font-title text-2xl ${getRarityClass(currentRecipe.rarity)} animate-pulse`}>
-                    FORGING...
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Word to spell */}
-                  <div className="bg-black/70 backdrop-blur rounded-2xl p-6 mb-6 border-2 border-forge-steel/50 min-w-[280px]">
-                    <div className="text-center mb-4">
-                      <span className="text-gray-400 text-sm">Spell this ingredient:</span>
+              return (
+                <div key={upgrade.id} className="bg-black/70 backdrop-blur rounded-xl p-4 border border-amber-900/30">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-amber-400">{upgrade.name}</div>
+                      <div className="text-sm text-gray-400">{upgrade.description}</div>
                     </div>
-                    <div className="flex justify-center gap-1 mb-4">
-                      {currentWord.split('').map((letter, i) => (
-                        <div 
-                          key={i}
-                          className={`w-10 h-12 flex items-center justify-center text-2xl font-bold rounded-lg border-2 transition-all ${
-                            i < userInput.length
-                              ? userInput[i] === letter
-                                ? 'bg-green-500/30 border-green-500 text-green-400'
-                                : 'bg-red-500/30 border-red-500 text-red-400'
-                              : 'bg-black/50 border-forge-steel/30 text-forge-gold'
-                          }`}
-                        >
-                          {i < userInput.length ? userInput[i].toUpperCase() : letter.toUpperCase()}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={userInput}
-                      onChange={handleInputChange}
-                      className="w-full p-4 text-center text-2xl font-bold forge-input rounded-xl text-white tracking-widest"
-                      autoCapitalize="none"
-                      autoCorrect="off"
-                      autoComplete="off"
-                      spellCheck="false"
-                    />
+                    <div className="text-sm text-gray-500">Lv.{level}/{upgrade.maxLevel}</div>
                   </div>
                   
-                  {/* Feedback */}
-                  {feedback && (
-                    <div className={`text-center p-3 rounded-xl ${
-                      feedback.type === 'correct' 
-                        ? 'bg-green-500/20 border border-green-500/50' 
-                        : 'bg-red-500/20 border border-red-500/50 animate-shake'
-                    }`}>
-                      {feedback.type === 'correct' ? (
-                        <div className="text-green-400 font-bold">
-                          ✓ Perfect! +{feedback.xp} XP +{feedback.coins} 🪙
-                          {feedback.combo >= 3 && <span className="ml-2">🔥 Combo x{feedback.combo}!</span>}
-                        </div>
-                      ) : (
-                        <div className="text-red-400 font-bold">✗ Try again!</div>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            
-            {/* Anvil decoration */}
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-6xl opacity-20 anvil">
-              ⚒️
-            </div>
-          </div>
-        );
-      }
-      
-      // ==================== FORGED SCREEN ====================
-      if (screen === 'forged' && justForgedItem) {
-        return (
-          <div className="forge-bg min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
-            <EmberParticles />
-            <div className="fire-pit" />
-            
-            <div className="relative z-10 text-center">
-              <div className="text-6xl mb-2 animate-float">🎉</div>
-              <h2 className="font-title text-3xl text-forge-gold mb-6">ITEM FORGED!</h2>
-              
-              <div className={`bg-black/70 backdrop-blur rounded-3xl p-8 mb-6 border-2 ${getRarityBgClass(justForgedItem.rarity)} max-w-sm mx-auto`}>
-                <div className="text-8xl mb-4 animate-item-forge">{justForgedItem.emoji}</div>
-                <div className={`font-title text-2xl mb-2 ${getRarityClass(justForgedItem.rarity)}`}>
-                  {justForgedItem.name}
+                  <button
+                    onClick={() => {
+                      if (canAfford && !maxed) {
+                        setMetaProgress(prev => ({
+                          ...prev,
+                          fragments: prev.fragments - upgrade.cost,
+                          upgrades: {
+                            ...prev.upgrades,
+                            [upgrade.id]: (prev.upgrades[upgrade.id] || 0) + 1
+                          }
+                        }));
+                        if (soundEnabled) playSound('equip');
+                      }
+                    }}
+                    disabled={!canAfford || maxed}
+                    className="w-full p-2 bg-amber-900/30 text-amber-400 rounded-lg text-sm font-bold
+                             hover:bg-amber-800/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {maxed ? 'MAX LEVEL' : `Upgrade (${upgrade.cost} fragments)`}
+                  </button>
                 </div>
-                <div className="text-gray-400 mb-2">{justForgedItem.description}</div>
-                <div className={`text-sm capitalize font-bold ${getRarityClass(justForgedItem.rarity)}`}>
-                  {justForgedItem.rarity}
-                </div>
-              </div>
-              
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={() => { setJustForgedItem(null); selectRandomRecipe(); }}
-                  className="px-6 py-3 bg-gradient-to-b from-forge-ember to-red-700 text-white rounded-xl font-bold 
-                           border-b-4 border-red-900 hover:from-forge-fire hover:to-forge-ember transition-all"
-                >
-                  🔨 Forge Another
-                </button>
-                <button
-                  onClick={() => { setJustForgedItem(null); setScreen('menu'); }}
-                  className="px-6 py-3 bg-black/50 text-gray-300 rounded-xl font-bold border border-forge-steel/30"
-                >
-                  ← Menu
-                </button>
-              </div>
-            </div>
+              );
+            })}
           </div>
-        );
-      }
-      
-      // ==================== COLLECTION SCREEN ====================
-      if (screen === 'collection') {
-        const sortedCollection = [...collection].sort((a, b) => {
-          const order = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
-          return order[a.rarity] - order[b.rarity];
-        });
-        
-        return (
-          <div className="forge-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
-            <div className="fire-pit opacity-30" />
-            
-            {/* Header */}
-            <div className="relative z-10 flex justify-between items-center mb-4">
-              <button
-                onClick={() => setScreen('menu')}
-                className="px-4 py-2 bg-black/50 rounded-lg text-gray-300 text-sm border border-forge-steel/30"
-              >
-                ← Back
-              </button>
-              <h2 className="font-title text-xl text-forge-gold">📦 Collection</h2>
-              <div className="text-sm text-gray-400">{collection.length}/{RECIPES.length}</div>
-            </div>
-            
-            {/* Collection Grid */}
-            <div className="relative z-10 flex-1 overflow-auto scroll-hide">
-              {collection.length === 0 ? (
-                <div className="text-center text-gray-500 mt-20">
-                  <div className="text-5xl mb-4">🔨</div>
-                  <p>No items forged yet!</p>
-                  <p className="text-sm mt-2">Start forging to build your collection.</p>
-                </div>
-              ) : (
-                <div className="collection-grid">
-                  {sortedCollection.map(item => (
-                    <div 
-                      key={item.id}
-                      className={`aspect-square rounded-xl border-2 flex flex-col items-center justify-center p-2 ${getRarityBgClass(item.rarity)} backdrop-blur`}
-                    >
-                      <div className="text-3xl">{item.emoji}</div>
-                      <div className={`text-xs font-bold truncate w-full text-center mt-1 ${getRarityClass(item.rarity)}`}>
-                        {item.name.split(' ')[0]}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      }
-      
-      // ==================== RECIPES SCREEN ====================
-      if (screen === 'recipes') {
-        const groupedRecipes = {
-          legendary: RECIPES.filter(r => r.rarity === 'legendary'),
-          epic: RECIPES.filter(r => r.rarity === 'epic'),
-          rare: RECIPES.filter(r => r.rarity === 'rare'),
-          uncommon: RECIPES.filter(r => r.rarity === 'uncommon'),
-          common: RECIPES.filter(r => r.rarity === 'common'),
-        };
-        
-        const rarityUnlocks = { common: 1, uncommon: 2, rare: 4, epic: 6, legendary: 8 };
-        
-        return (
-          <div className="forge-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
-            <div className="fire-pit opacity-30" />
-            
-            {/* Header */}
-            <div className="relative z-10 flex justify-between items-center mb-4">
-              <button
-                onClick={() => setScreen('menu')}
-                className="px-4 py-2 bg-black/50 rounded-lg text-gray-300 text-sm border border-forge-steel/30"
-              >
-                ← Back
-              </button>
-              <h2 className="font-title text-xl text-forge-gold">📜 Recipes</h2>
-              <div className="text-sm text-gray-400">Lv.{level}</div>
-            </div>
-            
-            {/* Recipes List */}
-            <div className="relative z-10 flex-1 overflow-auto scroll-hide space-y-4">
-              {Object.entries(groupedRecipes).map(([rarity, recipes]) => {
-                const unlocked = level >= rarityUnlocks[rarity];
-                return (
-                  <div key={rarity} className={!unlocked ? 'opacity-40' : ''}>
-                    <div className={`font-bold capitalize mb-2 flex items-center gap-2 ${getRarityClass(rarity)}`}>
-                      {rarity}
-                      {!unlocked && <span className="text-xs text-gray-500">(Unlock at Lv.{rarityUnlocks[rarity]})</span>}
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {recipes.map(recipe => {
-                        const owned = collection.some(c => c.id === recipe.id);
-                        return (
-                          <div 
-                            key={recipe.id}
-                            className={`rounded-xl border p-3 flex items-center gap-3 ${getRarityBgClass(rarity)} ${owned ? '' : 'opacity-60'}`}
-                          >
-                            <div className="text-2xl">{recipe.emoji}</div>
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-sm font-bold truncate ${owned ? getRarityClass(rarity) : 'text-gray-500'}`}>
-                                {recipe.name}
-                              </div>
-                              <div className="text-xs text-gray-500">{recipe.ingredients} ingredients</div>
-                            </div>
-                            {owned && <span className="text-green-400">✓</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
-      
-      return null;
-    };
+        </div>
+      </div>
+    );
+  }
+  
+  return null;
+};

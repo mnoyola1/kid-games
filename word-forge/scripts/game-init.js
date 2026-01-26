@@ -1,3 +1,2 @@
-// ==================== RENDER ====================
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<WordForge />);
+// ==================== GAME INITIALIZATION ====================
+ReactDOM.render(<DungeonForge />, document.getElementById('root'));

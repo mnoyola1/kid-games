@@ -1,51 +1,130 @@
-// ==================== SOUND SYSTEM ====================
-let synth = null;
-let metalSynth = null;
-let noiseSynth = null;
+// ==================== AUDIO MANAGER ====================
 
-const initAudio = async () => {
-  if (synth) return;
-  await Tone.start();
-  
-  synth = new Tone.PolySynth(Tone.Synth).toDestination();
-  synth.volume.value = -10;
-  
-  metalSynth = new Tone.MetalSynth().toDestination();
-  metalSynth.volume.value = -15;
-  
-  noiseSynth = new Tone.NoiseSynth().toDestination();
-  noiseSynth.volume.value = -20;
-};
+let audioContext;
+let audioLoaded = false;
+let currentMusic = null;
+let musicVolume = 0.4;
+let sfxVolume = 0.7;
 
-const playSound = (type) => {
-  if (!synth) return;
-  
-  switch(type) {
-    case 'type':
-      synth.triggerAttackRelease('C5', '0.05');
-      break;
-    case 'correct':
-      synth.triggerAttackRelease(['E5', 'G5', 'C6'], '0.2');
-      break;
-    case 'wrong':
-      synth.triggerAttackRelease(['C4', 'Eb4'], '0.3');
-      break;
-    case 'hammer':
-      metalSynth.triggerAttackRelease('C2', '0.1');
-      break;
-    case 'forge':
-      synth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '0.5');
-      noiseSynth.triggerAttackRelease('0.3');
-      break;
-    case 'legendary':
-      const now = Tone.now();
-      synth.triggerAttackRelease('C5', '0.2', now);
-      synth.triggerAttackRelease('E5', '0.2', now + 0.1);
-      synth.triggerAttackRelease('G5', '0.2', now + 0.2);
-      synth.triggerAttackRelease('C6', '0.4', now + 0.3);
-      break;
-    case 'combo':
-      synth.triggerAttackRelease(['G5', 'B5', 'D6'], '0.15');
-      break;
+const AUDIO_PATHS = {
+  music: {
+    menu: '../assets/audio/word-forge/music/menu.wav',
+    combat: '../assets/audio/word-forge/music/combat.wav',
+    boss: '../assets/audio/word-forge/music/boss.wav',
+    victory: '../assets/audio/word-forge/music/victory.wav',
+    death: '../assets/audio/word-forge/music/death.wav'
+  },
+  sfx: {
+    attack: '../assets/audio/word-forge/sfx/attack.mp3',
+    damage: '../assets/audio/word-forge/sfx/damage.mp3',
+    enemy_death: '../assets/audio/word-forge/sfx/enemy_death.mp3',
+    craft: '../assets/audio/word-forge/sfx/craft.mp3',
+    equip: '../assets/audio/word-forge/sfx/equip.mp3',
+    door: '../assets/audio/word-forge/sfx/door.mp3',
+    chest: '../assets/audio/word-forge/sfx/chest.mp3',
+    correct: '../assets/audio/word-forge/sfx/correct.mp3',
+    wrong: '../assets/audio/word-forge/sfx/wrong.mp3',
+    step: '../assets/audio/word-forge/sfx/step.mp3'
   }
 };
+
+/**
+ * Initialize audio context
+ */
+function initAudio() {
+  if (audioLoaded) return;
+  
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioLoaded = true;
+    console.log('🔊 Audio initialized');
+  } catch (e) {
+    console.warn('⚠️ Audio not supported', e);
+  }
+}
+
+/**
+ * Play music track
+ */
+function playMusic(trackName, loop = true) {
+  if (!audioLoaded || !AUDIO_PATHS.music[trackName]) return;
+  
+  // Stop current music
+  if (currentMusic) {
+    currentMusic.pause();
+    currentMusic.currentTime = 0;
+  }
+  
+  try {
+    currentMusic = new Audio(AUDIO_PATHS.music[trackName]);
+    currentMusic.loop = loop;
+    currentMusic.volume = musicVolume;
+    currentMusic.play().catch(e => console.warn('Music play failed:', e));
+  } catch (e) {
+    console.warn('Failed to play music:', e);
+  }
+}
+
+/**
+ * Stop music
+ */
+function stopMusic() {
+  if (currentMusic) {
+    currentMusic.pause();
+    currentMusic.currentTime = 0;
+    currentMusic = null;
+  }
+}
+
+/**
+ * Play sound effect
+ */
+function playSound(sfxName, options = {}) {
+  if (!audioLoaded || !AUDIO_PATHS.sfx[sfxName]) return;
+  
+  try {
+    const sound = new Audio(AUDIO_PATHS.sfx[sfxName]);
+    sound.volume = options.volume !== undefined ? options.volume : sfxVolume;
+    
+    if (options.pitch) {
+      sound.playbackRate = options.pitch;
+    }
+    
+    sound.play().catch(e => console.warn('SFX play failed:', e));
+  } catch (e) {
+    console.warn('Failed to play sound:', e);
+  }
+}
+
+/**
+ * Set music volume
+ */
+function setMusicVolume(volume) {
+  musicVolume = Math.max(0, Math.min(1, volume));
+  if (currentMusic) {
+    currentMusic.volume = musicVolume;
+  }
+}
+
+/**
+ * Set SFX volume
+ */
+function setSfxVolume(volume) {
+  sfxVolume = Math.max(0, Math.min(1, volume));
+}
+
+/**
+ * Mute all audio
+ */
+function muteAll() {
+  setMusicVolume(0);
+  setSfxVolume(0);
+}
+
+/**
+ * Unmute all audio
+ */
+function unmuteAll() {
+  setMusicVolume(0.4);
+  setSfxVolume(0.7);
+}

@@ -130,41 +130,81 @@ Race against AI opponents around themed tracks by typing words correctly. Speed 
 
 ---
 
-## 4. WORD FORGE ⚒️
+## 4. DUNGEON FORGE ⚒️🗡️
 
-**Genre:** Word Crafting + Blacksmith Simulator  
+**Genre:** Roguelike + Spelling Combat + Dungeon Crawler  
 **Target Players:** Emma & Liam  
-**Duration:** 10-15 minutes per session
+**Duration:** 15-30 minutes per run
 
 ### Core Gameplay
-Players are apprentice blacksmiths in a magical forge, crafting legendary items by spelling words correctly. The more ingredients (words) you spell, the rarer the item you can craft. Features a collection system and procedural crafting.
+A roguelike dungeon crawler where spelling words correctly is your combat mechanic! Explore procedurally generated dungeons, battle monsters by spelling words, craft powerful items at forges, and collect permanent upgrades. Each run is unique, and death means starting over - but you keep meta-progression fragments to unlock permanent upgrades.
 
 ### Key Features
-- **3 Difficulty Word Lists:**
-  - Easy: Short words (iron, fire, gold, bow, gem)
-  - Medium: Fantasy words (silver, dragon, crystal, phoenix, thunder)
-  - Hard: Complex words (adamantine, transcendent, indestructible)
-- **23 Craftable Items:**
-  - Common (2 ingredients): Iron Sword, Wooden Shield, Leather Cap
-  - Uncommon (3 ingredients): Steel Axe, Bronze Helm, Hunter's Bow
-  - Rare (4 ingredients): Flame Blade, Ice Shield, Thunder Hammer
-  - Epic (5 ingredients): Dragon Slayer, Phoenix Armor, Void Dagger
-  - Legendary (6 ingredients): Excalibur, Aegis of Gods, Infinity Gauntlet
-- **Particle Effects:** Ember particles for forge atmosphere
-- **Collection System:** Track all items crafted
-- **Rarity System:** Color-coded rarities with special effects
+- **Procedural Dungeon Generation:**
+  - Each floor has 8-12 randomly generated rooms
+  - Room types: Combat, Forge, Treasure, Boss
+  - Multiple paths through each floor
+  - Increasing difficulty per floor
+
+- **Spelling-Based Combat:**
+  - Spell words correctly to attack enemies
+  - Wrong spelling = enemy attacks you
+  - Combo system rewards perfect spelling
+  - Floor difficulty scales word complexity
+
+- **9 Craftable Items with Real Purpose:**
+  - Weapons (Iron Sword, Flame Blade, Thunder Hammer, Dragon Slayer)
+  - Armor (Leather Vest, Steel Armor, Phoenix Armor)
+  - Accessories (Health Ring, Healing Potion)
+  - Each item has stats that affect combat
+  - Items unlock special abilities triggered by spelling specific words
+
+- **5 Enemy Types + Boss:**
+  - Slime (weak, easy words)
+  - Goblin (medium threat)
+  - Skeleton (harder words required)
+  - Fire Elemental (advanced spelling)
+  - Ancient Dragon (epic boss battle)
+
+- **Permadeath + Meta Progression:**
+  - Death ends the run
+  - Keep "fragments" earned from defeating enemies
+  - Spend fragments on permanent upgrades
+  - Upgrades: Max Health, Starting Items, Extra Life
+
+- **Strategic Depth:**
+  - Manage HP between combats
+  - Choose which rooms to enter
+  - Equip best items for your playstyle
+  - Risk vs reward decisions (skip forge? Fight extra enemies?)
 
 ### Educational Value
-- Progressive spelling difficulty
-- Vocabulary building (fantasy/blacksmith terms)
-- Goal-setting (collecting all items)
-- Persistence (crafting legendary items requires many words)
+- Spelling under pressure (combat urgency)
+- Progressive difficulty (easy → medium → hard words)
+- Vocabulary expansion (fantasy/dungeon terms)
+- Strategic planning (resource management)
+- Persistence & learning from failure (roguelike design)
 
 ### Progression System
-- Collection completion tracking
-- Rarity progression (common → legendary)
-- High score based on item rarities crafted
-- Achievement for crafting legendary items
+- **Per-Run Progress:**
+  - Collect items during exploration
+  - Defeat enemies for XP and coins
+  - Clear rooms to advance
+  - Defeat floor boss to descend deeper
+
+- **Meta Progression (Between Runs):**
+  - Earn fragments from all runs (even failed ones)
+  - Unlock permanent upgrades
+  - Track furthest floor reached
+  - Leaderboard for deepest delve
+
+### Why It's Better Than Old Word Forge
+✅ Items have REAL purpose (they save your life in combat)  
+✅ High replayability (every run is different)  
+✅ Tension and stakes (spelling mistakes = damage)  
+✅ Clear goals (survive, get deeper, unlock upgrades)  
+✅ "One more run" addictiveness (roguelike loop)  
+✅ Educational content integrated into gameplay (not quiz-like)
 
 ---
 
