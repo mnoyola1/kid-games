@@ -408,8 +408,6 @@ function LuminaRacer() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('START RACING clicked! Character:', character);
-                alert('Button clicked! Character: ' + character);
                 // Skip character select if profile is already set
                 if (character) {
                   setScreen('trackSelect');
