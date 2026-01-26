@@ -230,7 +230,7 @@ const DungeonForge = () => {
     setCombat(null);
     setUserInput('');
     setFeedback(null);
-    if (soundEnabled) playMusic(menuMusicOption);
+    if (soundEnabled) playMusic('menu_alt1');
   };
   
   const craftItem = (item, words) => {
@@ -309,12 +309,20 @@ const DungeonForge = () => {
         <div className="dungeon-overlay" />
         
         <div className="relative z-10 text-center max-w-2xl">
-          <div className="text-8xl mb-4 animate-float">⚒️</div>
-          <h1 className="font-title text-5xl md:text-7xl text-amber-400 mb-2 drop-shadow-glow">
-            DUNGEON FORGE
-          </h1>
-          <p className="text-orange-400 text-xl mb-2">Roguelike Spelling Adventure</p>
-          <p className="text-gray-400 text-sm mb-8">Craft items • Battle monsters • Spell words to survive</p>
+          <div className="text-8xl mb-4 animate-float" style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.8))' }}>⚒️</div>
+          <div className="bg-black/60 backdrop-blur-sm rounded-2xl p-6 mb-6">
+            <h1 className="font-title text-5xl md:text-7xl text-amber-400 mb-3" style={{
+              textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,191,0,0.5)'
+            }}>
+              DUNGEON FORGE
+            </h1>
+            <p className="text-orange-400 text-xl mb-2 font-bold" style={{
+              textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 4px 12px rgba(0,0,0,0.7)'
+            }}>Roguelike Spelling Adventure</p>
+            <p className="text-gray-200 text-sm font-semibold" style={{
+              textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 3px 8px rgba(0,0,0,0.7)'
+            }}>Craft items • Battle monsters • Spell words to survive</p>
+          </div>
           
           {playerProfile && (
             <div className="bg-black/70 backdrop-blur rounded-xl p-4 mb-6 border border-amber-900/50">
@@ -353,7 +361,9 @@ const DungeonForge = () => {
           <div className="flex flex-col gap-3 items-center">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
+              className="px-4 py-2 bg-black/60 backdrop-blur text-white text-sm font-semibold rounded-lg 
+                       border border-gray-600 hover:bg-black/80 hover:border-gray-400 transition-all"
+              style={{ textShadow: '0 2px 4px rgba(0,0,0,0.9)' }}
             >
               {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
             </button>
