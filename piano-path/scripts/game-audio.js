@@ -43,7 +43,7 @@ class AudioManager {
 
   preloadMusic() {
     this.music = {
-      menu: new Audio('../assets/audio/shared/music/lyria2_menu_test.wav'),
+      menu: new Audio('../assets/audio/piano-path/music/menu.wav'),
     };
 
     Object.values(this.music).forEach((audio) => {
