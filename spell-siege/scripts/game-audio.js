@@ -1,4 +1,4 @@
-﻿    // ==================== AUDIO MANAGER ====================
+    // ==================== AUDIO MANAGER ====================
     class AudioManager {
       constructor() {
         this.musicPlayers = {};
@@ -167,4 +167,7 @@
         } catch (e) {}
       }
     }
+    
+    // Create audio manager instance
+    const audioManager = new AudioManager();
     

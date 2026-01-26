@@ -1,11 +1,11 @@
-﻿// ==================== CONSTANTS ====================
+// ==================== CONSTANTS ====================
 
     const MUSIC_BASE_URL = '../assets/audio/spell-siege/music/';
     const MUSIC_TRACKS = {
       menu: 'Main Menu Theme.wav',
-      gameplay_early: 'Gameplay - Early Waves 1-3.wav',
-      gameplay_mid: 'Gameplay - Mid Waves 4-7.wav',
-      gameplay_final: 'Gameplay - Final Waves.wav',
+      early: 'Gameplay - Early Waves 1-3.wav',
+      mid: 'Gameplay - Mid Waves 4-7.wav',
+      final: 'Gameplay - Final Waves.wav',
       boss: 'Boss Encounter.wav',
       victory: 'Victory Fanfare.wav',
       gameover: 'Game Over.wav'
