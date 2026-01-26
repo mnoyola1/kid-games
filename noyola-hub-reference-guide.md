@@ -1,6 +1,6 @@
 # NOYOLA HUB - Project Reference Guide
 ## Complete Technical & Design Documentation
-### Last Updated: January 24, 2026
+### Last Updated: January 26, 2026
 ### Architecture Fully Refactored: January 22, 2026
 ### AI Asset Generation Tools Added: January 23, 2026
 ### Cloud Sync (Supabase) Added: January 23, 2026
@@ -32,7 +32,7 @@ A unified game ecosystem called "Noyola Hub" that connects multiple educational 
   - ✅ Image generation (Google Gemini API)
   - ✅ Sound effects (ElevenLabs API)
   - ✅ Voice synthesis (Cartesia API)
-  - ✅ Music generation (manual via Lyria 2 or Suno Pro)
+  - ✅ Music generation (Vertex AI Lyria 2 via API)
   - ✅ Batch asset generator for new games
 - ✅ **Cloud Sync with Supabase!**
   - ✅ Cross-device data persistence
@@ -45,6 +45,8 @@ A unified game ecosystem called "Noyola Hub" that connects multiple educational 
   - ✅ Cache-first strategy for fast loading
   - ✅ Auto-updates when new version deployed
   - ✅ See `OFFLINE_SETUP.md` for details
+- ✅ **Dev Cache Bypass** (Added January 26, 2026)
+  - ✅ Service worker skips caching on `localhost` for instant updates
 
 ---
 
@@ -96,7 +98,8 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │   ├── generate_image.py           # Google Gemini image generation
 │   ├── generate_sfx.py             # ElevenLabs sound effects
 │   ├── generate_voice.py           # Cartesia voice synthesis
-│   ├── generate_music.py           # Placeholder (use Lyria 2 or Suno Pro manually)
+│   ├── generate_music.py           # ElevenLabs music (short clips)
+│   ├── generate_music_vertex.py    # Vertex AI Lyria 2 music generation
 │   ├── generate_game_assets.py     # Batch asset generator
 │   └── requirements.txt            # Python dependencies
 │
@@ -104,7 +107,7 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │   ├── lumina-core.js              # Core state management module (848 lines)
 │   │
 │   ├── styles/                      # Hub CSS (modular)
-│   │   ├── hub-themes.css          # CSS variables (fantasy/gaming themes)
+│   │   ├── hub-themes.css          # CSS variables (fantasy/gaming + purchased themes)
 │   │   ├── hub-base.css            # Base styles (reset, body)
 │   │   ├── hub-animations.css      # Animations & background effects
 │   │   ├── hub-layout.css          # Layout & responsive styles
@@ -206,7 +209,7 @@ The hub and all games have been refactored into a modular architecture for bette
 ### File Organization
 
 #### CSS Files (`shared/styles/`)
-- **hub-themes.css** - Theme system (fantasy/gaming CSS variables)
+- **hub-themes.css** - Theme system (fantasy/gaming + purchased themes)
 - **hub-base.css** - Foundation (reset, typography, body styles)
 - **hub-animations.css** - All animations and keyframes
 - **hub-layout.css** - Grid systems, containers, responsive breakpoints
@@ -864,7 +867,8 @@ if (level >= 10) {
 - ✅ `generate_image.py` - Google Gemini API for sprites, backgrounds, UI
 - ✅ `generate_sfx.py` - ElevenLabs API for sound effects
 - ✅ `generate_voice.py` - Cartesia API for character voices/narration
-- ✅ `generate_music.py` - Placeholder (use Lyria 2 or Suno Pro manually)
+- ✅ `generate_music.py` - ElevenLabs API (short clips)
+- ✅ `generate_music_vertex.py` - Vertex AI Lyria 2 (music generation)
 - ✅ `generate_game_assets.py` - Batch generator for new games
 
 ### New Files
@@ -1051,23 +1055,25 @@ python tools/generate_voice.py --list-voices
 
 **Voice Presets:** `cheerful_female`, `calm_male`, `excited_child`
 
-### Music Generation (MANUAL)
-Music is created manually using free/low-cost tools:
+### Music Generation (Vertex AI Lyria 2)
+Music is generated via the Vertex AI API using the Lyria 2 model:
 
-- **Lyria 2:** https://aitestkitchen.withgoogle.com/tools/music-fx (FREE)
-- **Suno Pro:** https://suno.com ($8/month, commercial rights)
+```bash
+python tools/generate_music_vertex.py -p "DESCRIPTION" -o assets/audio/[game-id]/music/track.wav
+```
 
-Save files to: `assets/audio/[game-id]/music/`
+**Notes:**
+- Output: 48kHz stereo WAV (~30 seconds per clip)
+- Cost: ~$0.06 per clip
+- Supports `--negative`, `--seed`, and `--samples` for variations
 
 **Prompts that work well:**
 ```
 "educational game menu music, welcoming, magical, loopable, instrumental"
 "adventure gameplay music, focused but fun, not distracting, instrumental"
-"victory fanfare, achievement unlocked, triumphant, 10 seconds"
-"game over music, encouraging to try again, hopeful, short"
+"victory fanfare, achievement unlocked, triumphant, instrumental"
+"game over music, encouraging to try again, hopeful, short, instrumental"
 ```
-
-**Why manual?** Suno has no official API, and third-party wrappers are unreliable. For ~5 tracks per game, manual generation takes 10-15 minutes total and is free with Lyria 2.
 
 ### Batch Asset Generation
 ```bash
@@ -1105,10 +1111,10 @@ assets/
 | 1 Image | Gemini API | ~$0.04 | Sprite or background |
 | 1 Sound Effect | ElevenLabs API | ~$0.02 | 0.5-2 second clip |
 | 1 Voice Line | Cartesia API | ~$0.01 | Short phrase |
-| 1 Music Track | Lyria 2 (manual) | FREE | ~2 min per track |
+| 1 Music Track | Lyria 2 (Vertex AI) | ~$0.06 | 30s WAV clip |
 | 1 Music Track | Suno Pro (manual) | ~$0.03 | $8/mo subscription |
 
-**Typical new game:** ~$2-4 total (50 images, 20 SFX, 10 voice lines) + FREE music via Lyria 2
+**Typical new game:** ~$2-4 total (50 images, 20 SFX, 10 voice lines) + ~$0.30-$0.42 for 5-7 music clips via Lyria 2
 
 ## Cursor IDE Integration
 
