@@ -58,12 +58,54 @@
   }
 }
 
+@keyframes monster-breathe {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.05) translateY(-5px);
+  }
+}
+
+@keyframes monster-sway {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes monster-idle {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  25% {
+    transform: scale(1.02) translateY(-3px);
+  }
+  75% {
+    transform: scale(0.98) translateY(2px);
+  }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
 .animate-shake {
   animation: shake 0.3s ease-in-out;
+}
+
+.monster-animate {
+  animation: monster-idle 3s ease-in-out infinite;
+}
+
+.monster-breathe {
+  animation: monster-breathe 2s ease-in-out infinite;
+}
+
+.monster-sway {
+  animation: monster-sway 4s ease-in-out infinite;
 }
 
 /* Scrollbar */

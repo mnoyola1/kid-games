@@ -408,8 +408,46 @@ const DungeonForge = () => {
     const exits = getAvailableExits(dungeon);
     
     return (
-      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden" style={{
+        backgroundImage: `url('../assets/backgrounds/word-forge/floor${Math.min(dungeon.floor, 4)}${dungeon.floor >= 4 ? '_plus' : ''}.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
         <div className="dungeon-overlay" />
+        
+        {/* Mini-Map */}
+        <div className="absolute top-4 right-4 z-20 bg-black/80 backdrop-blur rounded-xl p-3 border border-amber-900/50">
+          <div className="text-amber-400 text-xs font-bold mb-2 text-center">Floor Map</div>
+          <div className="grid gap-1" style={{
+            gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(dungeon.rooms.length))}, 1fr)`
+          }}>
+            {dungeon.rooms.map((room, i) => (
+              <div
+                key={i}
+                className={`w-4 h-4 rounded-sm transition-all ${
+                  i === dungeon.currentRoom
+                    ? 'bg-amber-400 ring-2 ring-amber-300 animate-pulse'
+                    : room.visited
+                    ? room.cleared
+                      ? 'bg-green-600'
+                      : 'bg-blue-600'
+                    : 'bg-gray-700'
+                }`}
+                title={`Room ${i + 1}${i === dungeon.currentRoom ? ' (Current)' : room.visited ? ' (Visited)' : ' (Unexplored)'}`}
+              >
+                {room.type === ROOM_TYPES.BOSS && (
+                  <div className="w-full h-full flex items-center justify-center text-[8px]">👑</div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 text-[10px] text-gray-400 space-y-0.5">
+            <div>🟡 You</div>
+            <div>🟢 Cleared</div>
+            <div>🔵 Visited</div>
+            <div>⚫ Unknown</div>
+          </div>
+        </div>
         
         {/* Header */}
         <div className="relative z-10 bg-black/70 backdrop-blur rounded-xl p-4 mb-4 border border-amber-900/30">
@@ -532,7 +570,11 @@ const DungeonForge = () => {
     const livingEnemies = combat.enemies.filter(e => e.currentHealth > 0);
     
     return (
-      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden">
+      <div className="dungeon-bg min-h-screen flex flex-col p-4 relative overflow-hidden" style={{
+        backgroundImage: `url('../assets/backgrounds/word-forge/floor${Math.min(dungeon.floor, 4)}${dungeon.floor >= 4 ? '_plus' : ''}.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
         <div className="dungeon-overlay dungeon-combat" />
         
         {/* Header */}
@@ -555,7 +597,7 @@ const DungeonForge = () => {
                 <img 
                   src={enemy.sprite} 
                   alt={enemy.name}
-                  className="w-24 h-24 object-contain"
+                  className="w-24 h-24 object-contain monster-animate"
                   style={{ imageRendering: 'auto' }}
                 />
               </div>
