@@ -42,24 +42,24 @@ function setTheme(theme) {
 
 function getAvailableThemes() {
   const profile = LuminaCore.getActiveProfile();
-  if (!profile) return ['fantasy', 'gaming'];
-  
   const available = ['fantasy', 'gaming']; // Base themes
+  if (!profile) return available;
   
-  // Check purchased themes
-  if (profile.inventory && profile.inventory.themes) {
-    profile.inventory.themes.forEach(themeId => {
-      const themeMap = {
-        'theme_rainbow': 'rainbow',
-        'theme_space': 'space',
-        'theme_ocean': 'ocean',
-        'theme_forest': 'forest'
-      };
-      if (themeMap[themeId]) {
-        available.push(themeMap[themeId]);
+  const themeMap = {
+    'theme_rainbow': 'rainbow',
+    'theme_space': 'space',
+    'theme_ocean': 'ocean',
+    'theme_forest': 'forest'
+  };
+  
+  // Check owned themes via inventory and hasItem (defensive)
+  LuminaCore.SHOP_ITEMS.filter(item => item.type === 'theme').forEach(item => {
+    if (LuminaCore.hasItem(profile.id, item.id) && themeMap[item.id]) {
+      if (!available.includes(themeMap[item.id])) {
+        available.push(themeMap[item.id]);
       }
-    });
-  }
+    }
+  });
   
   return available;
 }
@@ -87,7 +87,9 @@ function applyPurchasedTheme() {
 }
 
 function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'fantasy' ? 'gaming' : 'fantasy';
-  setTheme(newTheme);
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'fantasy';
+  const availableThemes = getAvailableThemes();
+  const currentIndex = availableThemes.indexOf(currentTheme);
+  const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % availableThemes.length;
+  setTheme(availableThemes[nextIndex]);
 }

@@ -252,6 +252,7 @@ function filterShopItems(category) {
   currentShopCategory = category;
   const profile = LuminaCore.getActiveProfile();
   if (!profile) return;
+  const activeTheme = document.documentElement.getAttribute('data-theme') || 'fantasy';
   
   const grid = document.getElementById('shopGrid');
   const items = category === 'all' 
@@ -262,6 +263,15 @@ function filterShopItems(category) {
     const canAfford = profile.currentCoins >= item.cost;
     const isOwned = LuminaCore.hasItem(profile.id, item.id);
     const inventory = LuminaCore.getInventory(profile.id);
+    const isTheme = item.type === 'theme';
+    const themeMap = {
+      'theme_rainbow': 'rainbow',
+      'theme_space': 'space',
+      'theme_ocean': 'ocean',
+      'theme_forest': 'forest'
+    };
+    const themeKey = themeMap[item.id];
+    const isActiveTheme = isTheme && themeKey === activeTheme;
     
     // For consumables, show current count
     let ownedText = '';
@@ -273,6 +283,22 @@ function filterShopItems(category) {
       }
     }
     
+    const buttonText = isOwned
+      ? (isTheme ? (isActiveTheme ? '✓ Active' : 'Apply') : '✓ Owned')
+      : canAfford ? 'Buy' : `Need ${item.cost - profile.currentCoins} more`;
+
+    const buttonClass = isOwned
+      ? (isTheme ? (isActiveTheme ? 'owned' : 'can-buy') : 'owned')
+      : canAfford ? 'can-buy' : 'cannot-buy';
+
+    const isDisabled = isOwned
+      ? (isTheme ? isActiveTheme : true)
+      : !canAfford;
+
+    const onClick = isOwned
+      ? (isTheme && !isActiveTheme ? `applyThemePurchase('${item.id}')` : '')
+      : canAfford ? `purchaseShopItem('${item.id}')` : '';
+
     return `
       <div class="shop-item ${canAfford && !isOwned ? 'affordable' : ''} ${isOwned ? 'owned' : ''}">
         <div class="shop-item-icon">${item.icon}</div>
@@ -282,10 +308,10 @@ function filterShopItems(category) {
           💰 ${item.cost}
         </div>
         <button 
-          class="shop-purchase-btn ${isOwned ? 'owned' : canAfford ? 'can-buy' : 'cannot-buy'}" 
-          onclick="${isOwned ? '' : canAfford ? `purchaseShopItem('${item.id}')` : ''}"
-          ${isOwned || !canAfford ? 'disabled' : ''}>
-          ${isOwned ? '✓ Owned' : canAfford ? 'Buy' : `Need ${item.cost - profile.currentCoins} more`}
+          class="shop-purchase-btn ${buttonClass}" 
+          onclick="${onClick}"
+          ${isDisabled ? 'disabled' : ''}>
+          ${buttonText}
         </button>
       </div>
     `;
@@ -301,6 +327,28 @@ function filterShopItems(category) {
       btn.classList.remove('active');
     }
   });
+}
+
+function renderShop() {
+  const profile = LuminaCore.getActiveProfile();
+  if (!profile) return;
+  document.getElementById('shopCoinsDisplay').textContent = profile.currentCoins;
+  filterShopItems(currentShopCategory);
+}
+
+function applyThemePurchase(itemId) {
+  const themeMap = {
+    'theme_rainbow': 'rainbow',
+    'theme_space': 'space',
+    'theme_ocean': 'ocean',
+    'theme_forest': 'forest'
+  };
+  const theme = themeMap[itemId];
+  if (theme && typeof setTheme === 'function') {
+    setTheme(theme);
+    showToast(`Theme applied!`, 'success');
+    renderShop();
+  }
 }
 
 function purchaseShopItem(itemId) {
@@ -319,17 +367,7 @@ function purchaseShopItem(itemId) {
     
     // If it's a theme, apply it immediately
     if (result.item.type === 'theme') {
-      const themeMap = {
-        'theme_rainbow': 'rainbow',
-        'theme_space': 'space',
-        'theme_ocean': 'ocean',
-        'theme_forest': 'forest'
-      };
-      const theme = themeMap[itemId];
-      if (theme && typeof setTheme === 'function') {
-        setTheme(theme);
-        showToast(`Theme applied!`, 'success');
-      }
+      applyThemePurchase(itemId);
     }
   } else {
     showToast(result.error || 'Purchase failed', 'error');
@@ -416,3 +454,5 @@ function showToast(message, type = 'success') {
 window.showProfileSelect = showProfileSelect;
 window.setupPinInputs = setupPinInputs;
 window.setupProfilePinInputs = setupProfilePinInputs;
+window.renderShop = renderShop;
+window.applyThemePurchase = applyThemePurchase;

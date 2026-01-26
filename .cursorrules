@@ -28,6 +28,9 @@ Use the tools in `/tools/` to generate game assets automatically. API keys are l
 python tools/generate_image.py --prompt "DESCRIPTION" --type sprite|background|ui --style STYLE --output assets/PATH
 ```
 - **Styles:** `pixel-art`, `8-bit`, `16-bit`, `painterly`, `cartoon`, `flat`, `anime`
+- **Style Selection (IMPORTANT):** Choose style based on the game description and the `MASTER_IMAGE_GENERATION_GUIDE.md`.
+  - If a game has a dedicated prompt doc (e.g., `spell-siege/IMAGE_GENERATION_PROMPTS.md`), follow its specified style and palette.
+  - If no prompt doc exists, infer the best fit from `GAME_DESCRIPTIONS.md` and document the chosen style in the prompt.
 - Add `--quality` flag for images with text (titles, UI labels)
 - Uses Google Gemini API
 
@@ -45,32 +48,45 @@ python tools/generate_voice.py --text "TEXT" --voice VOICE_PRESET --output asset
 - **Voice Presets:** `cheerful_female`, `calm_male`, `excited_child`
 - Great for: Feedback ("Great job!"), narration, character dialogue
 
-### Music (ElevenLabs API - Automated)
+### Music Generation
+
+**RECOMMENDED: Google Vertex AI Lyria 2 (High Quality)**
+```bash
+python tools/generate_music_vertex.py --prompt "DESCRIPTION" --output assets/audio/GAME_ID/music/FILE.wav
+```
+- Duration: ~30 seconds per clip (fixed)
+- Format: 48kHz stereo WAV (high quality)
+- Cost: ~$0.06 per clip
+- **Always include "instrumental" in prompts** for game music (no vocals)
+- Supports negative prompting with `--negative "EXCLUDE_DESCRIPTION"`
+- Reproducible output with `--seed NUMBER`
+- Generate multiple variations with `--samples N`
+
+**Alternative: ElevenLabs API (Short Clips)**
 ```bash
 python tools/generate_music.py --prompt "DESCRIPTION" --duration SECONDS --output assets/audio/GAME_ID/music/FILE.mp3
 ```
 - Duration: 0.5-22 seconds (ElevenLabs limit, default: 20s)
-- **Always include "instrumental" in prompts** for game music (no vocals)
-- For longer loops: Generate multiple segments and concatenate, or loop in-game
-- Great for: Menu themes, gameplay BGM, victory fanfares, boss battles
+- Format: MP3
+- Use for very short clips (UI sounds, short jingles)
 
-**Example prompts:**
+**Example prompts (work for both):**
 - `"educational game menu music, welcoming, magical, loopable, instrumental"`
 - `"adventure gameplay music, focused but fun, not distracting, instrumental"`
 - `"victory fanfare, achievement unlocked, triumphant, instrumental"`
 - `"boss battle music, intense but kid-friendly, orchestral, instrumental"`
 
-**Note:** ElevenLabs has a 22-second limit per generation. For seamless loops, you may need to:
-1. Generate multiple 20-22 second segments
+**For longer music loops:**
+1. Generate multiple 30-second clips with Lyria 2
 2. Use audio editing software to create seamless loops
-3. Or loop the track in-game (works well for background music)
+3. Or loop individual clips in-game
 
 ### Asset Output Paths
 ```
 assets/
 ├── audio/
 │   └── [game-id]/
-│       ├── music/     # .mp3 files (ElevenLabs API)
+│       ├── music/     # .wav files (Lyria 2) or .mp3 files (ElevenLabs)
 │       ├── sfx/       # .mp3 files (ElevenLabs API)
 │       └── voice/     # .mp3 files (Cartesia API)
 ├── sprites/
@@ -87,7 +103,7 @@ For sprites that need transparency (characters, items, enemies):
 
 1. **Generate with solid background:**
    ```bash
-   python tools/generate_image.py -p "description" -t sprite -s pixel-art -o assets/sprites/[game-id]/sprite.png
+   python tools/generate_image.py -p "description" -t sprite -s STYLE -o assets/sprites/[game-id]/sprite.png
    ```
 
 2. **Remove background using rembg:**
@@ -216,7 +232,7 @@ mkdir assets/audio/[game-id]/sfx
 ### Step 3: Generate Assets
 ```bash
 # Images and SFX (automated)
-python tools/generate_image.py -p "player character" -t sprite -s pixel-art -o assets/sprites/player.png
+python tools/generate_image.py -p "player character" -t sprite -s STYLE -o assets/sprites/player.png
 python tools/generate_sfx.py -p "correct answer chime" -d 0.5 -o assets/audio/game-id/sfx/correct.mp3
 
 # Music (manual) - use Lyria 2 or Suno Pro, save to:

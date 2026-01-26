@@ -26,6 +26,10 @@ function LuminaRacer() {
         // Default to emma if no profile
         setCharacter('emma');
       }
+    } else {
+      // LuminaCore not available - standalone mode, default to emma
+      console.log('🏎️ Lumina Racer: Standalone mode, using Emma character');
+      setCharacter('emma');
     }
   }, []);
   
@@ -367,36 +371,70 @@ function LuminaRacer() {
       
       {/* ==================== MENU ==================== */}
       {screen === 'menu' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-          <div className="text-center animate-float">
-            <div className="text-8xl mb-4">🏎️</div>
-            <h1 className="font-title text-6xl md:text-7xl text-amber-400 mb-2"
-                style={{ textShadow: '0 0 30px rgba(251, 191, 36, 0.5), 0 4px 0 #92400e' }}>
-              LUMINA RACER
-            </h1>
-            <p className="font-game text-xl text-purple-300 mb-8">
-              Type to Race Through Magical Kingdoms! 🦊
-            </p>
+        <div className="absolute inset-0 z-20">
+          {/* Background Image */}
+          <div className="absolute inset-0 pointer-events-none"
+               style={{
+                 backgroundImage: `url(${GAME_ASSETS.backgrounds.menuMain})`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center'
+               }}>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-purple-900/40 to-black/60" />
           </div>
           
-          <button
-            onClick={() => {
-              // Skip character select if profile is already set
-              if (character) {
-                setScreen('trackSelect');
-              } else {
-                setScreen('charSelect');
-              }
-            }}
-            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 
-                     text-white font-title text-2xl rounded-xl shadow-lg hover:scale-105
-                     border-2 border-purple-400/50 transition-all animate-pulse-glow mb-4"
-          >
-            🏁 START RACING
-          </button>
-          
-          {/* Audio Controls */}
-          <div className="flex gap-4 mt-4">
+          {/* Content Layer */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-center animate-float mb-8">
+              <div className="text-8xl mb-4">🏎️</div>
+              <h1 className="font-title text-6xl md:text-7xl text-amber-400 mb-2"
+                  style={{ textShadow: '0 0 30px rgba(251, 191, 36, 0.5), 0 4px 0 #92400e' }}>
+                LUMINA RACER
+              </h1>
+              <p className="font-game text-xl text-purple-300 mb-8">
+                Type to Race Through Magical Kingdoms! 🦊
+              </p>
+              {/* Aurora portrait */}
+              {AURORA.portrait && (
+                <img 
+                  src={AURORA.portrait} 
+                  alt="Aurora the Fox"
+                  className="w-32 h-32 mx-auto object-contain mb-4 animate-float"
+                  style={{ filter: 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.8))' }}
+                />
+              )}
+            </div>
+            
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('START RACING clicked! Character:', character);
+                alert('Button clicked! Character: ' + character);
+                // Skip character select if profile is already set
+                if (character) {
+                  setScreen('trackSelect');
+                } else {
+                  setScreen('charSelect');
+                }
+              }}
+              style={{
+                position: 'relative',
+                zIndex: 9999,
+                padding: '16px 48px',
+                fontSize: '24px',
+                cursor: 'pointer',
+                pointerEvents: 'all',
+                touchAction: 'manipulation'
+              }}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 
+                       text-white font-title rounded-xl shadow-lg hover:scale-105
+                       border-2 border-purple-400/50 transition-all animate-pulse-glow mb-4"
+            >
+              🏁 START RACING
+            </button>
+            
+            {/* Audio Controls */}
+            <div className="flex gap-4 mt-4">
             <button
               onClick={() => {
                 const enabled = audioManager.toggleMusic();
@@ -418,13 +456,14 @@ function LuminaRacer() {
             </button>
           </div>
           
-          <div className="mt-8 text-purple-400/60 font-game text-sm">
-            Made with ❤️ for Emma & Liam
-          </div>
-          
-          {/* Aurora floating */}
-          <div className="absolute bottom-8 right-8 text-6xl animate-float">
-            🦊
+            <div className="mt-8 text-purple-400/60 font-game text-sm">
+              Made with ❤️ for Emma & Liam
+            </div>
+            
+            {/* Aurora floating */}
+            <div className="absolute bottom-8 right-8 text-6xl animate-float">
+              🦊
+            </div>
           </div>
         </div>
       )}
@@ -448,12 +487,19 @@ function LuminaRacer() {
                           ${char.color === 'purple' ? 'border-purple-500/50 hover:border-purple-400' : 'border-orange-500/50 hover:border-orange-400'}
                           ${char.color === 'purple' ? 'hover:shadow-[0_0_30px_rgba(147,51,234,0.3)]' : 'hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]'}`}
               >
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white/20">
+                <div className="w-32 h-32 mx-auto mb-4 overflow-hidden">
                   <img 
-                    src={char.avatar} 
+                    src={char.portrait || char.avatar} 
                     alt={char.name}
-                    className="w-full h-full object-cover object-top"
-                    onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-5xl flex items-center justify-center h-full">${char.emoji}</span>`; }}
+                    className="w-full h-full object-contain"
+                    style={{ filter: 'drop-shadow(0 0 10px rgba(147, 51, 234, 0.5))' }}
+                    onError={(e) => { 
+                      e.target.style.display = 'none'; 
+                      const fallback = document.createElement('div');
+                      fallback.className = 'w-full h-full flex items-center justify-center';
+                      fallback.innerHTML = `<span class="text-5xl">${char.emoji}</span>`;
+                      e.target.parentElement.appendChild(fallback);
+                    }}
                   />
                 </div>
                 <div className="font-title text-2xl text-white mb-1">{char.name}</div>
@@ -544,7 +590,20 @@ function LuminaRacer() {
       
       {/* ==================== RACING ==================== */}
       {screen === 'racing' && (
-        <div className={`absolute inset-0 track-bg bg-gradient-to-b ${track?.bg || 'from-purple-900 to-indigo-900'}`}>
+        <div className="absolute inset-0 track-bg"
+             style={{
+               backgroundImage: track?.bgImage ? `url(${track.bgImage})` : undefined,
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               backgroundColor: track?.bgImage ? undefined : undefined
+             }}>
+          {/* Gradient overlay if using image */}
+          {track?.bgImage && (
+            <div className={`absolute inset-0 bg-gradient-to-b ${track.bg} opacity-40`} />
+          )}
+          {!track?.bgImage && (
+            <div className={`absolute inset-0 bg-gradient-to-b ${track.bg}`} />
+          )}
           {/* Speed lines effect */}
           <div className={`speed-lines ${boostActive ? 'active' : ''}`}>
             {[...Array(10)].map((_, i) => (
@@ -603,13 +662,21 @@ function LuminaRacer() {
                 className="racer-track h-12 mb-2 relative rounded-lg flex items-center"
               >
                 <div 
-                  className="absolute text-3xl transition-all duration-100"
+                  className="absolute transition-all duration-100"
                   style={{ 
                     left: `${Math.min(95, aiPositions[i])}%`,
                     filter: `drop-shadow(0 0 10px ${racer.color})`
                   }}
                 >
-                  {racer.emoji}
+                  {racer.vehicle ? (
+                    <img 
+                      src={racer.vehicle} 
+                      alt={racer.name}
+                      className="w-12 h-12 object-contain"
+                    />
+                  ) : (
+                    <span className="text-3xl">{racer.emoji}</span>
+                  )}
                 </div>
                 <div className="absolute left-2 font-game text-xs text-white/50">
                   {racer.name}
@@ -620,13 +687,21 @@ function LuminaRacer() {
             {/* Player Track */}
             <div className="racer-track h-16 relative rounded-lg flex items-center border-2 border-amber-500/50">
               <div 
-                className={`absolute text-4xl transition-all duration-100 ${boostActive ? 'animate-boost' : ''}`}
+                className={`absolute transition-all duration-100 ${boostActive ? 'animate-boost' : ''}`}
                 style={{ 
                   left: `${Math.min(95, playerPosition)}%`,
                   filter: 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.8))'
                 }}
               >
-                {CHARACTERS[character]?.emoji || '🏎️'}
+                {CHARACTERS[character]?.vehicle ? (
+                  <img 
+                    src={CHARACTERS[character].vehicle} 
+                    alt={CHARACTERS[character].name}
+                    className="w-16 h-16 object-contain"
+                  />
+                ) : (
+                  <span className="text-4xl">{CHARACTERS[character]?.emoji || '🏎️'}</span>
+                )}
               </div>
               <div className="absolute left-2 font-title text-sm text-amber-400">
                 {CHARACTERS[character]?.name || 'You'}
@@ -638,7 +713,16 @@ function LuminaRacer() {
           {auroraVisible && (
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-full z-20">
               <div className="bg-slate-900/90 rounded-2xl p-4 border-2 border-amber-500/50 flex items-center gap-3 animate-aurora-bounce">
-                <span className="text-4xl">🦊</span>
+                {AURORA.cheering ? (
+                  <img 
+                    src={AURORA.cheering} 
+                    alt="Aurora"
+                    className="w-16 h-16 object-contain"
+                    style={{ filter: 'drop-shadow(0 0 10px rgba(96, 165, 250, 0.8))' }}
+                  />
+                ) : (
+                  <span className="text-4xl">🦊</span>
+                )}
                 <span className="font-game text-white text-lg">{auroraMessage}</span>
               </div>
             </div>
@@ -698,8 +782,16 @@ function LuminaRacer() {
       
       {/* ==================== RESULTS ==================== */}
       {screen === 'results' && (
-        <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/70">
-          <div className="bg-slate-900 rounded-3xl p-8 max-w-md w-full mx-4 border-2 border-purple-500/50 text-center">
+        <div className="absolute inset-0 flex items-center justify-center z-30"
+             style={finalPlace === 1 ? {
+               backgroundImage: `url(${GAME_ASSETS.backgrounds.victory})`,
+               backgroundSize: 'cover',
+               backgroundPosition: 'center'
+             } : { backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+          {finalPlace === 1 && (
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-amber-900/40 to-black/60" />
+          )}
+          <div className="bg-slate-900/90 rounded-3xl p-8 max-w-md w-full mx-4 border-2 border-purple-500/50 text-center relative z-10">
             {/* Trophy/Place */}
             <div className="text-7xl mb-4">
               {finalPlace === 1 ? '🏆' : finalPlace === 2 ? '🥈' : finalPlace === 3 ? '🥉' : '🏁'}
@@ -735,7 +827,16 @@ function LuminaRacer() {
             
             {/* Aurora comment */}
             <div className="flex items-center justify-center gap-3 bg-amber-500/10 rounded-xl p-3 mb-6">
-              <span className="text-3xl">🦊</span>
+              {AURORA.portrait ? (
+                <img 
+                  src={AURORA.portrait} 
+                  alt="Aurora"
+                  className="w-12 h-12 object-contain"
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(251, 191, 36, 0.5))' }}
+                />
+              ) : (
+                <span className="text-3xl">🦊</span>
+              )}
               <span className="font-game text-amber-400">
                 {finalPlace === 1 
                   ? "INCREDIBLE! You're a true Lumina champion!" 

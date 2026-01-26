@@ -16,10 +16,10 @@ class AudioManager {
     this.musicPreloaded = true;
     
     const MUSIC_TRACKS = {
-      menu: 'menu.mp3',
-      gameplay: 'gameplay.mp3',
-      victory: 'victory.mp3',
-      gameover: 'gameover.mp3'
+      menu: 'menu.wav',
+      gameplay: 'gameplay.wav',
+      victory: 'victory.wav',
+      gameover: 'gameover.wav'
     };
     
     const MUSIC_BASE_URL = '../assets/audio/lumina-racer/music/';

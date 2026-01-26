@@ -19,6 +19,7 @@ const TRACKS = [
     name: 'The Archives', 
     emoji: '📚',
     bg: 'from-amber-900 via-orange-800 to-amber-900',
+    bgImage: '../assets/backgrounds/lumina-racer/track_archives.png',
     description: 'Race through floating books and ancient knowledge!',
     laps: 3
   },
@@ -27,6 +28,7 @@ const TRACKS = [
     name: 'Calculation Fields', 
     emoji: '🔢',
     bg: 'from-cyan-900 via-blue-800 to-indigo-900',
+    bgImage: '../assets/backgrounds/lumina-racer/track_calculation.png',
     description: 'Speed through geometric crystals and math symbols!',
     laps: 3
   },
@@ -35,6 +37,7 @@ const TRACKS = [
     name: 'The Sanctuary', 
     emoji: '🏰',
     bg: 'from-purple-900 via-violet-800 to-purple-900',
+    bgImage: '../assets/backgrounds/lumina-racer/track_sanctuary.png',
     description: 'Dash around the magical floating castle!',
     laps: 4
   },
@@ -43,6 +46,7 @@ const TRACKS = [
     name: 'Fog Frontier', 
     emoji: '🌫️',
     bg: 'from-slate-800 via-gray-700 to-slate-800',
+    bgImage: '../assets/backgrounds/lumina-racer/track_fog.png',
     description: 'Brave the mysterious edge of The Fog!',
     laps: 5
   }
@@ -56,7 +60,9 @@ const CHARACTERS = {
     color: 'purple',
     special: 'Deep Focus',
     specialDesc: 'Extra time on hard words',
-    avatar: '../assets/Emma_Lumina.png'
+    avatar: '../assets/Emma_Lumina.png',
+    portrait: '../assets/sprites/lumina-racer/emma_portrait_rgba.png',
+    vehicle: '../assets/sprites/lumina-racer/emma_vehicle_rgba.png'
   },
   liam: {
     name: 'Liam', 
@@ -65,14 +71,16 @@ const CHARACTERS = {
     color: 'orange',
     special: 'Quick Instinct',
     specialDesc: 'Bonus boost for fast answers',
-    avatar: '../assets/Liam_Lumina.png'
+    avatar: '../assets/Liam_Lumina.png',
+    portrait: '../assets/sprites/lumina-racer/liam_portrait_rgba.png',
+    vehicle: '../assets/sprites/lumina-racer/liam_vehicle_rgba.png'
   }
 };
 
 const AI_RACERS = [
-  { name: 'Shadow Runner', emoji: '👻', color: '#6b7280', difficulty: 0.35 },
-  { name: 'Crystal Dasher', emoji: '💎', color: '#06b6d4', difficulty: 0.45 },
-  { name: 'Storm Chaser', emoji: '⚡', color: '#f59e0b', difficulty: 0.55 },
+  { name: 'Shadow Runner', emoji: '👻', color: '#6b7280', difficulty: 0.35, vehicle: '../assets/sprites/lumina-racer/shadow_runner_vehicle_rgba.png' },
+  { name: 'Crystal Dasher', emoji: '💎', color: '#06b6d4', difficulty: 0.45, vehicle: '../assets/sprites/lumina-racer/crystal_dasher_vehicle_rgba.png' },
+  { name: 'Storm Chaser', emoji: '⚡', color: '#f59e0b', difficulty: 0.55, vehicle: '../assets/sprites/lumina-racer/storm_chaser_vehicle_rgba.png' },
 ];
 
 const AURORA_COMMENTS = {
@@ -114,6 +122,31 @@ const AURORA_COMMENTS = {
     "Good effort! Practice makes perfect! 💪",
     "You'll get them next time! I know it! 🦊"
   ]
+};
+
+// Aurora the Fox companion
+const AURORA = {
+  name: 'Aurora',
+  portrait: '../assets/sprites/lumina-racer/aurora_fox_rgba.png',
+  cheering: '../assets/sprites/lumina-racer/aurora_cheering_rgba.png'
+};
+
+// Game assets
+const GAME_ASSETS = {
+  backgrounds: {
+    menuMain: '../assets/backgrounds/lumina-racer/menu_main.png',
+    victory: '../assets/backgrounds/lumina-racer/screen_victory.png'
+  },
+  effects: {
+    correct: '../assets/sprites/lumina-racer/effect_correct.png',
+    wrong: '../assets/sprites/lumina-racer/effect_wrong.png',
+    finish: '../assets/sprites/lumina-racer/effect_finish.png'
+  },
+  powerups: {
+    speed: '../assets/sprites/lumina-racer/powerup_speed_rgba.png',
+    shield: '../assets/sprites/lumina-racer/powerup_shield_rgba.png',
+    timeSlow: '../assets/sprites/lumina-racer/powerup_timeslow_rgba.png'
+  }
 };
 
 const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);

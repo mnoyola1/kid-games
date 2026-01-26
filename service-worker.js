@@ -9,8 +9,9 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.4.1';
+const CACHE_VERSION = 'v1.4.4';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
+const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
 // Critical files that MUST be cached for offline play
 const CRITICAL_ASSETS = [
@@ -199,6 +200,12 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
+
+  // Dev mode: skip caching on localhost for instant updates
+  if (DEV_BYPASS_CACHE) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   
   // Network-first for Supabase (always try to sync when online)
   if (url.hostname.includes('supabase')) {
@@ -244,42 +251,65 @@ self.addEventListener('fetch', (event) => {
           // Return cached version immediately
           return cachedResponse;
         }
-        
-        // Not in cache, fetch from network
-        return fetch(event.request)
-          .then((response) => {
-            // Don't cache invalid responses
-            if (!response || response.status !== 200 || response.type === 'error') {
-              return response;
+
+        // If request has a query string, try cache by pathname (e.g., ?v=2)
+        if (url.search) {
+          return caches.match(url.pathname).then((cacheByPath) => {
+            if (cacheByPath) {
+              return cacheByPath;
             }
-            
-            // Check if this is an audio/image file we should cache
-            const shouldCache = 
-              AUDIO_PREFIXES.some(prefix => url.pathname.startsWith(prefix)) ||
-              ASSET_PREFIXES.some(prefix => url.pathname.startsWith(prefix)) ||
-              url.pathname.endsWith('.css') ||
-              url.pathname.endsWith('.js') ||
-              url.pathname.endsWith('.html');
-            
-            if (shouldCache) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseClone);
-              });
-            }
-            
-            return response;
-          })
-          .catch((error) => {
-            console.error('❌ Service Worker: Fetch failed', url.pathname, error);
-            // Return offline fallback for HTML pages
-            if (url.pathname.endsWith('.html') || url.pathname === '/') {
-              return caches.match('/index.html');
-            }
+            return fetchAndCache(event.request, url);
           });
+        }
+
+        // Not in cache, fetch from network
+        return fetchAndCache(event.request, url);
       })
   );
 });
+
+function fetchAndCache(request, url) {
+  return fetch(request)
+    .then((response) => {
+      // Don't cache invalid responses
+      if (!response || response.status !== 200 || response.type === 'error') {
+        return response;
+      }
+
+      // Check if this is an audio/image file we should cache
+      const shouldCache =
+        AUDIO_PREFIXES.some(prefix => url.pathname.startsWith(prefix)) ||
+        ASSET_PREFIXES.some(prefix => url.pathname.startsWith(prefix)) ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.html');
+
+      if (shouldCache) {
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseClone);
+        });
+      }
+
+      return response;
+    })
+    .catch((error) => {
+      console.error('❌ Service Worker: Fetch failed', url.pathname, error);
+
+      // Fallback for HTML pages
+      if (url.pathname.endsWith('.html') || url.pathname === '/') {
+        return caches.match('/index.html');
+      }
+
+      // Fallback for versioned asset requests (strip query)
+      if (url.search) {
+        return caches.match(url.pathname);
+      }
+
+      // Final fallback: return an empty 504 response instead of throwing
+      return new Response('', { status: 504, statusText: 'Offline' });
+    });
+}
 
 /**
  * Message Event: Handle commands from main thread

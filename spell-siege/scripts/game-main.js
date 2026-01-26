@@ -46,9 +46,6 @@
       const enemyIdCounter = useRef(0);
       const waveEnemiesSpawned = useRef(0);
       
-      // Audio Manager
-      const audioManager = useMemo(() => new AudioManager(), []);
-      
       // Initialize audio on first interaction
       const initAudio = useCallback(async () => {
         await audioManager.initTone();
@@ -57,9 +54,9 @@
       
       // Get music track for current wave
       const getMusicTrackForWave = useCallback((w) => {
-        if (w <= 3) return 'gameplay_early';
-        if (w <= 7) return 'gameplay_mid';
-        return 'gameplay_final';
+        if (w <= 3) return 'early';
+        if (w <= 7) return 'mid';
+        return 'final';
       }, []);
       
       // Add announcement
@@ -387,7 +384,7 @@
           waveEnemiesSpawned.current = 0;
           
           setGameState('playing');
-          audioManager.playMusic('gameplay_early');
+          audioManager.playMusic('early');
         });
       }, [difficulty, customWordsInput, initAudio]);
       
