@@ -44,14 +44,23 @@ function generateDungeon(floor) {
   // Create connections (linear path with some branches)
   for (let i = 0; i < rooms.length - 1; i++) {
     // Main path
-    rooms[i].connections.push(i + 1);
+    if (!rooms[i].connections.includes(i + 1)) {
+      rooms[i].connections.push(i + 1);
+    }
     
     // Add some branches (30% chance)
     if (Math.random() < 0.3 && i < rooms.length - 2) {
       const branch = Math.min(i + 2, rooms.length - 1);
-      rooms[i].connections.push(branch);
+      if (!rooms[i].connections.includes(branch)) {
+        rooms[i].connections.push(branch);
+      }
     }
   }
+  
+  // Deduplicate all connections
+  rooms.forEach(room => {
+    room.connections = [...new Set(room.connections)];
+  });
   
   return {
     floor,
@@ -236,7 +245,9 @@ function getAvailableExits(dungeon) {
   const currentRoom = dungeon.rooms[dungeon.currentRoom];
   if (!currentRoom) return [];
   
-  return currentRoom.connections
+  // Deduplicate connection IDs and map to rooms
+  const uniqueConnections = [...new Set(currentRoom.connections)];
+  return uniqueConnections
     .map(id => dungeon.rooms[id])
     .filter(room => room !== undefined);
 }

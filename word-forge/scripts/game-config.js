@@ -134,8 +134,7 @@ const ENEMIES = [
   {
     id: 'slime',
     name: 'Slime',
-    emoji: '🟦',
-    sprite: '../assets/sprites/word-forge/slime_rgba.png',
+    sprite: '../assets/sprites/word-forge/slime_realistic_rgba.png',
     health: 15,
     attack: 3,
     xp: 10,
@@ -145,8 +144,7 @@ const ENEMIES = [
   {
     id: 'goblin',
     name: 'Goblin',
-    emoji: '👺',
-    sprite: '../assets/sprites/word-forge/goblin_rgba.png',
+    sprite: '../assets/sprites/word-forge/goblin_realistic_rgba.png',
     health: 25,
     attack: 5,
     xp: 20,
@@ -156,8 +154,7 @@ const ENEMIES = [
   {
     id: 'skeleton',
     name: 'Skeleton',
-    emoji: '💀',
-    sprite: '../assets/sprites/word-forge/skeleton_rgba.png',
+    sprite: '../assets/sprites/word-forge/skeleton_realistic_rgba.png',
     health: 35,
     attack: 8,
     xp: 30,
@@ -167,8 +164,7 @@ const ENEMIES = [
   {
     id: 'fire_elemental',
     name: 'Fire Elemental',
-    emoji: '🔥',
-    sprite: '../assets/sprites/word-forge/fire_elemental_rgba.png',
+    sprite: '../assets/sprites/word-forge/fire_elemental_realistic_rgba.png',
     health: 50,
     attack: 12,
     xp: 50,
@@ -178,8 +174,7 @@ const ENEMIES = [
   {
     id: 'dragon',
     name: 'Ancient Dragon',
-    emoji: '🐉',
-    sprite: '../assets/sprites/word-forge/dragon_boss_rgba.png',
+    sprite: '../assets/sprites/word-forge/dragon_realistic_rgba.png',
     health: 150,
     attack: 20,
     xp: 200,

@@ -3,6 +3,7 @@ const DungeonForge = () => {
   const [screen, setScreen] = useState('title');
   const [playerProfile, setPlayerProfile] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [menuMusicOption, setMenuMusicOption] = useState('menu'); // 'menu', 'menu_alt1', 'menu_alt2'
   
   // Player state
   const [player, setPlayer] = useState(null);
@@ -72,7 +73,7 @@ const DungeonForge = () => {
     setDungeon(newDungeon);
     
     setScreen('dungeon');
-    if (soundEnabled) playMusic('menu');
+    if (soundEnabled) playMusic(menuMusicOption);
   };
   
   const enterRoom = (roomId) => {
@@ -214,7 +215,7 @@ const DungeonForge = () => {
     setCombat(null);
     setUserInput('');
     setFeedback(null);
-    if (soundEnabled) playMusic('menu');
+    if (soundEnabled) playMusic(menuMusicOption);
   };
   
   const craftItem = (item, words) => {
@@ -322,12 +323,69 @@ const DungeonForge = () => {
             </button>
           </div>
           
-          <button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
-          >
-            {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
-          </button>
+          <div className="flex flex-col gap-3 items-center">
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
+            >
+              {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
+            </button>
+            
+            {/* Music Selector */}
+            <div className="bg-black/50 backdrop-blur rounded-lg p-3 border border-gray-700">
+              <p className="text-gray-400 text-xs mb-2">Menu Music:</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setMenuMusicOption('menu');
+                    if (soundEnabled && screen === 'title') {
+                      stopMusic();
+                      playMusic('menu');
+                    }
+                  }}
+                  className={`px-3 py-1 rounded text-xs transition-all ${
+                    menuMusicOption === 'menu'
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
+                  }`}
+                >
+                  Original
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuMusicOption('menu_alt1');
+                    if (soundEnabled && screen === 'title') {
+                      stopMusic();
+                      playMusic('menu_alt1');
+                    }
+                  }}
+                  className={`px-3 py-1 rounded text-xs transition-all ${
+                    menuMusicOption === 'menu_alt1'
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
+                  }`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuMusicOption('menu_alt2');
+                    if (soundEnabled && screen === 'title') {
+                      stopMusic();
+                      playMusic('menu_alt2');
+                    }
+                  }}
+                  className={`px-3 py-1 rounded text-xs transition-all ${
+                    menuMusicOption === 'menu_alt2'
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-black/50 text-gray-400 hover:bg-black/70'
+                  }`}
+                >
+                  Epic
+                </button>
+              </div>
+            </div>
+          </div>
           
           {playerProfile && (
             <div className="mt-6">
@@ -355,6 +413,20 @@ const DungeonForge = () => {
         
         {/* Header */}
         <div className="relative z-10 bg-black/70 backdrop-blur rounded-xl p-4 mb-4 border border-amber-900/30">
+          <div className="flex justify-between items-center mb-2">
+            <button
+              onClick={() => setScreen('title')}
+              className="px-3 py-1 bg-black/50 text-gray-300 rounded-lg text-sm hover:bg-black/70 transition-all"
+            >
+              ← Menu
+            </button>
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
+            >
+              {soundEnabled ? '🔊' : '🔇'}
+            </button>
+          </div>
           <div className="flex justify-between items-center">
             <div>
               <div className="text-amber-400 font-bold text-lg">Floor {dungeon.floor}</div>
@@ -479,7 +551,14 @@ const DungeonForge = () => {
         <div className="relative z-10 flex justify-center gap-4 mb-6">
           {livingEnemies.map((enemy, i) => (
             <div key={i} className="bg-black/70 backdrop-blur rounded-xl p-4 border-2 border-red-900/50">
-              <div className="text-4xl mb-2">{enemy.emoji}</div>
+              <div className="flex justify-center mb-2">
+                <img 
+                  src={enemy.sprite} 
+                  alt={enemy.name}
+                  className="w-24 h-24 object-contain"
+                  style={{ imageRendering: 'auto' }}
+                />
+              </div>
               <div className="text-sm text-amber-400 font-bold">{enemy.name}</div>
               <div className="text-xs text-gray-400">{Math.ceil(enemy.currentHealth)}/{enemy.maxHealth} HP</div>
               <div className="w-24 h-2 bg-black/50 rounded-full mt-2 border border-red-900/50">

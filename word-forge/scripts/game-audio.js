@@ -9,6 +9,8 @@ let sfxVolume = 0.7;
 const AUDIO_PATHS = {
   music: {
     menu: '../assets/audio/word-forge/music/menu.wav',
+    menu_alt1: '../assets/audio/word-forge/music/menu_alt1.wav',
+    menu_alt2: '../assets/audio/word-forge/music/menu_alt2.wav',
     combat: '../assets/audio/word-forge/music/combat.wav',
     boss: '../assets/audio/word-forge/music/boss.wav',
     victory: '../assets/audio/word-forge/music/victory.wav',
