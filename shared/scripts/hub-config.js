@@ -50,8 +50,8 @@ const GAMES = [
     url: './crypto-quest/index.html',
     description: 'Decode secret messages by cracking encrypted ciphers! Each letter is replaced - use logic and hints to reveal hidden wisdom.',
     features: ['🔤 Letter Substitution', '💡 Hint System', '📜 Inspiring Messages', '⏱️ Time Challenge'],
-    active: true,
-    tags: ['new']
+    active: false,
+    tags: ['coming-soon']
   },
   {
     id: 'word-hunt',
