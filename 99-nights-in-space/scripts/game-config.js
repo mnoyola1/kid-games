@@ -31,10 +31,10 @@ const GAME_CONFIG = {
     attackRange: 1.3
   },
   flashlight: {
-    maxBatterySec: 120,
-    drainPerSec: 1,
-    nightDrainMultiplier: 2.2,
-    rechargePerSec: 0.4
+    maxBatterySec: 180,
+    drainPerSec: 0.7,
+    nightDrainMultiplier: 1.6,
+    rechargePerSec: 0.5
   },
   crafting: {
     recipes: [
@@ -74,10 +74,10 @@ const GAME_CONFIG = {
   },
   fear: {
     max: 100,
-    nightGainPerSec: 0.8,
-    phantomGainPerSec: 2.5,
-    lowHealthGainPerSec: 1.2,
-    safeLossPerSec: 1.5
+    nightGainPerSec: 0.5,
+    phantomGainPerSec: 2.0,
+    lowHealthGainPerSec: 0.8,
+    safeLossPerSec: 1.8
   },
   audio: {
     masterVolume: 0.35,
