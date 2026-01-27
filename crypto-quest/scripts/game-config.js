@@ -6,7 +6,7 @@
 const CRYPTO_CONFIG = {
   // Difficulty levels
   DIFFICULTY: {
-    EASY: {
+    easy: {
       id: 'easy',
       name: 'Code Cadet',
       icon: '🌱',
@@ -15,7 +15,7 @@ const CRYPTO_CONFIG = {
       timeBonus: 2, // points per second remaining
       maxHints: 5
     },
-    MEDIUM: {
+    medium: {
       id: 'medium',
       name: 'Cipher Scout',
       icon: '⚔️',
@@ -24,7 +24,7 @@ const CRYPTO_CONFIG = {
       timeBonus: 3,
       maxHints: 3
     },
-    HARD: {
+    hard: {
       id: 'hard',
       name: 'Crypto Master',
       icon: '🔥',
