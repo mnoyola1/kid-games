@@ -43,16 +43,6 @@ const GAMES = [
     tags: ['popular']
   },
   {
-    id: 'crypto-quest',
-    name: 'Crypto Quest',
-    subtitle: 'Cryptogram Puzzles',
-    icon: '🔐',
-    url: './crypto-quest/index.html',
-    description: 'Decode secret messages by cracking encrypted ciphers! Each letter is replaced - use logic and hints to reveal hidden wisdom.',
-    features: ['🔤 Letter Substitution', '💡 Hint System', '📜 Inspiring Messages', '⏱️ Time Challenge'],
-    active: false
-  },
-  {
     id: 'word-hunt',
     name: 'Word Hunt',
     subtitle: 'Word Search Puzzles',
@@ -134,6 +124,16 @@ const GAMES = [
     url: './99-nights-in-space/index.html',
     description: 'Survive 99 power cycles aboard a haunted space station. Keep the LSG fueled, explore in daylight, and endure the dark.',
     features: ['🛡️ LSG Defense', '🌑 Day/Night Cycle', '👤 3D Survival', '🛰️ Space Horror'],
+    active: false
+  },
+  {
+    id: 'crypto-quest',
+    name: 'Crypto Quest',
+    subtitle: 'Cryptogram Puzzles',
+    icon: '🔐',
+    url: './crypto-quest/index.html',
+    description: 'Decode secret messages by cracking encrypted ciphers! Each letter is replaced - use logic and hints to reveal hidden wisdom.',
+    features: ['🔤 Letter Substitution', '💡 Hint System', '📜 Inspiring Messages', '⏱️ Time Challenge'],
     active: false
   }
 ];
