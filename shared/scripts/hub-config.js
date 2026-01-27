@@ -50,8 +50,7 @@ const GAMES = [
     url: './crypto-quest/index.html',
     description: 'Decode secret messages by cracking encrypted ciphers! Each letter is replaced - use logic and hints to reveal hidden wisdom.',
     features: ['🔤 Letter Substitution', '💡 Hint System', '📜 Inspiring Messages', '⏱️ Time Challenge'],
-    active: false,
-    tags: ['coming-soon']
+    active: false
   },
   {
     id: 'word-hunt',
@@ -135,8 +134,7 @@ const GAMES = [
     url: './99-nights-in-space/index.html',
     description: 'Survive 99 power cycles aboard a haunted space station. Keep the LSG fueled, explore in daylight, and endure the dark.',
     features: ['🛡️ LSG Defense', '🌑 Day/Night Cycle', '👤 3D Survival', '🛰️ Space Horror'],
-    active: false,
-    tags: ['coming-soon']
+    active: false
   }
 ];
 
