@@ -135,8 +135,8 @@ const GAMES = [
     url: './99-nights-in-space/index.html',
     description: 'Survive 99 power cycles aboard a haunted space station. Keep the LSG fueled, explore in daylight, and endure the dark.',
     features: ['🛡️ LSG Defense', '🌑 Day/Night Cycle', '👤 3D Survival', '🛰️ Space Horror'],
-    active: true,
-    tags: ['new']
+    active: false,
+    tags: ['coming-soon']
   }
 ];
 
