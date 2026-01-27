@@ -144,6 +144,18 @@ const LuminaCore = (function() {
     { id: 'shadows_explorer', name: 'Thorough Explorer', desc: 'Explore 100 rooms', icon: '🗺️', xpBonus: 75 },
     { id: 'shadows_survivor', name: 'Battery Master', desc: 'Collect 20 batteries', icon: '🔋', xpBonus: 50 },
     
+    // Crypto Quest
+    { id: 'cq_first_solve', name: 'First Decoder', desc: 'Solve your first cryptogram', icon: '🔓', xpBonus: 15 },
+    { id: 'cq_perfect_solve', name: 'Perfect Decoder', desc: 'Solve without mistakes or hints', icon: '💎', xpBonus: 50 },
+    { id: 'cq_master_decoder', name: 'Master Decoder', desc: 'Solve a Hard cryptogram', icon: '🔐', xpBonus: 40 },
+    { id: 'cq_speed_cracker', name: 'Speed Cracker', desc: 'Solve with 2+ minutes remaining', icon: '⚡', xpBonus: 30 },
+    
+    // Word Hunt
+    { id: 'wh_first_puzzle', name: 'First Hunter', desc: 'Complete your first word search', icon: '🔍', xpBonus: 15 },
+    { id: 'wh_no_hints', name: 'Perfect Vision', desc: 'Find all words without hints', icon: '👁️', xpBonus: 40 },
+    { id: 'wh_word_master', name: 'Word Master', desc: 'Complete a Hard word search', icon: '🎯', xpBonus: 50 },
+    { id: 'wh_all_themes', name: 'Theme Expert', desc: 'Complete all 6 themes', icon: '🌈', xpBonus: 75 },
+    
     // Secret achievements
     { id: 'secret_night', name: 'Night Owl', desc: 'Play after 8 PM', icon: '🦉', xpBonus: 10, secret: true },
     { id: 'secret_weekend', name: 'Weekend Warrior', desc: 'Play on Saturday and Sunday', icon: '🎉', xpBonus: 15, secret: true },
@@ -209,6 +221,18 @@ const LuminaCore = (function() {
       name: '99 Nights in Space',
       icon: '🚀',
       defaultStats: { gamesPlayed: 0, planetsExplored: 0, puzzlesSolved: 0, artifactsCollected: 0, missionsCompleted: 0, bestTime: null }
+    },
+    cryptoQuest: {
+      id: 'cryptoQuest',
+      name: 'Crypto Quest',
+      icon: '🔐',
+      defaultStats: { gamesPlayed: 0, puzzlesSolved: 0, perfectSolves: 0, hintsUsed: 0, mistakes: 0, bestTime: null }
+    },
+    wordHunt: {
+      id: 'wordHunt',
+      name: 'Word Hunt',
+      icon: '🔍',
+      defaultStats: { gamesPlayed: 0, wordsFound: 0, puzzlesCompleted: 0, perfectPuzzles: 0, hintsUsed: 0, themesCompleted: {} }
     },
   };
   
@@ -1314,6 +1338,20 @@ const LuminaCore = (function() {
         if (stats.coinsCollected >= 10) checkAchievement(playerId, 'pq_coin_collector');
         if (stats.worldsUnlocked >= 2) checkAchievement(playerId, 'pq_world_unlock');
         if (stats.worldsUnlocked >= 5) checkAchievement(playerId, 'pq_all_worlds');
+        break;
+        
+      case 'cryptoQuest':
+        if (stats.puzzlesSolved >= 1) checkAchievement(playerId, 'cq_first_solve');
+        if (stats.mistakes === 0 && stats.hintsUsed === 0) checkAchievement(playerId, 'cq_perfect_solve');
+        if (stats.difficulty === 'hard') checkAchievement(playerId, 'cq_master_decoder');
+        if (stats.timeRemaining >= 120) checkAchievement(playerId, 'cq_speed_cracker');
+        break;
+        
+      case 'wordHunt':
+        if (stats.puzzlesCompleted >= 1) checkAchievement(playerId, 'wh_first_puzzle');
+        if (stats.hintsUsed === 0) checkAchievement(playerId, 'wh_no_hints');
+        if (stats.difficulty === 'hard') checkAchievement(playerId, 'wh_word_master');
+        // Check if all themes completed (would need theme tracking in stats)
         break;
     }
   }
