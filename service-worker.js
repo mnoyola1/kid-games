@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.4.6';
+const CACHE_VERSION = 'v1.6.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -131,6 +131,13 @@ const CRITICAL_ASSETS = [
   '/shadows-in-the-halls/scripts/game-components.js',
   '/shadows-in-the-halls/scripts/game-main.js',
   '/shadows-in-the-halls/scripts/game-init.js',
+
+  // === 99 NIGHTS IN SPACE ===
+  '/99-nights-in-space/index.html',
+  '/99-nights-in-space/styles/game-base.css',
+  '/99-nights-in-space/scripts/game-config.js',
+  '/99-nights-in-space/scripts/game-main.js',
+  '/99-nights-in-space/scripts/game-init.js',
 ];
 
 // Audio files (cached on-demand to avoid long initial load)
@@ -141,6 +148,8 @@ const AUDIO_PREFIXES = [
   '/assets/audio/pixel-quest/',
   '/assets/audio/rhythm-academy/',
   '/assets/audio/piano-path/',
+  '/assets/audio/crypto-quest/',
+  '/assets/audio/word-hunt/',
   '/assets/audio/shadows-in-the-halls/',
   '/assets/audio/canada-adventure/',
 ];
@@ -149,6 +158,8 @@ const AUDIO_PREFIXES = [
 const ASSET_PREFIXES = [
   '/assets/sprites/',
   '/assets/backgrounds/',
+  '/assets/models/',
+  '/assets/textures/',
 ];
 
 /**

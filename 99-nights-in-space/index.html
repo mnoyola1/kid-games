@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>99 Nights in Space</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
+    <link rel="stylesheet" href="styles/game-base.css" />
+  </head>
+  <body>
+    <div id="game-root">
+      <canvas id="renderCanvas"></canvas>
+      <div id="fear-overlay"></div>
+      <div id="hud">
+        <div id="hud-top">
+          <div class="hud-group">
+            <div class="hud-title">99 Nights in Space</div>
+            <div id="cycle-indicator">Cycle 1 / 99 · Lights On</div>
+          </div>
+          <div class="hud-group hud-right">
+            <div id="status-indicator">Systems stable</div>
+            <a id="hub-return-link" href="../index.html">🏠 Return to Noyola Hub</a>
+          </div>
+        </div>
+        <div id="hud-bottom">
+          <div class="hud-card">
+            <div class="hud-label">LSG Fuel</div>
+            <div id="fuel-meter">--</div>
+            <div id="fuel-cells">Cells: --</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Health</div>
+            <div id="health-meter">--</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Flashlight</div>
+            <div id="flashlight-meter">--</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Fear</div>
+            <div id="fear-meter">--</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Resources</div>
+            <div class="hud-stat">Scrap: <span id="scrap-count">0</span></div>
+            <div class="hud-stat">Circuits: <span id="circuit-count">0</span></div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Phase Time</div>
+            <div id="phase-timer">--</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Controls</div>
+            <div class="hud-help">WASD / touch pad · Space to jump · E to interact · F flashlight · C craft</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="interaction-prompt" class="hidden">
+        <span id="interaction-text">Press E to Open</span>
+        <button id="interact-btn" class="touch-only">Open</button>
+      </div>
+
+      <div id="game-message" class="hidden">
+        <div id="game-message-title">Message</div>
+        <div id="game-message-body">Body text</div>
+        <button id="restart-button" type="button">Restart</button>
+      </div>
+
+      <div id="crafting-panel" class="hidden">
+        <div class="panel-title">Workbench</div>
+        <div id="crafting-recipes"></div>
+        <button id="close-crafting" type="button">Close</button>
+      </div>
+
+      <div id="crew-status" class="hidden">
+        <div class="panel-title">Escort in Progress</div>
+        <div id="crew-message">Return the crew member to the LSG.</div>
+      </div>
+
+      <div id="touch-controls" class="hidden">
+        <div class="touch-row">
+          <button class="touch-btn" data-direction="up">▲</button>
+        </div>
+        <div class="touch-row">
+          <button class="touch-btn" data-direction="left">◀</button>
+          <button class="touch-btn" data-direction="down">▼</button>
+          <button class="touch-btn" data-direction="right">▶</button>
+        </div>
+        <div class="touch-row">
+          <button class="touch-btn" data-action="craft">Craft</button>
+          <button class="touch-btn" data-action="jump">⬆</button>
+          <button class="touch-btn touch-refuel" data-action="refuel">Refuel</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="../shared/lumina-core.js"></script>
+    <script src="scripts/game-config.js"></script>
+    <script src="scripts/game-main.js"></script>
+    <script src="scripts/game-init.js"></script>
+  </body>
+</html>

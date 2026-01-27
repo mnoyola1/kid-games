@@ -43,6 +43,28 @@ const GAMES = [
     tags: ['popular']
   },
   {
+    id: 'crypto-quest',
+    name: 'Crypto Quest',
+    subtitle: 'Cryptogram Puzzles',
+    icon: '🔐',
+    url: './crypto-quest/index.html',
+    description: 'Decode secret messages by cracking encrypted ciphers! Each letter is replaced - use logic and hints to reveal hidden wisdom.',
+    features: ['🔤 Letter Substitution', '💡 Hint System', '📜 Inspiring Messages', '⏱️ Time Challenge'],
+    active: true,
+    tags: ['new']
+  },
+  {
+    id: 'word-hunt',
+    name: 'Word Hunt',
+    subtitle: 'Word Search Puzzles',
+    icon: '🔍',
+    url: './word-hunt/index.html',
+    description: 'Find hidden words in themed grids! Search horizontally, vertically, and diagonally across animals, science, space, and more.',
+    features: ['🎨 6 Themes', '🔤 Multi-Direction', '⭐ Perfect Bonus', '🎯 Progress Tracking'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'shadows-in-the-halls',
     name: 'Shadows in the Halls',
     subtitle: 'Survival Horror Lite',
@@ -108,12 +130,13 @@ const GAMES = [
   {
     id: '99-nights-in-space',
     name: '99 Nights in Space',
-    subtitle: 'Space Adventure',
+    subtitle: 'Survival Horror',
     icon: '🚀',
-    url: '#',
-    description: 'Embark on an intergalactic journey! Explore alien worlds, solve cosmic puzzles, and discover the mysteries of the universe.',
-    features: ['🌌 Space Exploration', '🪐 Alien Worlds', '🧩 Cosmic Puzzles', '🛸 Adventure'],
-    active: false
+    url: './99-nights-in-space/index.html',
+    description: 'Survive 99 power cycles aboard a haunted space station. Keep the LSG fueled, explore in daylight, and endure the dark.',
+    features: ['🛡️ LSG Defense', '🌑 Day/Night Cycle', '👤 3D Survival', '🛰️ Space Horror'],
+    active: true,
+    tags: ['new']
   }
 ];
 

@@ -1,0 +1,221 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka', sans-serif;
+}
+
+/* Grid Cell Animations */
+.grid-cell {
+  transition: all 0.2s ease;
+}
+
+.grid-cell:hover:not(.selected):not(.found) {
+  transform: scale(1.1);
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+.grid-cell.selected {
+  animation: pulse 0.5s ease infinite;
+  background-color: rgba(59, 130, 246, 0.6);
+  border-color: rgb(59, 130, 246);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.grid-cell.found {
+  animation: foundFlash 0.6s ease;
+  background-color: rgba(34, 197, 94, 0.6);
+  border-color: rgb(34, 197, 94);
+}
+
+@keyframes foundFlash {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); background-color: rgba(34, 197, 94, 1); }
+}
+
+.grid-cell.error {
+  animation: errorShake 0.4s ease;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* Word List Animations */
+.word-item {
+  transition: all 0.3s ease;
+}
+
+.word-item.found {
+  animation: wordComplete 0.5s ease;
+}
+
+@keyframes wordComplete {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Victory Animation */
+.victory-banner {
+  animation: victoryBounce 0.8s ease-out;
+}
+
+@keyframes victoryBounce {
+  0% {
+    transform: translateY(-100px) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Star Rating */
+.star-icon {
+  display: inline-block;
+  animation: starSpin 0.6s ease-out forwards;
+}
+
+.star-icon:nth-child(1) { animation-delay: 0s; }
+.star-icon:nth-child(2) { animation-delay: 0.15s; }
+.star-icon:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes starSpin {
+  0% {
+    transform: scale(0) rotate(-360deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Progress Bar */
+.progress-bar-fill {
+  transition: width 0.4s ease-out;
+}
+
+/* Hint Highlight */
+.hint-highlight {
+  animation: hintGlow 1s ease-in-out;
+  background-color: rgba(250, 204, 21, 0.8) !important;
+  border-color: rgb(250, 204, 21) !important;
+}
+
+@keyframes hintGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); }
+  50% { box-shadow: 0 0 20px 10px rgba(250, 204, 21, 0); }
+}
+
+/* Button Effects */
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Theme-specific backgrounds */
+.theme-animals {
+  background: linear-gradient(135deg, #1e3a2e 0%, #2d4a3e 100%);
+}
+
+.theme-science {
+  background: linear-gradient(135deg, #1a2b4a 0%, #2a3b5a 100%);
+}
+
+.theme-space {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+}
+
+.theme-food {
+  background: linear-gradient(135deg, #3a1e1e 0%, #4a2e2e 100%);
+}
+
+/* Modal Animation */
+.modal-overlay {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: modalSlide 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlide {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Confetti Effect */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .grid-cell {
+    font-size: 1rem;
+  }
+}

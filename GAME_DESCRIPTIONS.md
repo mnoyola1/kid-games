@@ -408,7 +408,129 @@ Top-down survival horror where players explore a dark, procedurally-generated sc
 
 ---
 
-## 9. 99 NIGHTS IN SPACE 🚀
+## 9. CRYPTO QUEST 🔐
+
+**Genre:** Cryptogram Puzzle + Logic  
+**Target Players:** Emma & Liam  
+**Duration:** 5-10 minutes per puzzle
+
+### Core Gameplay
+Players decode encrypted messages by solving letter substitution ciphers. Each letter in the message is replaced with a different letter, and players must use logic, pattern recognition, and hints to crack the code and reveal inspirational messages.
+
+### Key Features
+- **3 Difficulty Levels:**
+  - **Easy (Code Cadet)** 🌱 - 10x10 grid, 6 words, 3 minutes, 5 hints available
+  - **Medium (Cipher Scout)** ⚔️ - 12x12 grid, 8 words, 4 minutes, 3 hints available
+  - **Hard (Crypto Master)** 🔥 - 15x15 grid, 10 words, 5 minutes, 2 hints available
+
+- **Themed Messages:**
+  - Life lessons ("Be kind to everyone", "Practice makes perfect")
+  - Famous proverbs ("Actions speak louder than words")
+  - Inspirational quotes (Einstein, Roosevelt, Churchill)
+  - Educational wisdom about learning and growth
+
+- **Puzzle Mechanics:**
+  - Click encrypted letters to select them
+  - Guess the real letter from the alphabet
+  - Use hints to reveal unmapped letters (costs points)
+  - Track progress as letters are decoded
+  - Time-based scoring with speed bonuses
+
+- **Visual Feedback:**
+  - Letters flash green when correctly decoded
+  - Error shake animation for wrong guesses
+  - Progress bar shows completion percentage
+  - Real-time preview of decoded message
+
+### Educational Value
+- Pattern recognition and logical deduction
+- Spelling and vocabulary reinforcement
+- Critical thinking under time pressure
+- Letter frequency analysis skills
+- Problem-solving persistence
+
+### Progression System
+- Base score varies by difficulty (100-300 points)
+- Time bonus (2-5 points per second remaining)
+- Perfect solve bonus (no mistakes or hints)
+- XP rewards: 40-120 per puzzle
+- Coin rewards: 20-60 per puzzle
+
+### Achievements
+- **First Decoder** - Solve your first cryptogram
+- **Perfect Solve** - Complete without hints or mistakes
+- **Master Decoder** - Solve a Hard difficulty puzzle
+- **Speed Cracker** - Solve with 2+ minutes remaining
+- **Cipher Expert** - Solve 10 cryptograms
+
+---
+
+## 10. WORD HUNT 🔍
+
+**Genre:** Word Search + Themed Puzzles  
+**Target Players:** Emma & Liam  
+**Duration:** 5-10 minutes per puzzle
+
+### Core Gameplay
+Classic word search puzzles with themed word lists. Players find hidden words in letter grids by clicking and dragging to select letters. Words can appear horizontally, vertically, diagonally, forwards, or backwards.
+
+### Key Features
+- **3 Difficulty Levels:**
+  - **Easy (Word Finder)** 🌱 - 10x10 grid, 6 words, horizontal/vertical only, 4 minutes
+  - **Medium (Word Hunter)** ⚔️ - 12x12 grid, 8 words, includes diagonals, 5 minutes
+  - **Hard (Word Master)** 🔥 - 15x15 grid, 10 words, all directions, 7 minutes
+
+- **6 Themed Categories:**
+  - **Animals** 🦁 - Wildlife from cats to hippopotamus
+  - **Science** 🔬 - Atoms, gravity, photosynthesis
+  - **Space** 🚀 - Planets, stars, constellations
+  - **Geography** 🌍 - Mountains, oceans, continents
+  - **Food** 🍕 - Pizza to pineapple
+  - **Sports** ⚽ - Soccer, basketball, gymnastics
+
+- **Intuitive Controls:**
+  - Click and drag to select letters
+  - Words highlight green when found
+  - Word list shows progress
+  - Hint reveals first letter of unfound word
+  - Mouse/touch friendly interface
+
+- **Dynamic Scoring:**
+  - Base score by difficulty (100-300 points)
+  - Points per word found (10-20 per word)
+  - Time bonus (2-5 points per second)
+  - Perfect bonus (no hints used)
+
+### Educational Value
+- Vocabulary building across subject areas
+- Visual scanning and pattern recognition
+- Spelling reinforcement
+- Subject-specific terminology (science, geography, etc.)
+- Focused concentration and persistence
+
+### Progression System
+- Grade-appropriate word lists per difficulty
+- Category variety for diverse learning
+- Speed-based rewards encourage efficiency
+- Perfect solve bonuses promote skill mastery
+- XP rewards: 50-150 per puzzle
+- Coin rewards: 25-75 per puzzle
+
+### Themed Word Lists Examples
+- **Easy Animals:** Cat, Dog, Bird, Fish, Lion, Bear
+- **Medium Science:** Gravity, Energy, Oxygen, Carbon, Magnet
+- **Hard Space:** Constellation, Astronaut, Telescope, Supernova
+
+### Achievements
+- **First Hunter** - Complete your first word search
+- **Perfect Vision** - Find all words without hints
+- **Word Master** - Complete a Hard difficulty puzzle
+- **Theme Expert** - Complete all themes
+- **Speed Scanner** - Complete with 1+ minute remaining
+
+---
+
+## 11. 99 NIGHTS IN SPACE 🚀
 
 **Genre:** Space Adventure + Educational Puzzles  
 **Target Players:** Emma & Liam  
@@ -485,29 +607,33 @@ All games integrate with **LuminaCore** for unified progression:
 1. **Spell Siege** (Liam Mode) - Contractions practice
 2. **Lumina Racer** (Liam words) - Quick, action-oriented
 3. **Math Quest** (Easy/Medium) - Grade-appropriate math
+4. **Word Hunt** (Easy) - Themed word search fun
 
 **Secondary Games:**
-4. **Word Forge** - Fun crafting mechanic
-5. **Pixel Quest** - Platformer action
-6. **Rhythm Academy** - Music + learning
+5. **Crypto Quest** (Easy) - Logic puzzles
+6. **Word Forge** - Fun crafting mechanic
+7. **Pixel Quest** - Platformer action
+8. **Rhythm Academy** - Music + learning
 
 **Challenge Games:**
-7. **Shadows in the Halls** - With parent guidance
+9. **Shadows in the Halls** - With parent guidance
 
 ### For Emma (10, 5th Grade)
 **Primary Games:**
 1. **Canada Adventure** - Study material for school
 2. **Spell Siege** (Emma Mode) - Advanced spelling
 3. **Math Quest** (Medium/Hard) - Challenge level
+4. **Crypto Quest** (Medium/Hard) - Logic and deduction
 
 **Secondary Games:**
-4. **Lumina Racer** - Speed typing practice
-5. **Rhythm Academy** (Hard) - Multi-subject rapid fire
-6. **Pixel Quest** - Reflex + knowledge
-7. **Word Forge** - Vocabulary building
+5. **Word Hunt** (Medium/Hard) - Advanced vocabulary
+6. **Lumina Racer** - Speed typing practice
+7. **Rhythm Academy** (Hard) - Multi-subject rapid fire
+8. **Pixel Quest** - Reflex + knowledge
+9. **Word Forge** - Vocabulary building
 
 **Challenge Games:**
-8. **Shadows in the Halls** - Strategic + educational
+10. **Shadows in the Halls** - Strategic + educational
 
 ---
 
@@ -519,11 +645,13 @@ All games integrate with **LuminaCore** for unified progression:
 | Canada Adventure | 15-20 min | Geography | Progressive (7 regions) | 🎵 Needs Music |
 | Lumina Racer | 5-10 min | Typing/Spelling | 2 (word lists) | 🎵 Needs Music |
 | Word Forge | 10-15 min | Spelling | 3 (Easy/Med/Hard) | 🎵 Needs Music |
+| Crypto Quest | 5-10 min | Logic/Spelling | 3 (Easy/Med/Hard) | ✅ Complete |
+| Word Hunt | 5-10 min | Vocabulary | 3 + 6 Themes | ✅ Complete |
 | Math Quest | 15-20 min | Math | 3 (Easy/Med/Hard) | 🎵 Needs Music |
 | Pixel Quest | 10-15 min | Multi-subject | World-based | 🎵 Needs Music |
 | Rhythm Academy | 2-5 min | Multi-subject | 3 (Easy/Med/Hard) | 🎵 Needs Music |
 | Shadows in the Halls | 20-30 min | Math/Vocab | Puzzle-based | 🎵 Needs Music |
-| 99 Nights in Space | 15-25 min | Space/STEM | TBD | 🚧 Coming Soon |
+| 99 Nights in Space | 30-60 min | Survival/Horror | 99 Cycles | ✅ Prototype |
 
 ---
 
