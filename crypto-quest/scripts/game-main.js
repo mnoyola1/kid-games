@@ -3,8 +3,6 @@
  * Cryptogram puzzle game where players decode secret messages
  */
 
-const { useState, useEffect, useRef } = React;
-
 function CryptoQuest() {
   // Player profile
   const [playerProfile, setPlayerProfile] = useState(null);

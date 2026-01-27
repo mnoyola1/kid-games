@@ -3,8 +3,6 @@
  * Word search puzzle game with themed word lists
  */
 
-const { useState, useEffect, useRef } = React;
-
 function WordHunt() {
   // Player profile
   const [playerProfile, setPlayerProfile] = useState(null);
