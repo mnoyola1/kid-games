@@ -147,7 +147,27 @@ C:\Users\mnoyo\OneDrive\Documents\Personal\AI\games\kid-games\
 │               ├── Victory Fanfare.wav
 │               └── Game Over.wav
 │
-└── [game-folders]/                  # Individual games (ALL REFACTORED ✅)
+└── [game-folders]/                  # Individual games
+    │
+    ├── crypto-quest/               # Cryptogram puzzle game ✅ NEW
+    │   ├── index.html              # Entry point
+    │   ├── styles/
+    │   │   └── game-base.css       # Base styles & animations
+    │   └── scripts/
+    │       ├── game-config.js      # Puzzles, difficulty settings
+    │       ├── game-audio.js       # AudioManager class
+    │       ├── game-main.js        # Main CryptoQuest component
+    │       └── game-init.js        # Initialization
+    │
+    ├── word-hunt/                  # Word search puzzle game ✅ NEW
+    │   ├── index.html              # Entry point
+    │   ├── styles/
+    │   │   └── game-base.css       # Base styles & animations
+    │   └── scripts/
+    │       ├── game-config.js      # Word lists, themes, difficulty
+    │       ├── game-audio.js       # AudioManager class
+    │       ├── game-main.js        # Main WordHunt component
+    │       └── game-init.js        # Initialization
     │
     ├── spell-siege/                # Tower defense spelling game ✅
     │   ├── index.html              # Entry point (101 lines)
@@ -824,6 +844,8 @@ if (level >= 10) {
 | Canada Adventure | canada-adventure | Geography RPG for Canada | ✅ Fully Refactored |
 | Lumina Racer | lumina-racer | Typing racing game | ✅ Fully Refactored |
 | Word Forge | word-forge | Blacksmith word crafting | ✅ Fully Refactored |
+| Crypto Quest | crypto-quest | Cryptogram decoding puzzles | ✅ Complete with Assets |
+| Word Hunt | word-hunt | Themed word search puzzles | ✅ Complete with Assets |
 
 ## Coming Soon
 
