@@ -27,6 +27,9 @@ function WordHunt() {
   // Audio
   const audioManager = useRef(new AudioManager());
   
+  // Grid ref for touch handling
+  const gridRef = useRef(null);
+  
   // Initialize
   useEffect(() => {
     // Load player profile
@@ -110,6 +113,73 @@ function WordHunt() {
   // Handle mouse up (end selection)
   const handleMouseUp = () => {
     if (!isDragging || gameState !== 'playing') return;
+    
+    setIsDragging(false);
+    checkWord();
+  };
+  
+  // Get cell from touch coordinates
+  const getCellFromTouch = (touch) => {
+    if (!gridRef.current) return null;
+    
+    const gridRect = gridRef.current.getBoundingClientRect();
+    const difficultyConfig = WORD_HUNT_CONFIG.DIFFICULTY[difficulty];
+    const gridSize = difficultyConfig.gridSize;
+    
+    // Calculate cell dimensions
+    const cellWidth = gridRect.width / gridSize;
+    const cellHeight = gridRect.height / gridSize;
+    
+    // Calculate which cell was touched
+    const col = Math.floor((touch.clientX - gridRect.left) / cellWidth);
+    const row = Math.floor((touch.clientY - gridRect.top) / cellHeight);
+    
+    // Validate bounds
+    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+      return { row, col };
+    }
+    return null;
+  };
+  
+  // Handle touch start
+  const handleTouchStart = (e) => {
+    if (gameState !== 'playing') return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const cell = getCellFromTouch(touch);
+    
+    if (cell) {
+      setIsDragging(true);
+      setSelectedCells([cell]);
+      audioManager.current.playSound('select');
+    }
+  };
+  
+  // Handle touch move
+  const handleTouchMove = (e) => {
+    if (!isDragging || gameState !== 'playing') return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const cell = getCellFromTouch(touch);
+    
+    if (cell) {
+      const lastCell = selectedCells[selectedCells.length - 1];
+      const isAdjacent = Math.abs(cell.row - lastCell.row) <= 1 && Math.abs(cell.col - lastCell.col) <= 1;
+      const alreadySelected = selectedCells.some(c => c.row === cell.row && c.col === cell.col);
+      
+      if (isAdjacent && !alreadySelected) {
+        setSelectedCells(prev => [...prev, cell]);
+        audioManager.current.playSound('select');
+      }
+    }
+  };
+  
+  // Handle touch end
+  const handleTouchEnd = (e) => {
+    if (!isDragging || gameState !== 'playing') return;
+    e.preventDefault();
     
     setIsDragging(false);
     checkWord();
@@ -374,7 +444,7 @@ function WordHunt() {
     const difficultyConfig = WORD_HUNT_CONFIG.DIFFICULTY[difficulty];
     
     return (
-      <div className="min-h-screen p-4" onMouseUp={handleMouseUp}>
+      <div className="min-h-screen p-4" onMouseUp={handleMouseUp} onTouchEnd={handleTouchEnd}>
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
@@ -414,10 +484,14 @@ function WordHunt() {
             <div className="lg:col-span-3">
               <div className="bg-blue-900/60 rounded-xl p-6">
                 <div 
-                  className="grid gap-1"
+                  ref={gridRef}
+                  className="grid gap-1 touch-none"
                   style={{
                     gridTemplateColumns: `repeat(${difficultyConfig.gridSize}, minmax(0, 1fr))`
                   }}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                 >
                   {grid.map((row, rowIndex) =>
                     row.map((letter, colIndex) => (

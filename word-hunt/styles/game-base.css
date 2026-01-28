@@ -15,9 +15,18 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Fredoka', sans-serif;
 }
 
+/* Touch Support - Prevent scrolling while selecting */
+.touch-none {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Grid Cell Animations */
 .grid-cell {
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .grid-cell:hover:not(.selected):not(.found) {
