@@ -1,35 +1,51 @@
 /**
  * AudioManager - Handles all audio for Word Hunt
+ * Uses fresh Audio instances on touch devices (iOS/Safari) for reliable playback
  */
 class AudioManager {
   constructor() {
+    this.soundUrls = {};
     this.sounds = {};
     this.music = null;
     this.sfxVolume = 0.7;
     this.musicVolume = 0.4;
     this.initialized = false;
+    this.isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }
   
   async init() {
     if (this.initialized) return;
     
     try {
-      // Load sound effects - use math-quest sounds for common SFX
-      this.sounds.select = new Audio('../assets/audio/math-quest/sfx/click.mp3');
-      this.sounds.found = new Audio('../assets/audio/math-quest/sfx/correct.mp3');
-      this.sounds.wrong = new Audio('../assets/audio/math-quest/sfx/wrong.mp3');
-      this.sounds.hint = new Audio('../assets/audio/word-hunt/sfx/hint.mp3');
-      this.sounds.wordComplete = new Audio('../assets/audio/word-hunt/sfx/word-complete.mp3');
-      this.sounds.puzzleComplete = new Audio('../assets/audio/word-hunt/sfx/puzzle-complete.mp3');
-      this.sounds.victory = new Audio('../assets/audio/word-hunt/sfx/victory.mp3');
+      // Store URLs for touch devices (we create fresh Audio each play on iOS)
+      const base = '../assets/audio/';
+      this.soundUrls = {
+        select: base + 'math-quest/sfx/click.mp3',
+        found: base + 'math-quest/sfx/correct.mp3',
+        wrong: base + 'math-quest/sfx/wrong.mp3',
+        hint: base + 'word-hunt/sfx/hint.mp3',
+        wordComplete: base + 'word-hunt/sfx/word-complete.mp3',
+        puzzleComplete: base + 'word-hunt/sfx/puzzle-complete.mp3',
+        victory: base + 'word-hunt/sfx/victory.mp3'
+      };
       
-      // Set volumes
-      Object.values(this.sounds).forEach(sound => {
-        sound.volume = this.sfxVolume;
-      });
+      // Preload Audio elements (desktop reuses them; touch creates fresh each play)
+      if (!this.isTouchDevice) {
+        this.sounds.select = new Audio(this.soundUrls.select);
+        this.sounds.found = new Audio(this.soundUrls.found);
+        this.sounds.wrong = new Audio(this.soundUrls.wrong);
+        this.sounds.hint = new Audio(this.soundUrls.hint);
+        this.sounds.wordComplete = new Audio(this.soundUrls.wordComplete);
+        this.sounds.puzzleComplete = new Audio(this.soundUrls.puzzleComplete);
+        this.sounds.victory = new Audio(this.soundUrls.victory);
+        
+        Object.values(this.sounds).forEach(sound => {
+          sound.volume = this.sfxVolume;
+        });
+      }
       
       this.initialized = true;
-      console.log('🔊 AudioManager initialized');
+      console.log('🔊 AudioManager initialized' + (this.isTouchDevice ? ' (touch mode)' : ''));
     } catch (e) {
       console.warn('⚠️ Audio initialization failed (assets may not exist yet)', e);
     }
@@ -37,10 +53,17 @@ class AudioManager {
   
   playSound(soundName) {
     try {
-      const sound = this.sounds[soundName];
-      if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(e => console.warn('Sound play failed:', e));
+      if (this.isTouchDevice && this.soundUrls[soundName]) {
+        // iOS/Safari: create fresh Audio each play - required for touch gesture playback
+        const audio = new Audio(this.soundUrls[soundName]);
+        audio.volume = this.sfxVolume;
+        audio.play().catch(e => console.warn('Sound play failed:', e));
+      } else {
+        const sound = this.sounds[soundName];
+        if (sound) {
+          sound.currentTime = 0;
+          sound.play().catch(e => console.warn('Sound play failed:', e));
+        }
       }
     } catch (e) {
       console.warn('Sound play error:', e);
