@@ -201,6 +201,9 @@ function WordHunt() {
     if (gameState !== 'playing') return;
     e.preventDefault();
     
+    // Unlock audio on iOS on first touch
+    audioManager.current.unlock();
+    
     const touch = e.touches[0];
     const cell = getCellFromTouch(touch);
     

@@ -8,6 +8,7 @@ class AudioManager {
     this.sfxVolume = 0.7;
     this.musicVolume = 0.4;
     this.initialized = false;
+    this.unlocked = false;
   }
   
   async init() {
@@ -35,12 +36,44 @@ class AudioManager {
     }
   }
   
+  // Unlock audio on iOS/Safari (call on first user interaction)
+  unlock() {
+    if (this.unlocked) return;
+    
+    try {
+      // Play and immediately pause all sounds to unlock iOS audio
+      Object.values(this.sounds).forEach(sound => {
+        if (sound) {
+          sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+          }).catch(() => {});
+        }
+      });
+      
+      this.unlocked = true;
+      console.log('🔓 Audio unlocked for iOS/Safari');
+    } catch (e) {
+      console.warn('Audio unlock failed:', e);
+    }
+  }
+  
   playSound(soundName) {
     try {
       const sound = this.sounds[soundName];
       if (sound) {
         sound.currentTime = 0;
-        sound.play().catch(e => console.warn('Sound play failed:', e));
+        const playPromise = sound.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            console.warn('Sound play failed:', soundName, e);
+            // Try to unlock if not already
+            if (!this.unlocked) {
+              this.unlock();
+            }
+          });
+        }
       }
     } catch (e) {
       console.warn('Sound play error:', e);
