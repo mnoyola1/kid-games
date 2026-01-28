@@ -56,6 +56,58 @@ function WordHunt() {
     }
   }, [gameState, timeRemaining]);
   
+  // Check for puzzle completion when foundWords changes
+  useEffect(() => {
+    if (gameState === 'playing' && 
+        wordPositions.length > 0 && 
+        foundWords.length === wordPositions.length) {
+      console.log('🎉 All words found! Triggering victory...');
+      // Small delay to let the last word animation play
+      setTimeout(() => {
+        audioManager.current.stopMusic();
+        audioManager.current.playSound('puzzleComplete');
+        
+        // Calculate final score
+        const rewards = WORD_HUNT_CONFIG.REWARDS[difficulty];
+        const timeBonus = timeRemaining * rewards.speedBonus;
+        const finalScore = score + timeBonus;
+        
+        setScore(finalScore);
+        setGameState('victory');
+        
+        // Award XP and coins
+        if (playerProfile) {
+          const xpEarned = rewards.baseXP + (foundWords.length * rewards.perWordXP);
+          const coinsEarned = rewards.baseCoins + (foundWords.length * rewards.perWordCoins);
+          const rewardPoints = Math.floor(xpEarned / 20);
+          
+          LuminaCore.addXP(playerProfile.id, xpEarned, 'wordHunt');
+          LuminaCore.addCoins(playerProfile.id, coinsEarned);
+          LuminaCore.addRewardPoints(playerProfile.id, rewardPoints);
+          
+          // Record game stats
+          LuminaCore.recordGameEnd(playerProfile.id, 'wordHunt', {
+            score: finalScore,
+            wordsFound: foundWords.length,
+            difficulty: difficulty,
+            theme: theme.id,
+            hintsUsed: hintsUsed,
+            timeRemaining: timeRemaining
+          });
+          
+          // Check achievements
+          LuminaCore.checkAchievement(playerProfile.id, 'wh_first_puzzle');
+          if (hintsUsed === 0) {
+            LuminaCore.checkAchievement(playerProfile.id, 'wh_no_hints');
+          }
+          if (difficulty === 'hard') {
+            LuminaCore.checkAchievement(playerProfile.id, 'wh_word_master');
+          }
+        }
+      }, 500);
+    }
+  }, [foundWords, wordPositions, gameState]);
+  
   // Start new game
   const startGame = (selectedDifficulty, selectedTheme) => {
     const difficultyConfig = WORD_HUNT_CONFIG.DIFFICULTY[selectedDifficulty];
@@ -218,15 +270,11 @@ function WordHunt() {
       setFoundWords(prev => [...prev, matchingWord.word]);
       
       // Calculate points for this word
-      const difficultyConfig = WORD_HUNT_CONFIG.DIFFICULTY[difficulty];
       const rewards = WORD_HUNT_CONFIG.REWARDS[difficulty];
       const wordPoints = rewards.perWordXP;
       setScore(prev => prev + wordPoints);
       
-      // Check if all words found
-      if (foundWords.length + 1 === wordPositions.length) {
-        setTimeout(() => handlePuzzleComplete(), 500);
-      }
+      // Victory check is handled by useEffect watching foundWords
     } else {
       // Wrong selection
       audioManager.current.playSound('wrong');
@@ -258,51 +306,6 @@ function WordHunt() {
       // Clear hint after 2 seconds
       setTimeout(() => setSelectedCells([]), 2000);
     }
-  };
-  
-  // Handle puzzle complete
-  const handlePuzzleComplete = () => {
-    audioManager.current.stopMusic();
-    audioManager.current.playSound('puzzleComplete');
-    
-    // Calculate final score
-    const rewards = WORD_HUNT_CONFIG.REWARDS[difficulty];
-    const timeBonus = timeRemaining * rewards.speedBonus;
-    const finalScore = score + timeBonus;
-    
-    setScore(finalScore);
-    
-    // Award XP and coins
-    if (playerProfile) {
-      const xpEarned = rewards.baseXP + (foundWords.length * rewards.perWordXP);
-      const coinsEarned = rewards.baseCoins + (foundWords.length * rewards.perWordCoins);
-      const rewardPoints = Math.floor(xpEarned / 20);
-      
-      LuminaCore.addXP(playerProfile.id, xpEarned, 'wordHunt');
-      LuminaCore.addCoins(playerProfile.id, coinsEarned);
-      LuminaCore.addRewardPoints(playerProfile.id, rewardPoints);
-      
-      // Record game stats
-      LuminaCore.recordGameEnd(playerProfile.id, 'wordHunt', {
-        score: finalScore,
-        wordsFound: foundWords.length,
-        difficulty: difficulty,
-        theme: theme.id,
-        hintsUsed: hintsUsed,
-        timeRemaining: timeRemaining
-      });
-      
-      // Check achievements
-      LuminaCore.checkAchievement(playerProfile.id, 'wh_first_puzzle');
-      if (hintsUsed === 0) {
-        LuminaCore.checkAchievement(playerProfile.id, 'wh_no_hints');
-      }
-      if (difficulty === 'hard') {
-        LuminaCore.checkAchievement(playerProfile.id, 'wh_word_master');
-      }
-    }
-    
-    setGameState('victory');
   };
   
   // Return to menu

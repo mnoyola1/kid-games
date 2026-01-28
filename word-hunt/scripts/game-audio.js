@@ -14,10 +14,10 @@ class AudioManager {
     if (this.initialized) return;
     
     try {
-      // Load sound effects
-      this.sounds.select = new Audio('../assets/audio/shared/sfx/click.mp3');
-      this.sounds.found = new Audio('../assets/audio/shared/sfx/correct.mp3');
-      this.sounds.wrong = new Audio('../assets/audio/shared/sfx/wrong.mp3');
+      // Load sound effects - use math-quest sounds for common SFX
+      this.sounds.select = new Audio('../assets/audio/math-quest/sfx/click.mp3');
+      this.sounds.found = new Audio('../assets/audio/math-quest/sfx/correct.mp3');
+      this.sounds.wrong = new Audio('../assets/audio/math-quest/sfx/wrong.mp3');
       this.sounds.hint = new Audio('../assets/audio/word-hunt/sfx/hint.mp3');
       this.sounds.wordComplete = new Audio('../assets/audio/word-hunt/sfx/word-complete.mp3');
       this.sounds.puzzleComplete = new Audio('../assets/audio/word-hunt/sfx/puzzle-complete.mp3');
