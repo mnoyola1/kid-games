@@ -30,6 +30,9 @@ function WordHunt() {
   // Grid ref for touch handling
   const gridRef = useRef(null);
   
+  // Ref to track selected cells for touch (avoids stale closure issues)
+  const selectedCellsRef = useRef([]);
+  
   // Initialize
   useEffect(() => {
     // Load player profile
@@ -203,6 +206,7 @@ function WordHunt() {
     
     if (cell) {
       setIsDragging(true);
+      selectedCellsRef.current = [cell];
       setSelectedCells([cell]);
       audioManager.current.playSound('select');
     }
@@ -216,13 +220,14 @@ function WordHunt() {
     const touch = e.touches[0];
     const cell = getCellFromTouch(touch);
     
-    if (cell) {
-      const lastCell = selectedCells[selectedCells.length - 1];
+    if (cell && selectedCellsRef.current.length > 0) {
+      const lastCell = selectedCellsRef.current[selectedCellsRef.current.length - 1];
       const isAdjacent = Math.abs(cell.row - lastCell.row) <= 1 && Math.abs(cell.col - lastCell.col) <= 1;
-      const alreadySelected = selectedCells.some(c => c.row === cell.row && c.col === cell.col);
+      const alreadySelected = selectedCellsRef.current.some(c => c.row === cell.row && c.col === cell.col);
       
       if (isAdjacent && !alreadySelected) {
-        setSelectedCells(prev => [...prev, cell]);
+        selectedCellsRef.current = [...selectedCellsRef.current, cell];
+        setSelectedCells(selectedCellsRef.current);
         audioManager.current.playSound('select');
       }
     }
@@ -234,7 +239,55 @@ function WordHunt() {
     e.preventDefault();
     
     setIsDragging(false);
-    checkWord();
+    
+    // Use ref for immediate access to selected cells
+    const cells = selectedCellsRef.current;
+    selectedCellsRef.current = [];
+    
+    if (cells.length < 2) {
+      setSelectedCells([]);
+      return;
+    }
+    
+    // Get selected word from cells
+    const selectedWord = cells
+      .map(cell => grid[cell.row][cell.col])
+      .join('');
+    
+    console.log('Touch end - checking word:', selectedWord, 'cells:', cells.length);
+    
+    // Check if it matches any unfound word
+    const matchingWord = wordPositions.find(wp => {
+      if (foundWords.includes(wp.word)) return false;
+      
+      // Check forward
+      if (wp.word === selectedWord) return true;
+      
+      // Check backward
+      const reversed = selectedWord.split('').reverse().join('');
+      if (wp.word === reversed) return true;
+      
+      return false;
+    });
+    
+    if (matchingWord) {
+      // Word found!
+      console.log('Word found:', matchingWord.word);
+      audioManager.current.playSound('wordComplete');
+      
+      setFoundWords(prev => [...prev, matchingWord.word]);
+      
+      // Calculate points for this word
+      const rewards = WORD_HUNT_CONFIG.REWARDS[difficulty];
+      const wordPoints = rewards.perWordXP;
+      setScore(prev => prev + wordPoints);
+    } else {
+      // Wrong selection
+      console.log('Word not found:', selectedWord);
+      audioManager.current.playSound('wrong');
+    }
+    
+    setSelectedCells([]);
   };
   
   // Check if selected cells form a word
