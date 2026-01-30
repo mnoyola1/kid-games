@@ -113,8 +113,10 @@
     if (moveLeft) move = move.subtract(right);
     if (moveRight) move = move.add(right);
 
+    const isMoving = move.lengthSquared() > 0;
+
     // Horizontal movement
-    if (move.lengthSquared() > 0) {
+    if (isMoving) {
       move.normalize();
       const speed = inputState.sprint ? GAME_CONFIG.player.sprintSpeed : GAME_CONFIG.player.walkSpeed;
       const horizontalVelocity = move.scale(speed * deltaSec);
@@ -164,6 +166,7 @@
       player.position.y = constants.GROUND_Y;
     }
 
+    systems.updatePlayerAnimation?.(isMoving);
     camera.target = player.position.clone();
   };
 

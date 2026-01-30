@@ -177,70 +177,124 @@
     player.visibility = 0;
     runtime.player = player;
 
-    // Load astronaut model (Sketchfab GLB)
-    const astronautUrl = assets.SKETCHFAB_BASE_URL + 'sample.glb';
-    BABYLON.SceneLoader.ImportMeshAsync('', '', astronautUrl, scene)
-      .then((result) => {
-        const playerModel = new BABYLON.TransformNode('playerModel', scene);
-        playerModel.parent = player;
-        // Position model so feet align with floor
-        // Model origin is at center, so offset down to put feet at ground level
-        playerModel.position = new BABYLON.Vector3(0, -1.35, 0);
-        // Scale up astronaut
-        playerModel.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
-        playerModel.rotation = new BABYLON.Vector3(0, 0, 0);
+    const loadAnimatedModel = async (fileName, label) => {
+      const url = assets.SKETCHFAB_ANIM_BASE_URL + encodeURI(fileName);
+      const result = await BABYLON.SceneLoader.ImportMeshAsync('', '', url, scene);
+      const root = new BABYLON.TransformNode(`player-${label}-root`, scene);
+      root.parent = player;
+      root.rotation = new BABYLON.Vector3(
+        constants.PLAYER_MODEL_ROTATION.x,
+        constants.PLAYER_MODEL_ROTATION.y,
+        constants.PLAYER_MODEL_ROTATION.z
+      );
 
-        // Stop any animations
-        if (result.animationGroups && result.animationGroups.length > 0) {
-          result.animationGroups.forEach((group) => {
-            group.stop();
-            group.reset();
-          });
+      result.meshes.forEach((mesh) => {
+        if (mesh.getTotalVertices && mesh.getTotalVertices() > 0) {
+          mesh.parent = root;
+          mesh.alwaysSelectAsActiveMesh = true;
+          mesh.checkCollisions = false;
         }
-
-        result.meshes.forEach((mesh) => {
-          if (mesh.getTotalVertices && mesh.getTotalVertices() > 0) {
-            mesh.parent = playerModel;
-            // GLB models typically include their own materials, so we preserve them
-            // Only override if needed for consistency
-            mesh.alwaysSelectAsActiveMesh = true;
-            mesh.checkCollisions = false;
-          }
-        });
-        console.log('✓ Player model loaded (Sketchfab GLB)');
-      })
-      .catch((err) => {
-        console.warn('Sketchfab model failed, trying Kenney fallback', err);
-        // Fallback to Kenney astronaut model
-        BABYLON.SceneLoader.ImportMeshAsync('', assets.MODEL_BASE_URL, 'astronautA.obj', scene)
-          .then((result) => {
-            const playerModel = new BABYLON.TransformNode('playerModel', scene);
-            playerModel.parent = player;
-            // Position model so feet align with floor
-            playerModel.position = new BABYLON.Vector3(0, -1.35, 0);
-            playerModel.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
-            playerModel.rotation = new BABYLON.Vector3(0, 0, 0);
-
-            result.meshes.forEach((mesh) => {
-              if (mesh.getTotalVertices && mesh.getTotalVertices() > 0) {
-                mesh.parent = playerModel;
-                const mat = new BABYLON.StandardMaterial('playerModelMat', scene);
-                mat.diffuseColor = new BABYLON.Color3(0.95, 0.6, 0.25);
-                mat.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
-                mat.specularPower = 16;
-                mesh.material = mat;
-              }
-            });
-            console.log('✓ Player model loaded (Kenney fallback)');
-          })
-          .catch((fallbackErr) => {
-            console.warn('All player models failed, using capsule', fallbackErr);
-            player.visibility = 1;
-            const playerMat = new BABYLON.StandardMaterial('playerMat', scene);
-            playerMat.diffuseColor = new BABYLON.Color3(0.35, 0.6, 0.9);
-            player.material = playerMat;
-          });
       });
+
+      const bounds = root.getHierarchyBoundingVectors(true);
+      const height = Math.max(0.001, bounds.max.y - bounds.min.y);
+      const scale = constants.PLAYER_TARGET_HEIGHT / height;
+      root.scaling = new BABYLON.Vector3(scale, scale, scale);
+      root.position = new BABYLON.Vector3(0, -bounds.min.y * scale, 0);
+
+      if (result.animationGroups && result.animationGroups.length > 0) {
+        result.animationGroups.forEach((group) => {
+          group.stop();
+          group.reset();
+          group.loopAnimation = true;
+        });
+      }
+
+      return { root, animationGroups: result.animationGroups || [] };
+    };
+
+    const setupAnimatedPlayer = async () => {
+      try {
+        const idle = await loadAnimatedModel('astronaut2.glb', 'idle');
+        const walk = await loadAnimatedModel('astronaut walking.glb', 'walk');
+
+        walk.root.setEnabled(false);
+        idle.root.setEnabled(true);
+        idle.animationGroups.forEach((group) => group.start(true));
+
+        runtime.playerAnimation = {
+          idleRoot: idle.root,
+          walkRoot: walk.root,
+          idleGroups: idle.animationGroups,
+          walkGroups: walk.animationGroups,
+          isWalking: false
+        };
+        console.log('✓ Player GLB animations loaded');
+      } catch (error) {
+        console.warn('GLB animated player model failed, falling back', error);
+        loadFallbackPlayer();
+      }
+    };
+
+    const loadFallbackPlayer = () => {
+      const astronautUrl = assets.SKETCHFAB_BASE_URL + 'sample.glb';
+      BABYLON.SceneLoader.ImportMeshAsync('', '', astronautUrl, scene)
+        .then((result) => {
+          const playerModel = new BABYLON.TransformNode('playerModel', scene);
+          playerModel.parent = player;
+          playerModel.position = new BABYLON.Vector3(0, -1.35, 0);
+          playerModel.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+          playerModel.rotation = new BABYLON.Vector3(0, 0, 0);
+
+          if (result.animationGroups && result.animationGroups.length > 0) {
+            result.animationGroups.forEach((group) => {
+              group.stop();
+              group.reset();
+            });
+          }
+
+          result.meshes.forEach((mesh) => {
+            if (mesh.getTotalVertices && mesh.getTotalVertices() > 0) {
+              mesh.parent = playerModel;
+              mesh.alwaysSelectAsActiveMesh = true;
+              mesh.checkCollisions = false;
+            }
+          });
+          console.log('✓ Player model loaded (Sketchfab GLB)');
+        })
+        .catch((err) => {
+          console.warn('Sketchfab model failed, trying Kenney fallback', err);
+          BABYLON.SceneLoader.ImportMeshAsync('', assets.MODEL_BASE_URL, 'astronautA.obj', scene)
+            .then((result) => {
+              const playerModel = new BABYLON.TransformNode('playerModel', scene);
+              playerModel.parent = player;
+              playerModel.position = new BABYLON.Vector3(0, -1.35, 0);
+              playerModel.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+              playerModel.rotation = new BABYLON.Vector3(0, 0, 0);
+
+              result.meshes.forEach((mesh) => {
+                if (mesh.getTotalVertices && mesh.getTotalVertices() > 0) {
+                  mesh.parent = playerModel;
+                  const mat = new BABYLON.StandardMaterial('playerModelMat', scene);
+                  mat.diffuseColor = new BABYLON.Color3(0.95, 0.6, 0.25);
+                  mat.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+                  mat.specularPower = 16;
+                  mesh.material = mat;
+                }
+              });
+              console.log('✓ Player model loaded (Kenney fallback)');
+            })
+            .catch((fallbackErr) => {
+              console.warn('All player models failed, using capsule', fallbackErr);
+              player.visibility = 1;
+              const playerMat = new BABYLON.StandardMaterial('playerMat', scene);
+              playerMat.diffuseColor = new BABYLON.Color3(0.35, 0.6, 0.9);
+              player.material = playerMat;
+            });
+        });
+    };
+
+    setupAnimatedPlayer();
   };
 
   const createLights = () => {
@@ -540,6 +594,25 @@
     }
   };
 
+  const updatePlayerAnimation = (isMoving) => {
+    const anim = runtime.playerAnimation;
+    if (!anim || !anim.idleRoot || !anim.walkRoot) return;
+
+    if (isMoving && !anim.isWalking) {
+      anim.isWalking = true;
+      anim.idleGroups.forEach((group) => group.stop());
+      anim.idleRoot.setEnabled(false);
+      anim.walkRoot.setEnabled(true);
+      anim.walkGroups.forEach((group) => group.start(true));
+    } else if (!isMoving && anim.isWalking) {
+      anim.isWalking = false;
+      anim.walkGroups.forEach((group) => group.stop());
+      anim.walkRoot.setEnabled(false);
+      anim.idleRoot.setEnabled(true);
+      anim.idleGroups.forEach((group) => group.start(true));
+    }
+  };
+
   systems.createChest = createChest;
   systems.openChest = openChest;
   systems.playChestSfx = playChestSfx;
@@ -556,4 +629,5 @@
   systems.spawnEnemy = spawnEnemy;
   systems.createGridLines = createGridLines;
   systems.spawnEnemiesForCycle = spawnEnemiesForCycle;
+  systems.updatePlayerAnimation = updatePlayerAnimation;
 })();

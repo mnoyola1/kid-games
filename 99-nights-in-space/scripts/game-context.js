@@ -35,7 +35,9 @@
     QUAT_GLTF_BASE_URL:
       `${ASSET_ROOT}/models/99-nights-in-space/quaternius-sci-fi/megakit/Modular%20SciFi%20MegaKit%5BStandard%5D/glTF/`,
     SKETCHFAB_BASE_URL:
-      `${ASSET_ROOT}/models/99-nights-in-space/sketchfab/source/`
+      `${ASSET_ROOT}/models/99-nights-in-space/sketchfab/source/`,
+    SKETCHFAB_ANIM_BASE_URL:
+      `${ASSET_ROOT}/models/99-nights-in-space/sketchfab/`
   };
 
   // =============================================================================
@@ -58,11 +60,13 @@
     // glTF floor tiles sit above their pivot; offset them down to match collision floor
     FLOOR_VISUAL_OFFSET: -0.4,
     // Player capsule center when standing on floor
-    GROUND_Y: 0.9,
+    GROUND_Y: -0.8,
     COLLISION_Y_OFFSET: 0,
     WORLD_FLOOR_Y: 0,
     JUMP_HEIGHT: 2.0,
-    JUMP_DURATION: 0.5
+    JUMP_DURATION: 0.5,
+    PLAYER_TARGET_HEIGHT: 1.6,
+    PLAYER_MODEL_ROTATION: { x: Math.PI / 2, y: 0, z: 0 }
   };
 
   const inputState = {
@@ -137,6 +141,7 @@
     buildGrid: null,
     fadedWalls: [],
     playerProfile: null,
+    playerAnimation: null,
     jump: {
       isJumping: false,
       timer: 0,

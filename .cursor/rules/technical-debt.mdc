@@ -1,0 +1,63 @@
+---
+description: Track technical debt when using TODO/FIXME/HACK comments. Reminds to log debt items in TECHNICAL_DEBT.md.
+globs: "**/*.{js,jsx,ts,tsx}"
+alwaysApply: false
+---
+
+# Technical Debt Tracking
+
+When writing or encountering TODO, FIXME, HACK, or deliberate shortcuts:
+
+## Should This Be Tracked?
+
+**Yes, track it if:**
+- Conscious shortcut due to time pressure
+- Known issue being deferred intentionally
+- Could cause problems or confusion later
+- Someone else might need to know about it
+
+**No, skip if:**
+- Minor style issue
+- You'll fix it in this same PR/commit
+- Already documented elsewhere
+
+## How to Track
+
+### 1. Add to TECHNICAL_DEBT.md
+
+```markdown
+| TD-XXX | Brief description | `game-folder/scripts/file.js:line` | YYYY-MM-DD | Priority |
+```
+
+### 2. Reference in Code
+
+```javascript
+// TODO: Refactor to use new API - DEBT: #TD-042
+// FIXME: Race condition possible - DEBT: #TD-043  
+// HACK: Workaround for lib bug - DEBT: #TD-044
+```
+
+## Priority Levels
+
+| Level | When to Use |
+|-------|-------------|
+| **Critical** | Blocks deployment, security risk, data loss |
+| **High** | Causes bugs, significant performance hit |
+| **Medium** | Code smell, minor perf, hard to maintain |
+| **Low** | Nice to have, cleanup, style issues |
+
+## Game-Specific Categories
+
+| Tag | Use For |
+|-----|---------|
+| `#performance` | Frame rate, loading time issues |
+| `#audio` | Sound bugs or missing audio |
+| `#assets` | Placeholder or missing assets |
+| `#juice` | Game feel improvements |
+| `#balance` | Difficulty/reward balance |
+| `#mobile` | Touch/tablet issues |
+
+## Prompt
+
+When you see me write TODO/FIXME/HACK, ask:
+> "Should this be added to TECHNICAL_DEBT.md? If yes, what priority?"

@@ -409,6 +409,14 @@ kid-games/
 - **Railway** (server): https://railway.app/
 - **Render** (server alternative): https://render.com/
 
+## Local Tooling (Animation Conversion)
+- **Blender install path:** `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
+- **FBX → GLB script:** `tools/convert_fbx_to_glb.py`
+- **Command pattern:**
+  ```powershell
+  & "C:\Program Files\Blender Foundation\Blender 5.0\blender.exe" -b -P "tools\convert_fbx_to_glb.py" -- "input.fbx" "output.glb"
+  ```
+
 ---
 
 # PART 8: NEXT STEPS
