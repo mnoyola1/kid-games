@@ -43,6 +43,14 @@ const ShadowsInTheHalls = () => {
 
   // Input State
   const [keys, setKeys] = React.useState({});
+  const [touchControls, setTouchControls] = React.useState({
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    sprint: false,
+  });
+  const [showTouchControls, setShowTouchControls] = React.useState(false);
   const [lastBatteryWarning, setLastBatteryWarning] = React.useState(0);
   // ==================== PLAYER SPRITE SELECTOR ====================
   const getPlayerSprite = React.useCallback(() => {
@@ -66,16 +74,22 @@ const ShadowsInTheHalls = () => {
       }
     }
 
+    // Detect touch device and show controls
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setShowTouchControls(isTouchDevice);
+
     // Initialize audio on user interaction
     const initAudio = async () => {
       await audioManager.init();
     };
     document.addEventListener('click', initAudio, { once: true });
     document.addEventListener('keydown', initAudio, { once: true });
+    document.addEventListener('touchstart', initAudio, { once: true });
 
     return () => {
       document.removeEventListener('click', initAudio);
       document.removeEventListener('keydown', initAudio);
+      document.removeEventListener('touchstart', initAudio);
     };
   }, []);
 
@@ -241,14 +255,21 @@ const ShadowsInTheHalls = () => {
       setPlayer(prev => {
         let newX = prev.x;
         let newY = prev.y;
-        const isRunning = keys['shift'];
+        const isRunning = keys['shift'] || touchControls.sprint;
         const speed = isRunning ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
         const movement = speed * deltaTime;
 
+        // Keyboard controls
         if (keys['w'] || keys['arrowup']) newY -= movement;
         if (keys['s'] || keys['arrowdown']) newY += movement;
         if (keys['a'] || keys['arrowleft']) newX -= movement;
         if (keys['d'] || keys['arrowright']) newX += movement;
+
+        // Touch controls
+        if (touchControls.up) newY -= movement;
+        if (touchControls.down) newY += movement;
+        if (touchControls.left) newX -= movement;
+        if (touchControls.right) newX += movement;
 
         // Keep within room bounds
         newX = Math.max(PLAYER_SIZE, Math.min(ROOM_SIZE - PLAYER_SIZE, newX));
@@ -299,7 +320,7 @@ const ShadowsInTheHalls = () => {
     }, 1000 / 60);
 
     return () => clearInterval(gameLoop);
-  }, [screen, isPaused, keys, currentRoom, player]);
+  }, [screen, isPaused, keys, touchControls, currentRoom, player]);
 
   // ==================== HELPER FUNCTIONS ====================
   
@@ -523,6 +544,15 @@ const ShadowsInTheHalls = () => {
     setScreen(escaped ? 'victory' : 'gameover');
   };
 
+  // ==================== TOUCH CONTROL HANDLERS ====================
+  const handleTouchStart = (direction) => {
+    setTouchControls(prev => ({ ...prev, [direction]: true }));
+  };
+
+  const handleTouchEnd = (direction) => {
+    setTouchControls(prev => ({ ...prev, [direction]: false }));
+  };
+
   // ==================== RENDER ====================
   return (
     <div className="w-full h-screen bg-shadows-dark overflow-hidden">
@@ -642,6 +672,87 @@ const ShadowsInTheHalls = () => {
               </div>
             </div>
           </div>
+
+          {/* Touch Controls (Mobile D-Pad) */}
+          {showTouchControls && (
+            <div className="fixed bottom-0 left-0 right-0 flex justify-between items-end p-4 pointer-events-none z-40">
+              {/* D-Pad */}
+              <div className="relative pointer-events-auto" style={{ width: '180px', height: '180px' }}>
+                {/* Center circle */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-shadows-gray rounded-full border-2 border-shadows-moonlight opacity-50"></div>
+                
+                {/* Up button */}
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); handleTouchStart('up'); }}
+                  onTouchEnd={(e) => { e.preventDefault(); handleTouchEnd('up'); }}
+                  onTouchCancel={(e) => { e.preventDefault(); handleTouchEnd('up'); }}
+                  className={`absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
+                    touchControls.up ? 'bg-shadows-cyan text-black scale-95' : 'bg-shadows-gray/80 text-shadows-cyan border-2 border-shadows-cyan/50'
+                  }`}
+                  style={{ touchAction: 'none' }}
+                >
+                  ↑
+                </button>
+                
+                {/* Down button */}
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); handleTouchStart('down'); }}
+                  onTouchEnd={(e) => { e.preventDefault(); handleTouchEnd('down'); }}
+                  onTouchCancel={(e) => { e.preventDefault(); handleTouchEnd('down'); }}
+                  className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
+                    touchControls.down ? 'bg-shadows-cyan text-black scale-95' : 'bg-shadows-gray/80 text-shadows-cyan border-2 border-shadows-cyan/50'
+                  }`}
+                  style={{ touchAction: 'none' }}
+                >
+                  ↓
+                </button>
+                
+                {/* Left button */}
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); handleTouchStart('left'); }}
+                  onTouchEnd={(e) => { e.preventDefault(); handleTouchEnd('left'); }}
+                  onTouchCancel={(e) => { e.preventDefault(); handleTouchEnd('left'); }}
+                  className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
+                    touchControls.left ? 'bg-shadows-cyan text-black scale-95' : 'bg-shadows-gray/80 text-shadows-cyan border-2 border-shadows-cyan/50'
+                  }`}
+                  style={{ touchAction: 'none' }}
+                >
+                  ←
+                </button>
+                
+                {/* Right button */}
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); handleTouchStart('right'); }}
+                  onTouchEnd={(e) => { e.preventDefault(); handleTouchEnd('right'); }}
+                  onTouchCancel={(e) => { e.preventDefault(); handleTouchEnd('right'); }}
+                  className={`absolute top-1/2 right-0 transform -translate-y-1/2 w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
+                    touchControls.right ? 'bg-shadows-cyan text-black scale-95' : 'bg-shadows-gray/80 text-shadows-cyan border-2 border-shadows-cyan/50'
+                  }`}
+                  style={{ touchAction: 'none' }}
+                >
+                  →
+                </button>
+              </div>
+
+              {/* Sprint Button */}
+              <div className="pointer-events-auto">
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); handleTouchStart('sprint'); }}
+                  onTouchEnd={(e) => { e.preventDefault(); handleTouchEnd('sprint'); }}
+                  onTouchCancel={(e) => { e.preventDefault(); handleTouchEnd('sprint'); }}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    touchControls.sprint ? 'bg-shadows-flashlight text-black scale-95' : 'bg-shadows-gray/80 text-shadows-flashlight border-2 border-shadows-flashlight/50'
+                  }`}
+                  style={{ touchAction: 'none' }}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl">⚡</div>
+                    <div className="text-xs">RUN</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 

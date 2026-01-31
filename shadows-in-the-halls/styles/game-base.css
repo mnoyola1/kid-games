@@ -23,6 +23,15 @@ body {
   color: white;
   overflow: hidden;
   user-select: none;
+  /* Prevent pull-to-refresh and overscroll on mobile */
+  overscroll-behavior: none;
+  /* Prevent touch delay on mobile */
+  touch-action: manipulation;
+}
+
+/* Prevent double-tap zoom on touch devices */
+button, a {
+  touch-action: manipulation;
 }
 
 /* ==================== ANIMATIONS ==================== */
@@ -193,6 +202,38 @@ body {
 
 /* ==================== TOUCH CONTROLS (iPad) ==================== */
 
+/* Prevent accidental scrolling when using touch controls */
+.touch-control,
+button[style*="touchAction"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent iOS bounce/scroll when touching buttons */
+  position: fixed;
+}
+
+/* D-Pad container improvements */
+.touch-dpad-container {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Touch button enhancements */
+button[onTouchStart] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Smooth transitions for visual feedback */
+  transition: all 0.1s ease-out;
+}
+
+/* Prevent text selection on touch controls */
+.fixed.bottom-0.left-0.right-0 * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Legacy touch control styles (kept for compatibility) */
 .touch-control {
   position: fixed;
   bottom: 20px;
@@ -233,6 +274,14 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: 20px;
+}
+
+/* Improve touch target sizes for better accessibility */
+@media (max-width: 768px) {
+  button {
+    min-width: 48px;
+    min-height: 48px;
+  }
 }
 
 /* ==================== UTILITY CLASSES ==================== */
