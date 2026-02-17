@@ -264,7 +264,6 @@ function PianoPath() {
 
     spawnSparkles(note);
     spawnFloatingText(note, perfect ? '+100' : '+60', perfect ? '#4ade80' : '#fbbf24');
-    audioManager.playSfx('success');
   };
 
   const registerMiss = (note, fromKeyboard) => {
