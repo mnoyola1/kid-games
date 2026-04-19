@@ -22,6 +22,17 @@ const GAMES = [
     active: true
   },
   {
+    id: 'china-adventure',
+    name: 'Dragon Scrolls of China',
+    subtitle: 'Ancient China RPG',
+    icon: '🐉',
+    url: './china-adventure/index.html',
+    description: 'Journey through 7 regions of China - from Beijing to the Great Wall, Tibet, and the Silk Road. Battle guardians, collect dragon scrolls, and master real 5th-grade social-studies content in Scout or Sage mode.',
+    features: ['🐉 RPG Battles', '🗺️ 7 China Regions', '🏯 Scout & Sage Modes', '📜 Dragon Scrolls'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'lumina-racer',
     name: 'Lumina Racer',
     subtitle: 'Typing Racing',

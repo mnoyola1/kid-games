@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Dragon Scrolls of China - Pixel RPG</title>
+  <meta name="description" content="An educational pixel-art RPG adventure through China's 7 regions for kids">
+  <meta name="theme-color" content="#b91c1c">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
+
+  <!-- React & Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lumina Core Integration -->
+  <script src="../shared/lumina-core.js"></script>
+
+  <!-- Service Worker Registration (Offline Support) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('[ChinaAdventure] Service Worker registered'))
+        .catch((err) => console.warn('[ChinaAdventure] Service Worker registration failed:', err));
+    }
+  </script>
+
+  <!-- Game Styles -->
+  <link rel="stylesheet" href="./styles/game-base.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Game Scripts -->
+  <script src="./scripts/game-data.js"></script>
+  <script src="./scripts/game-sprites.js"></script>
+  <script src="./scripts/game-audio.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+  </script>
+
+  <script type="text/babel" src="./scripts/game-components.js"></script>
+  <script type="text/babel" src="./scripts/game-main.js"></script>
+  <script type="text/babel" src="./scripts/game-init.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "source": "IMG_2674.jpg, IMG_2676.jpg (5th grade China study guide)",
+  "testDate": "4/24/26",
+  "facts": [
+    { "q": "What is the capital city of China?", "a": "Beijing" },
+    { "q": "Where is Mt. Everest, the tallest mountain on the planet?", "a": "Tibet" },
+    { "q": "In which Chinese province is rice grown on terraced paddies?", "a": "Sichuan" },
+    { "q": "Ancient Chinese rulers were known as what?", "a": "Emperors" },
+    { "q": "Why was the Great Wall built?", "a": "To protect China from invaders" },
+    { "q": "Which country controlled Hong Kong until 1997?", "a": "Great Britain" },
+    { "q": "How does the Communist party say goods should be divided?", "a": "Equally between all people" },
+    { "q": "Who formed the Red Guard to support communism?", "a": "Students" },
+    { "q": "How many years must Chinese children go to school (at least)?", "a": "Nine years" },
+    { "q": "The Silk Road allowed trade with which two continents?", "a": "Europe and Asia" },
+    { "q": "What leaves are fed to silkworms to make silk?", "a": "Mulberry leaves" },
+    { "q": "Joining which international group helped China's economy?", "a": "World Trade Organization" },
+    { "q": "What is the most important festival in China for?", "a": "The New Year" },
+    { "q": "What is the Chinese art of beautiful writing called?", "a": "Calligraphy" },
+    { "q": "Where do Mongols traditionally live?", "a": "Round yurts" }
+  ],
+  "vocabulary": [
+    { "term": "basin", "definition": "a round lowland" },
+    { "term": "gorge", "definition": "a narrow valley with a steep wall" },
+    { "term": "steppe", "definition": "land that is dry and windy" },
+    { "term": "imperial", "definition": "a system ruled by emperors" },
+    { "term": "compass", "definition": "an instrument for showing directions" },
+    { "term": "dynasty", "definition": "a ruling family" },
+    { "term": "porcelain", "definition": "a fine, thin pottery made from white clay" },
+    { "term": "rebel", "definition": "to fight back against" },
+    { "term": "political party", "definition": "a group that directs government" },
+    { "term": "communism", "definition": "a system in which property and goods are owned by the government and shared equally with everyone" },
+    { "term": "deforestation", "definition": "the destruction of forests" },
+    { "term": "technology", "definition": "the knowledge and skills to make new things" },
+    { "term": "boom", "definition": "a time of quick growth" },
+    { "term": "cooperate", "definition": "to help each other" },
+    { "term": "pagoda", "definition": "an old, wooden temple with graceful roofs that curve upwards" },
+    { "term": "architecture", "definition": "the style of a building" },
+    { "term": "courtyard", "definition": "an open area surrounded by buildings" }
+  ],
+  "fillInTheBlank": [
+    { "q": "Name three activities Beijing has to offer.", "a": ["shopping", "the arts", "music", "festivals", "markets"] },
+    { "q": "\"What you do not want done to yourself, do not do to others\" is called the ____.", "a": "Golden Rule" }
+  ]
+}

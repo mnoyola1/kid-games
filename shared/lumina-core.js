@@ -101,6 +101,13 @@ const LuminaCore = (function() {
     { id: 'ca_all_regions', name: 'True Canadian', desc: 'Unlock all 7 regions', icon: '🍁', xpBonus: 75 },
     { id: 'ca_combo_5', name: 'Combo King', desc: 'Get a 5x combo', icon: '🔥', xpBonus: 25 },
     { id: 'ca_questions_50', name: 'Knowledge Seeker', desc: 'Answer 50 questions correctly', icon: '📚', xpBonus: 35 },
+
+    // Dragon Scrolls of China
+    { id: 'cn_first_battle', name: 'Dragon Scout', desc: 'Win your first China battle', icon: '🐉', xpBonus: 15 },
+    { id: 'cn_combo_5', name: 'Combo Sage', desc: 'Get a 5x combo in Dragon Scrolls', icon: '🔥', xpBonus: 25 },
+    { id: 'cn_all_regions', name: 'Middle Kingdom Master', desc: 'Unlock all 7 China regions', icon: '🏯', xpBonus: 75 },
+    { id: 'cn_questions_40', name: 'Scholar of the Scrolls', desc: 'Answer 40 China questions correctly', icon: '📜', xpBonus: 35 },
+    { id: 'cn_golden_rule', name: 'Golden Rule', desc: 'Discover China\'s most important lesson', icon: '✨', xpBonus: 25, secret: true },
     
     // Word Forge
     { id: 'wf_first_craft', name: 'Apprentice Smith', desc: 'Craft your first item', icon: '🔨', xpBonus: 15 },
@@ -172,6 +179,12 @@ const LuminaCore = (function() {
       id: 'canadaAdventure', 
       name: 'Canada Adventure', 
       icon: '🍁',
+      defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, regionsUnlocked: 1, enemiesDefeated: 0, maxCombo: 0 }
+    },
+    chinaAdventure: {
+      id: 'chinaAdventure',
+      name: 'Dragon Scrolls of China',
+      icon: '🐉',
       defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, regionsUnlocked: 1, enemiesDefeated: 0, maxCombo: 0 }
     },
     wordForge: { 
@@ -1297,6 +1310,13 @@ const LuminaCore = (function() {
         if (stats.regionsUnlocked >= 7) checkAchievement(playerId, 'ca_all_regions');
         if (stats.maxCombo >= 5) checkAchievement(playerId, 'ca_combo_5');
         if (stats.questionsCorrect >= 50) checkAchievement(playerId, 'ca_questions_50');
+        break;
+
+      case 'chinaAdventure':
+        if (stats.enemiesDefeated >= 1) checkAchievement(playerId, 'cn_first_battle');
+        if (stats.regionsUnlocked >= 7) checkAchievement(playerId, 'cn_all_regions');
+        if (stats.maxCombo >= 5) checkAchievement(playerId, 'cn_combo_5');
+        if (stats.questionsCorrect >= 40) checkAchievement(playerId, 'cn_questions_40');
         break;
         
       case 'wordForge':
