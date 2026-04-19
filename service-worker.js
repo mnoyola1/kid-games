@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.6.0';
+const CACHE_VERSION = 'v1.7.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -67,6 +67,16 @@ const CRITICAL_ASSETS = [
   '/canada-adventure/scripts/game-audio.js',
   '/canada-adventure/scripts/game-main.js',
   '/canada-adventure/scripts/game-init.js',
+
+  // === DRAGON SCROLLS OF CHINA ===
+  '/china-adventure/index.html',
+  '/china-adventure/styles/game-base.css',
+  '/china-adventure/scripts/game-data.js',
+  '/china-adventure/scripts/game-sprites.js',
+  '/china-adventure/scripts/game-components.js',
+  '/china-adventure/scripts/game-audio.js',
+  '/china-adventure/scripts/game-main.js',
+  '/china-adventure/scripts/game-init.js',
   
   // === LUMINA RACER ===
   '/lumina-racer/index.html',
@@ -152,6 +162,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/word-hunt/',
   '/assets/audio/shadows-in-the-halls/',
   '/assets/audio/canada-adventure/',
+  '/assets/audio/china-adventure/',
 ];
 
 // Image/sprite files (cached on-demand)
