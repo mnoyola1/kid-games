@@ -119,7 +119,11 @@ function ChinaAdventure() {
   useEffect(() => {
     if (!hasInteracted) return;
     playCurrentMusic();
-  }, [screen, phase, monster, musicEnabled, hasInteracted]);
+    // Use !!monster (a stable boolean) — not the monster object — so this
+    // effect only re-fires when a battle actually starts or ends, never when
+    // the monster's HP updates during an attack. playMusic() also now skips
+    // the rewind if the same track is already playing (belt-and-suspenders).
+  }, [screen, phase, !!monster, musicEnabled, hasInteracted]);
 
   useEffect(() => {
     const handleFirstInteraction = () => {

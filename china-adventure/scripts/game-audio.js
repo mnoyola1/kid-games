@@ -52,19 +52,41 @@ class AudioManager {
   playMusic(track) {
     if (!this.musicEnabled) return;
 
+    const targetEl = this.musicPlayers[track];
+    if (!targetEl) return;
+
+    // If the requested track is already the current track AND actually
+    // playing, do nothing — this is the common case when a parent component
+    // re-renders (e.g. the player attacked and monster HP changed) and calls
+    // playMusic('battle') again. Restarting from 0 here is what caused the
+    // "music skips when I click attack" issue.
+    if (this.currentMusic === track && !targetEl.paused) {
+      return;
+    }
+
+    // If same track but currently paused (e.g. tab was backgrounded), just
+    // resume from where we left off rather than rewinding.
+    if (this.currentMusic === track && targetEl.paused) {
+      targetEl.volume = this.musicVolume;
+      targetEl.play().catch(e => {
+        console.warn('[china-adventure] Music resume failed:', e);
+      });
+      return;
+    }
+
+    // Switching to a different track: stop + rewind the old one, start the
+    // new one from the beginning.
     if (this.currentMusic && this.musicPlayers[this.currentMusic]) {
       this.musicPlayers[this.currentMusic].pause();
       this.musicPlayers[this.currentMusic].currentTime = 0;
     }
 
-    if (this.musicPlayers[track]) {
-      this.currentMusic = track;
-      this.musicPlayers[track].currentTime = 0;
-      this.musicPlayers[track].volume = this.musicVolume;
-      this.musicPlayers[track].play().catch(e => {
-        console.warn('[china-adventure] Music play failed:', e);
-      });
-    }
+    this.currentMusic = track;
+    targetEl.currentTime = 0;
+    targetEl.volume = this.musicVolume;
+    targetEl.play().catch(e => {
+      console.warn('[china-adventure] Music play failed:', e);
+    });
   }
 
   stopMusic() {
