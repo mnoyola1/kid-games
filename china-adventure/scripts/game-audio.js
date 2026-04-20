@@ -28,10 +28,10 @@ class AudioManager {
     };
 
     const MUSIC_BASE_URL = '../assets/audio/china-adventure/music/';
-    // Lyria 3 preview returns MP3, Lyria 2 fallback returns WAV. Try WAV first
-    // (what we actually ship), then fall back to MP3 if a future Lyria 3 pass
-    // generates those.
-    const EXTS = ['wav', 'mp3'];
+    // Prefer Lyria 3 MP3s (longer, smaller, better) — generated via
+    // _shared/tools/audio/extend_music.py. Fall back to the original
+    // Lyria 2 WAVs for any tracks that haven't been upgraded yet.
+    const EXTS = ['mp3', 'wav'];
 
     Object.entries(MUSIC_TRACKS).forEach(([key, basename]) => {
       const audio = new Audio(MUSIC_BASE_URL + basename + '.' + EXTS[0]);
