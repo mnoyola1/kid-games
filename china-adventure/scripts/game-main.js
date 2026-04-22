@@ -157,6 +157,45 @@ function ChinaAdventure() {
     if (combo > maxCombo) setMaxCombo(combo);
   }, [combo, maxCombo]);
 
+  // Centralized "exit to Noyola Hub" helper. We route EVERY exit from the game
+  // through here so an accidental tap, swipe-back, or ghost-click during a
+  // battle can never yank the player out mid-fight without asking first.
+  const exitToHub = () => {
+    const inActiveBattle = screen === 'game' && monster && phase !== 'map';
+    if (inActiveBattle) {
+      const ok = window.confirm(
+        'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
+      );
+      if (!ok) return;
+    }
+    window.location.href = '../index.html';
+  };
+
+  // Guard against iOS/Safari "swipe from left edge = browser back" during an
+  // active battle. Without this, a stray thumb on the iPad bezel silently sends
+  // the player back to the hub with no prompt. We push a sentinel history entry
+  // when a battle starts and intercept popstate to confirm before leaving.
+  useEffect(() => {
+    const inActiveBattle = screen === 'game' && !!monster && phase !== 'map';
+    if (!inActiveBattle) return;
+
+    window.history.pushState({ chinaBattleGuard: true }, '', window.location.href);
+
+    const onPopState = () => {
+      const ok = window.confirm(
+        'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
+      );
+      if (ok) {
+        window.location.href = '../index.html';
+      } else {
+        window.history.pushState({ chinaBattleGuard: true }, '', window.location.href);
+      }
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [screen, !!monster, phase]);
+
   const gainXP = (amt) => {
     let newXP = xp + amt;
     if (newXP >= xpNeeded) {
@@ -710,8 +749,25 @@ function ChinaAdventure() {
         <div className={`flash-overlay ${flash ? 'active' : ''}`} style={{ backgroundColor: flash || 'transparent' }} />
 
         <div className="relative z-10 flex flex-col min-h-[100dvh] w-full max-w-5xl mx-auto">
+          {/*
+            Pause/exit menu icon — isolated in the top-right corner of the
+            viewport, far from any action buttons the player is tapping during
+            combat. Previously the exit was a bare link directly under the
+            Attack row; iOS fat-finger / ghost-click taps were hitting it and
+            bouncing players back to the hub mid-fight. exitToHub() now gates
+            every exit behind a confirm dialog while a battle is active.
+          */}
+          <button
+            type="button"
+            onClick={exitToHub}
+            aria-label="Pause menu / return to Noyola Hub"
+            className="absolute top-2 right-2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-black/60 text-white text-base border border-white/30 active:scale-95"
+          >
+            ⏸︎
+          </button>
+
           <div className="cn-panel rounded-xl p-2 mb-2 glass-panel">
-            <div className="flex justify-between text-white text-sm mb-1">
+            <div className="flex justify-between text-white text-sm mb-1 pr-10">
               <span className="font-bold">{playerName}</span>
               <span>Lv.{level} · {region.name}</span>
             </div>
@@ -816,25 +872,11 @@ function ChinaAdventure() {
           )}
 
           {/*
-            Exit-to-hub during an active battle:
-            Previously this was a bare <a href="../index.html"> placed 12px
-            (mt-3) below the Attack/Dragon/Defend/Item action row. Fat-fingered
-            taps on Attack were landing on this link and instantly navigating
-            away — mid-battle. Fix: require confirm() and space it further
-            from the action buttons.
+            No exit link at the bottom of the battle screen anymore. All
+            exits go through the top-right ⏸︎ pause icon (exitToHub), which
+            confirms before leaving. This prevents any fat-finger / ghost-click
+            from the action row leaking into a hub navigation.
           */}
-          <button
-            type="button"
-            onClick={() => {
-              const ok = window.confirm(
-                'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
-              );
-              if (ok) window.location.href = '../index.html';
-            }}
-            className="mt-8 mx-auto text-xs text-white/60 hover:text-white underline underline-offset-2"
-          >
-            🏠 Return to Hub
-          </button>
         </div>
       </div>
     );

@@ -156,6 +156,43 @@
         }
       }, [combo, maxCombo]);
 
+      // Centralized "exit to Noyola Hub" helper. Every exit path goes through
+      // this so an accidental tap, iOS ghost-click, or swipe-back during a
+      // battle can never yank the player out mid-fight without confirming.
+      const exitToHub = () => {
+        const inActiveBattle = screen === 'game' && monster && phase !== 'map';
+        if (inActiveBattle) {
+          const ok = window.confirm(
+            'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
+          );
+          if (!ok) return;
+        }
+        window.location.href = '../index.html';
+      };
+
+      // Guard iOS/Safari edge swipe-back during an active battle. Pushes a
+      // sentinel history entry and confirms before leaving on popstate.
+      useEffect(() => {
+        const inActiveBattle = screen === 'game' && !!monster && phase !== 'map';
+        if (!inActiveBattle) return;
+
+        window.history.pushState({ canadaBattleGuard: true }, '', window.location.href);
+
+        const onPopState = () => {
+          const ok = window.confirm(
+            'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
+          );
+          if (ok) {
+            window.location.href = '../index.html';
+          } else {
+            window.history.pushState({ canadaBattleGuard: true }, '', window.location.href);
+          }
+        };
+
+        window.addEventListener('popstate', onPopState);
+        return () => window.removeEventListener('popstate', onPopState);
+      }, [screen, !!monster, phase]);
+
       const gainXP = (amt) => {
         let newXP = xp + amt;
         if (newXP >= xpNeeded) {
@@ -638,8 +675,22 @@
             <div className={`flash-overlay ${flash ? 'active' : ''}`} style={{ backgroundColor: flash || 'transparent' }} />
             
             <div className="relative z-10 flex flex-col min-h-[100dvh] w-full max-w-5xl mx-auto">
+              {/*
+                Pause/exit menu icon — top-right corner, far from any action
+                button the player is tapping. Every exit now routes through
+                exitToHub() which confirms during an active battle.
+              */}
+              <button
+                type="button"
+                onClick={exitToHub}
+                aria-label="Pause menu / return to Noyola Hub"
+                className="absolute top-2 right-2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-black/60 text-white text-base border border-white/30 active:scale-95"
+              >
+                ⏸︎
+              </button>
+
               <div className="bg-gray-900/85 rounded-xl p-2 mb-2 glass-panel">
-                <div className="flex justify-between text-white text-sm mb-1">
+                <div className="flex justify-between text-white text-sm mb-1 pr-10">
                   <span className="font-bold">{playerName}</span>
                   <span>Lv.{level} • {region.name}</span>
                 </div>
@@ -741,25 +792,11 @@
               )}
               
               {/*
-                Exit-to-hub during an active battle:
-                This was a bare <a href="../index.html"> placed 12px (mt-3)
-                below the Attack/Special/Defend/Item action row. Fat-fingered
-                taps on Attack were landing on this link and instantly
-                navigating away — mid-battle. Fix: require confirm() and
-                space it further from the action buttons.
+                No exit link at the bottom of the battle screen anymore. All
+                exits go through the top-right ⏸︎ pause icon (exitToHub),
+                which confirms before leaving. Prevents any fat-finger /
+                ghost-click from the action row from navigating to the hub.
               */}
-              <button
-                type="button"
-                onClick={() => {
-                  const ok = window.confirm(
-                    'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
-                  );
-                  if (ok) window.location.href = '../index.html';
-                }}
-                className="mt-8 mx-auto text-xs text-white/60 hover:text-white underline underline-offset-2"
-              >
-                🏠 Return to Hub
-              </button>
             </div>
           </div>
         );
