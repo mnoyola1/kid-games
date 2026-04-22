@@ -815,9 +815,26 @@ function ChinaAdventure() {
             </div>
           )}
 
-          <a href="../index.html" className="mt-3 text-center text-sm text-white/90 hover:text-white">
-            🏠 Return to Noyola Hub
-          </a>
+          {/*
+            Exit-to-hub during an active battle:
+            Previously this was a bare <a href="../index.html"> placed 12px
+            (mt-3) below the Attack/Dragon/Defend/Item action row. Fat-fingered
+            taps on Attack were landing on this link and instantly navigating
+            away — mid-battle. Fix: require confirm() and space it further
+            from the action buttons.
+          */}
+          <button
+            type="button"
+            onClick={() => {
+              const ok = window.confirm(
+                'Leave the battle and return to the Noyola Hub? Your current fight will be lost.'
+              );
+              if (ok) window.location.href = '../index.html';
+            }}
+            className="mt-8 mx-auto text-xs text-white/60 hover:text-white underline underline-offset-2"
+          >
+            🏠 Return to Hub
+          </button>
         </div>
       </div>
     );
