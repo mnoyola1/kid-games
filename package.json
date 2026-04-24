@@ -1,0 +1,17 @@
+{
+  "name": "noyola-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Noyola Hub - educational games for kids. Static site + Vercel Serverless Functions powering Spell Quest (Claude Vision grading + Cartesia TTS).",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "postinstall": "echo 'Noyola Hub ready. Run: npx vercel dev'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

@@ -22,6 +22,10 @@ ENV/
 .DS_Store
 Thumbs.db
 
+# Node / Vercel
+node_modules/
+.vercel/
+
 # Generated assets (optional - uncomment if you want to exclude large generated files)
 # assets/sprites/
 # assets/backgrounds/

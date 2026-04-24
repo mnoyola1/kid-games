@@ -162,7 +162,14 @@ const LuminaCore = (function() {
     { id: 'wh_no_hints', name: 'Perfect Vision', desc: 'Find all words without hints', icon: '👁️', xpBonus: 40 },
     { id: 'wh_word_master', name: 'Word Master', desc: 'Complete a Hard word search', icon: '🎯', xpBonus: 50 },
     { id: 'wh_all_themes', name: 'Theme Expert', desc: 'Complete all 6 themes', icon: '🌈', xpBonus: 75 },
-    
+
+    // Spell Quest
+    { id: 'sq_first_test', name: 'First Trial', desc: 'Finish your first spelling trial', icon: '📜', xpBonus: 15 },
+    { id: 'sq_perfect_20', name: 'Flawless Scribe', desc: 'Score a perfect spelling test', icon: '🏅', xpBonus: 50 },
+    { id: 'sq_comeback', name: 'Second Chances', desc: 'Ace the retest after missing 3+ words', icon: '🔁', xpBonus: 40 },
+    { id: 'sq_photo_upload', name: 'From the Scroll', desc: 'Add a list by photo', icon: '📸', xpBonus: 20 },
+    { id: 'sq_streak_10', name: 'Rune Master', desc: 'Inscribe 10 runes correctly in one test', icon: '✨', xpBonus: 30 },
+
     // Secret achievements
     { id: 'secret_night', name: 'Night Owl', desc: 'Play after 8 PM', icon: '🦉', xpBonus: 10, secret: true },
     { id: 'secret_weekend', name: 'Weekend Warrior', desc: 'Play on Saturday and Sunday', icon: '🎉', xpBonus: 15, secret: true },
@@ -246,6 +253,12 @@ const LuminaCore = (function() {
       name: 'Word Hunt',
       icon: '🔍',
       defaultStats: { gamesPlayed: 0, wordsFound: 0, puzzlesCompleted: 0, perfectPuzzles: 0, hintsUsed: 0, themesCompleted: {} }
+    },
+    spellQuest: {
+      id: 'spellQuest',
+      name: 'Spell Quest',
+      icon: '📜',
+      defaultStats: { gamesPlayed: 0, wordsCorrect: 0, wordsAttempted: 0, perfectTests: 0, retests: 0 }
     },
   };
   

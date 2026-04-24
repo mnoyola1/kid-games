@@ -1,6 +1,17 @@
 // ==================== GAME DATA ====================
 const GAMES = [
   {
+    id: 'spell-quest',
+    name: 'Spell Quest',
+    subtitle: 'Spelling Bee RPG',
+    icon: '📜',
+    url: './spell-quest/index.html',
+    description: 'Hear the word, inscribe the rune. The Keeper reads your handwriting and grades each spelling test like a real teacher — then drills you on the misses.',
+    features: ['🗣️ Natural Voice', '✍️ Handwriting', '📸 Photo Upload', '🔁 Practice Loop'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'spell-siege',
     name: 'Spell Siege',
     subtitle: 'Tower Defense Spelling',

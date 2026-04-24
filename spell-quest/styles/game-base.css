@@ -1,0 +1,349 @@
+/* ================================================================
+   Spell Quest — The Keeper's Trial
+   Theme: parchment + candlelight + glowing runes
+   ================================================================ */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: #0e0820;
+  color: #fdeccf;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- Global backgrounds ---------- */
+.sq-bg-dark {
+  background:
+    radial-gradient(ellipse at 30% 10%, rgba(233, 184, 90, 0.18), transparent 45%),
+    radial-gradient(ellipse at 70% 85%, rgba(122, 31, 39, 0.22), transparent 55%),
+    linear-gradient(180deg, #140a28 0%, #0b0617 100%);
+}
+
+.sq-bg-menu {
+  background-image: url('../../assets/backgrounds/spell-quest/bg_menu.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sq-bg-main {
+  background-image: url('../../assets/backgrounds/spell-quest/bg_main.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sq-bg-scroll {
+  background-image: url('../../assets/backgrounds/spell-quest/bg_results_scroll.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sq-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* ---------- Titles ---------- */
+.sq-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #ffe2a6;
+  text-shadow:
+    0 0 10px rgba(255, 215, 132, 0.55),
+    0 2px 0 #4a2f14,
+    0 4px 10px rgba(0, 0, 0, 0.55);
+}
+
+.sq-subtitle {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f0c77a;
+}
+
+.sq-scribe {
+  font-family: 'Caveat', cursive;
+  color: #2a1408;
+}
+
+.sq-serif {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* ---------- Parchment panel ---------- */
+.sq-parchment {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 240, 200, 0.5), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(182, 138, 76, 0.28), transparent 55%),
+    linear-gradient(180deg, #f4e3b6 0%, #e9d294 50%, #d9bf81 100%);
+  color: #2a1408;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 30px rgba(109, 74, 24, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    0 0 60px rgba(233, 184, 90, 0.12);
+  border: 1px solid rgba(120, 84, 40, 0.35);
+  position: relative;
+}
+
+.sq-parchment::before,
+.sq-parchment::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(120, 84, 40, 0.35);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* ---------- Buttons ---------- */
+.sq-btn {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.9rem 1.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  border: 1px solid rgba(255, 215, 132, 0.5);
+  color: #fff3d0;
+  background:
+    linear-gradient(180deg, rgba(233, 184, 90, 0.35), rgba(122, 31, 39, 0.55));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 200, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+.sq-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.sq-btn:active { transform: translateY(1px); filter: brightness(0.94); }
+.sq-btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sq-btn-primary {
+  background:
+    linear-gradient(180deg, #ffcf72 0%, #c97a1f 100%);
+  color: #2a1408;
+  border-color: #3a1d08;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.sq-btn-ghost {
+  background: rgba(20, 10, 40, 0.6);
+  color: #fde6ba;
+  border-color: rgba(233, 184, 90, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.08), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.sq-btn-danger {
+  background: linear-gradient(180deg, #7a1f27 0%, #3d0f15 100%);
+  color: #fde6ba;
+  border-color: rgba(233, 184, 90, 0.5);
+}
+
+/* ---------- Candle glow (ambient) ---------- */
+.sq-candle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(30px);
+  animation: candleFlicker 4s ease-in-out infinite;
+}
+
+@keyframes candleFlicker {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  20%      { opacity: 1.0;  transform: scale(1.06); }
+  45%      { opacity: 0.65; transform: scale(0.96); }
+  70%      { opacity: 0.9;  transform: scale(1.03); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 30px 4px rgba(255, 215, 132, 0.4); }
+  50%      { box-shadow: 0 0 50px 10px rgba(255, 215, 132, 0.7); }
+}
+
+/* ---------- Rune pop on correct ---------- */
+@keyframes runePop {
+  0%   { transform: scale(0.4) rotate(-20deg); opacity: 0; filter: blur(6px); }
+  50%  { transform: scale(1.2) rotate(6deg); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes runeFly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translate(var(--fly-x, 0), var(--fly-y, -200px)) scale(0.5); opacity: 0; }
+}
+
+@keyframes inkFade {
+  0%   { opacity: 1; filter: blur(0) brightness(1); }
+  100% { opacity: 0; filter: blur(6px) brightness(0.6); transform: translateY(-6px); }
+}
+
+@keyframes shakeSoft {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+
+@keyframes slideUp {
+  0%   { transform: translateY(18px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scrollUnfurl {
+  0%   { transform: scaleY(0.05); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes stampIn {
+  0%   { transform: translate(-50%, -50%) scale(3) rotate(-14deg); opacity: 0; }
+  60%  { transform: translate(-50%, -50%) scale(0.9) rotate(-8deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(-6deg); opacity: 1; }
+}
+
+/* ---------- Handwriting canvas ---------- */
+.sq-canvas-wrap {
+  position: relative;
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(120, 84, 40, 0) 0px,
+      rgba(120, 84, 40, 0) 82px,
+      rgba(120, 84, 40, 0.22) 82px,
+      rgba(120, 84, 40, 0.22) 84px
+    ),
+    linear-gradient(180deg, #f8ecc2 0%, #ead199 100%);
+  box-shadow:
+    inset 0 0 24px rgba(109, 74, 24, 0.2),
+    0 10px 24px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.sq-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ---------- Toasts / floating text ---------- */
+.sq-float-xp {
+  position: absolute;
+  pointer-events: none;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  color: #ffe2a6;
+  text-shadow: 0 0 16px rgba(255, 215, 132, 0.9), 0 2px 0 #3d0f15;
+  animation: xpFloat 1.2s ease-out forwards;
+}
+
+@keyframes xpFloat {
+  0%   { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+  20%  { transform: translate(-50%, -10px) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -80px) scale(0.95); opacity: 0; }
+}
+
+/* ---------- Progress bar ---------- */
+.sq-progress-track {
+  height: 12px;
+  background: rgba(20, 10, 40, 0.6);
+  border: 1px solid rgba(233, 184, 90, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.sq-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffcf72, #c46a1f, #ffcf72);
+  background-size: 200% 100%;
+  animation: progShimmer 2.4s linear infinite;
+  transition: width 400ms cubic-bezier(.2,.9,.3,1);
+  box-shadow: 0 0 12px rgba(255, 215, 132, 0.6);
+}
+@keyframes progShimmer {
+  0% { background-position: 0% 0; } 100% { background-position: 200% 0; }
+}
+
+/* ---------- Keeper bubble ---------- */
+.sq-keeper-bubble {
+  background: linear-gradient(180deg, rgba(30, 18, 54, 0.95), rgba(18, 10, 35, 0.95));
+  border: 1px solid rgba(233, 184, 90, 0.5);
+  color: #fde6ba;
+  padding: 0.9rem 1.25rem;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 30px rgba(233, 184, 90, 0.15);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+}
+
+/* ---------- Rune HUD row ---------- */
+.sq-rune-slot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 184, 90, 0.35);
+  background: rgba(20, 10, 40, 0.55);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: all 320ms cubic-bezier(.2,.9,.3,1);
+}
+.sq-rune-slot.filled {
+  border-color: rgba(255, 215, 132, 0.9);
+  box-shadow: 0 0 18px rgba(255, 215, 132, 0.8), inset 0 0 10px rgba(255, 215, 132, 0.4);
+  background: radial-gradient(circle at center, #ffcf72 0%, #c46a1f 60%, #3d0f15 100%);
+}
+.sq-rune-slot.miss {
+  border-color: rgba(122, 31, 39, 0.7);
+  background: rgba(60, 20, 20, 0.7);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Victory stamp ---------- */
+.sq-stamp {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: min(60vw, 420px);
+  height: min(60vw, 420px);
+  transform: translate(-50%, -50%) rotate(-6deg);
+  background-image: url('../../assets/spell-quest/victory_crest_nobg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 215, 132, 0.6));
+  pointer-events: none;
+}
+
+/* ---------- Utility ---------- */
+.sq-no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.sq-scrollbar-none::-webkit-scrollbar { display: none; }
+.sq-scrollbar-none { scrollbar-width: none; }
+
+/* iPad / small-device safety */
+@media (max-width: 640px) {
+  .sq-title { font-size: clamp(1.9rem, 7vw, 3rem); }
+}

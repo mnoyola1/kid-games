@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.7.4';
+const CACHE_VERSION = 'v1.8.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -148,6 +148,25 @@ const CRITICAL_ASSETS = [
   '/99-nights-in-space/scripts/game-config.js',
   '/99-nights-in-space/scripts/game-main.js',
   '/99-nights-in-space/scripts/game-init.js',
+
+  // === SPELL QUEST ===
+  '/spell-quest/index.html',
+  '/spell-quest/styles/game-base.css',
+  '/spell-quest/scripts/game-config.js',
+  '/spell-quest/scripts/game-audio.js',
+  '/spell-quest/scripts/game-tts.js',
+  '/spell-quest/scripts/game-api.js',
+  '/spell-quest/scripts/game-canvas.js',
+  '/spell-quest/scripts/game-main.js',
+  '/spell-quest/scripts/game-init.js',
+  '/assets/spell-quest/logo_nobg.png',
+  '/assets/spell-quest/grimoire_frame_nobg.png',
+  '/assets/spell-quest/rune_medallion_nobg.png',
+  '/assets/spell-quest/keeper_portrait_nobg.png',
+  '/assets/spell-quest/victory_crest_nobg.png',
+  '/assets/backgrounds/spell-quest/bg_main.png',
+  '/assets/backgrounds/spell-quest/bg_menu.png',
+  '/assets/backgrounds/spell-quest/bg_results_scroll.png',
 ];
 
 // Audio files (cached on-demand to avoid long initial load)
@@ -163,6 +182,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/shadows-in-the-halls/',
   '/assets/audio/canada-adventure/',
   '/assets/audio/china-adventure/',
+  '/assets/audio/spell-quest/',
 ];
 
 // Image/sprite files (cached on-demand)
@@ -240,6 +260,31 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // === Spell Quest API routing ===
+  // /api/tts: stable per (voice, text). Stale-while-revalidate caches the MP3
+  //          so replays during a test and across sessions are instant.
+  // /api/extract-words & /api/grade-spelling: NEVER cache — each request is unique.
+  if (url.pathname === '/api/tts') {
+    event.respondWith(
+      caches.open(`${CACHE_NAME}-tts`).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        const networkFetch = fetch(event.request)
+          .then((res) => {
+            if (res && res.status === 200) cache.put(event.request, res.clone());
+            return res;
+          })
+          .catch(() => cached);
+        return cached || networkFetch;
+      })
+    );
+    return;
+  }
+  if (url.pathname.startsWith('/api/')) {
+    // Always go to network; never serve stale results from grading / extraction.
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // Network-first for Supabase (always try to sync when online)
   if (url.hostname.includes('supabase')) {
     event.respondWith(
