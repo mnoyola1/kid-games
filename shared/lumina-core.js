@@ -1401,6 +1401,39 @@ const LuminaCore = (function() {
     return ACHIEVEMENTS;
   }
   
+  // ==================== GAME SAVE SLOTS ====================
+  // Per-profile, per-game resumable-state slot. Piggybacks on the existing
+  // LuminaCore save() pipeline so writes are local-first (synchronous
+  // localStorage) and fire a non-blocking LuminaCloud.syncToCloud().
+  // Schema is versioned (v: 1) so future migrations can safely drop old saves.
+
+  function setGameSave(playerId, gameId, state) {
+    const data = getData();
+    const player = data.profiles[playerId];
+    if (!player || !GAMES[gameId]) return false;
+    player.games = player.games || {};
+    player.games[gameId] = player.games[gameId] || {};
+    player.games[gameId].save = { v: 1, savedAt: Date.now(), state };
+    return save();
+  }
+
+  function getGameSave(playerId, gameId) {
+    const data = getData();
+    const slot = data.profiles?.[playerId]?.games?.[gameId]?.save;
+    if (!slot || slot.v !== 1 || !slot.state) return null;
+    return slot;
+  }
+
+  function clearGameSave(playerId, gameId) {
+    const data = getData();
+    const gameSlot = data.profiles?.[playerId]?.games?.[gameId];
+    if (gameSlot?.save) {
+      delete gameSlot.save;
+      return save();
+    }
+    return true;
+  }
+
   // ==================== FAMILY QUEST ====================
   
   function startFamilyQuest(goal, reward, durationDays = 7) {
@@ -1925,7 +1958,12 @@ const LuminaCore = (function() {
     recordGameEnd,
     getGameStats,
     getGameDefinitions,
-    
+
+    // Game Save Slots (resumable state)
+    setGameSave,
+    getGameSave,
+    clearGameSave,
+
     // Achievements
     checkAchievement,
     hasAchievement,

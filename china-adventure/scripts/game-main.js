@@ -44,6 +44,12 @@ function ChinaAdventure() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [sessionRecorded, setSessionRecorded] = useState(false);
 
+  // Holds a saved game (if any) loaded from LuminaCore on mount. The title
+  // screen checks this to decide between a single "Begin Quest" button and the
+  // Continue / New Game pair. Cleared when the player chooses New Game, after
+  // a successful Continue, or after a Game Over.
+  const [pendingSave, setPendingSave] = useState(null);
+
   // Stats tracking for Lumina integration
   const [questionsCorrect, setQuestionsCorrect] = useState(0);
   const [questionsTotal, setQuestionsTotal] = useState(0);
@@ -57,6 +63,42 @@ function ChinaAdventure() {
   const xpPercent = Math.min(100, Math.floor((xp / xpNeeded) * 100));
   const activeRegion = regions[currentRegion];
   const explorerRank = Math.min(10, 1 + Math.floor(totalDefeated / 3));
+
+  // ==================== SAVE / RESUME ====================
+  // saveProgress() snapshots the currently-resumable state (no mid-battle
+  // transient fields) into LuminaCore, which persists locally (synchronous
+  // localStorage) and fires a non-blocking cloud sync. It's guarded so it
+  // NEVER fires during an active battle — standard JRPG "save at the map"
+  // convention, keeps us clear of animation/phase/timer corruption.
+  const saveProgress = () => {
+    if (typeof LUMINA_ENABLED === 'undefined' || !LUMINA_ENABLED) return;
+    if (!playerProfile) return;
+    if (screen !== 'game' || phase !== 'map') return;
+    LuminaCore.setGameSave(playerProfile.id, 'chinaAdventure', {
+      mode,
+      playerName,
+      level,
+      xp,
+      coins,
+      hp,
+      maxHp,
+      mp,
+      maxMp,
+      unlockedRegions,
+      currentRegion,
+      collectedScrolls,
+      totalDefeated,
+      inventory,
+    });
+  };
+
+  // Ref mirror of saveProgress so long-lived listeners (visibilitychange)
+  // always call the latest closure without re-subscribing on every state
+  // change.
+  const saveProgressRef = useRef(saveProgress);
+  useEffect(() => {
+    saveProgressRef.current = saveProgress;
+  });
 
   const initAudio = () => {
     if (!audioRef.current) {
@@ -103,7 +145,9 @@ function ChinaAdventure() {
     setTimeout(() => setBursts(prev => prev.filter(b => b.id !== id)), 700);
   };
 
-  // Initialize from LuminaCore on mount
+  // Initialize from LuminaCore on mount. Also looks for a previously-saved
+  // game for this profile so the title screen can offer Continue / New Game
+  // instead of the single Begin Quest button.
   useEffect(() => {
     if (typeof LUMINA_ENABLED !== 'undefined' && LUMINA_ENABLED) {
       const player = LuminaCore.getActiveProfile();
@@ -111,7 +155,11 @@ function ChinaAdventure() {
         setPlayerName(player.name);
         setPlayerProfile(player);
         LuminaCore.recordGameStart(player.id, 'chinaAdventure');
-        console.log(`[China Adventure] Loaded player: ${player.name}`);
+        const saved = LuminaCore.getGameSave
+          ? LuminaCore.getGameSave(player.id, 'chinaAdventure')
+          : null;
+        if (saved) setPendingSave(saved);
+        console.log(`[China Adventure] Loaded player: ${player.name}${saved ? ' (save found)' : ''}`);
       }
     }
   }, []);
@@ -149,6 +197,12 @@ function ChinaAdventure() {
         enemiesDefeated: totalDefeated,
         maxCombo,
       });
+      // Defeat is terminal — don't leave a stale save around that would let
+      // the player Continue back into HP=0 after returning to the hub.
+      if (LuminaCore.clearGameSave) {
+        LuminaCore.clearGameSave(playerProfile.id, 'chinaAdventure');
+      }
+      setPendingSave(null);
       setSessionRecorded(true);
     }
   }, [screen, playerProfile, sessionRecorded, totalDefeated, questionsCorrect, questionsTotal, unlockedRegions.length, maxCombo]);
@@ -156,6 +210,38 @@ function ChinaAdventure() {
   useEffect(() => {
     if (combo > maxCombo) setMaxCombo(combo);
   }, [combo, maxCombo]);
+
+  // Auto-save on progression-relevant state changes. Re-runs whenever a
+  // durable stat changes; saveProgress() itself is gated to only fire when
+  // the player is sitting on the map (not mid-battle, not mid-question).
+  // This naturally captures: post-victory (phase → map), shop purchases,
+  // level-ups, region unlocks, scroll collection, and mode changes.
+  useEffect(() => {
+    if (screen !== 'game' || phase !== 'map' || !playerProfile) return;
+    saveProgress();
+    // saveProgress is intentionally NOT in the dependency list — it's a fresh
+    // function every render that closes over current state; listing the
+    // explicit state dependencies here is what gates save frequency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    screen, phase, playerProfile,
+    mode, playerName,
+    level, xp, coins,
+    hp, maxHp, mp, maxMp,
+    unlockedRegions, currentRegion, collectedScrolls,
+    totalDefeated, inventory,
+  ]);
+
+  // Defensive catch-all: when the tab/PWA backgrounds (iOS terminates
+  // backgrounded PWAs aggressively), flush the current state to storage.
+  // Uses a ref so we don't re-subscribe the listener on every state change.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) saveProgressRef.current?.();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
 
   // Centralized "exit to Noyola Hub" helper. We route EVERY exit from the game
   // through here so an accidental tap, swipe-back, or ghost-click during a
@@ -445,8 +531,56 @@ function ChinaAdventure() {
     setPhase('map'); setMonster(null);
     setScreen('title');
     setSessionRecorded(false);
+    setPendingSave(null);
     sessionStartRef.current = Date.now();
     if (audioRef.current) audioRef.current.stopMusic();
+  };
+
+  // Load the pending save back into React state and drop the player on the
+  // map. Music follows automatically via the existing screen/phase effect.
+  const continueGame = () => {
+    if (!pendingSave || !pendingSave.state) return;
+    initAudio();
+    setHasInteracted(true);
+    const s = pendingSave.state;
+    if (s.mode && MODES[s.mode]) setMode(s.mode);
+    if (s.playerName) setPlayerName(s.playerName);
+    setLevel(s.level ?? 1);
+    setXp(s.xp ?? 0);
+    setCoins(s.coins ?? 50);
+    setMaxHp(s.maxHp ?? MODES[s.mode || mode].maxHp);
+    setHp(Math.min(s.hp ?? s.maxHp ?? MODES[s.mode || mode].maxHp, s.maxHp ?? MODES[s.mode || mode].maxHp));
+    setMaxMp(s.maxMp ?? MODES[s.mode || mode].maxMp);
+    setMp(Math.min(s.mp ?? s.maxMp ?? MODES[s.mode || mode].maxMp, s.maxMp ?? MODES[s.mode || mode].maxMp));
+    setUnlockedRegions(Array.isArray(s.unlockedRegions) && s.unlockedRegions.length > 0 ? s.unlockedRegions : [0]);
+    setCurrentRegion(typeof s.currentRegion === 'number' ? s.currentRegion : 0);
+    setCollectedScrolls(Array.isArray(s.collectedScrolls) ? s.collectedScrolls : []);
+    setTotalDefeated(s.totalDefeated ?? 0);
+    setInventory(s.inventory && typeof s.inventory === 'object' ? s.inventory : { potion: 3, bomb: 1 });
+    setPendingSave(null);
+    setMonster(null);
+    setPhase('map');
+    setScreen('game');
+    setSessionRecorded(false);
+    sessionStartRef.current = Date.now();
+  };
+
+  // Confirm + wipe the existing save, then fall through to the normal fresh
+  // quest flow. Respects whatever name/difficulty the player just picked on
+  // the title screen.
+  const newGame = () => {
+    if (pendingSave) {
+      const ok = window.confirm('Start a new adventure? Your saved progress will be lost.');
+      if (!ok) return;
+      if (playerProfile && typeof LUMINA_ENABLED !== 'undefined' && LUMINA_ENABLED && LuminaCore.clearGameSave) {
+        LuminaCore.clearGameSave(playerProfile.id, 'chinaAdventure');
+      }
+      setPendingSave(null);
+    }
+    initAudio();
+    setHasInteracted(true);
+    setPhase('map');
+    setScreen('game');
   };
 
   // TITLE SCREEN
@@ -516,12 +650,32 @@ function ChinaAdventure() {
             </button>
           </div>
 
-          <button
-            onClick={() => { initAudio(); setHasInteracted(true); setPhase('map'); setScreen('game'); }}
-            className="w-full py-4 bg-gradient-to-b from-red-600 to-red-800 text-white rounded-2xl text-xl font-black border-b-4 border-red-900 active:translate-y-1"
-          >
-            🐉 BEGIN QUEST 🐉
-          </button>
+          {pendingSave ? (
+            <div className="space-y-2">
+              <button
+                onClick={continueGame}
+                className="w-full py-4 bg-gradient-to-b from-red-600 to-red-800 text-white rounded-2xl text-xl font-black border-b-4 border-red-900 active:translate-y-1"
+              >
+                ▶️ CONTINUE
+                <div className="text-[11px] font-semibold text-red-100 opacity-90">
+                  Lv.{pendingSave.state.level ?? 1} · {regions[pendingSave.state.currentRegion ?? 0]?.name || 'Map'}
+                </div>
+              </button>
+              <button
+                onClick={newGame}
+                className="w-full py-3 bg-gradient-to-b from-gray-200 to-gray-300 text-gray-800 rounded-xl text-base font-black border-b-4 border-gray-400 active:translate-y-1"
+              >
+                🐉 NEW QUEST
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={newGame}
+              className="w-full py-4 bg-gradient-to-b from-red-600 to-red-800 text-white rounded-2xl text-xl font-black border-b-4 border-red-900 active:translate-y-1"
+            >
+              🐉 BEGIN QUEST 🐉
+            </button>
+          )}
           <a href="../index.html" className="block mt-3 text-xs text-gray-500 hover:text-red-700">
             🏠 Return to Noyola Hub
           </a>
