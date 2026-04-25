@@ -15,8 +15,8 @@ class SpellQuestAudio {
 
     // Ducking: temporarily attenuate background music while TTS / Keeper speaks,
     // so the dictated word is always clearly audible over the score.
-    // `duckDepth` = multiplier applied to musicVolume; 0.15 == 85% quieter.
-    this.duckDepth = 0.15;
+    // `duckDepth` = multiplier applied to musicVolume; 0.05 == 95% quieter.
+    this.duckDepth = 0.05;
     this._duckCount = 0;
     this._duckAnim = null;
 
@@ -38,13 +38,48 @@ class SpellQuestAudio {
       this.sfxBuffers[key] = { url, pool: [], idx: 0 };
     });
 
-    // Pre-baked Keeper voice - one Audio per line (not overlapping).
+    // Pre-baked Keeper voice. We keep an <audio> as fallback AND a decoded
+    // AudioBuffer for the Web Audio gain-boosted path.
     Object.entries(KEEPER_LINES).forEach(([key, url]) => {
       const a = new Audio(url);
       a.preload = 'auto';
-      a.volume = 0.9;
-      this.keeperBuffers[key] = a;
+      a.volume = 1.0;
+      this.keeperBuffers[key] = { url, audio: a, buffer: null, decoding: null };
     });
+    this.voiceGain = 1.8; // amplification above 1.0 for Web Audio path
+    this._ctx = null;
+  }
+
+  _getCtx() {
+    if (this._ctx) return this._ctx;
+    try {
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (!Ctor) return null;
+      this._ctx = new Ctor();
+    } catch (e) { this._ctx = null; }
+    return this._ctx;
+  }
+
+  async _decodeKeeper(entry) {
+    if (entry.buffer) return entry.buffer;
+    if (entry.decoding) return entry.decoding;
+    const ctx = this._getCtx();
+    if (!ctx) return null;
+    entry.decoding = (async () => {
+      try {
+        const res = await fetch(entry.url);
+        const ab = await res.arrayBuffer();
+        const buf = await new Promise((resolve, reject) => {
+          try {
+            const p = ctx.decodeAudioData(ab.slice(0), resolve, reject);
+            if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
+          } catch (e) { reject(e); }
+        });
+        entry.buffer = buf;
+        return buf;
+      } catch (e) { return null; }
+    })();
+    return entry.decoding;
   }
 
   // --- Music ---
@@ -149,30 +184,61 @@ class SpellQuestAudio {
   setSfxEnabled(on) { this.sfxEnabled = !!on; }
 
   // --- Keeper (pre-baked voice lines) ---
+  // Plays through Web Audio with a GainNode so the line sits clearly above the
+  // background music (which we also duck during playback). Falls back to a
+  // plain <audio> element if Web Audio isn't usable on this device.
   playKeeper(line) {
-    const a = this.keeperBuffers[line];
-    if (!a) return;
+    const entry = this.keeperBuffers[line];
+    if (!entry) return;
+    this.duckMusic();
+    let restored = false;
+    const restore = () => {
+      if (restored) return;
+      restored = true;
+      this.unduckMusic();
+    };
+
+    const ctx = this._getCtx();
+    if (ctx) {
+      this._decodeKeeper(entry).then((buf) => {
+        if (!buf) { this._playKeeperFallback(entry, restore); return; }
+        try {
+          if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          const gain = ctx.createGain();
+          gain.gain.value = this.voiceGain;
+          src.connect(gain).connect(ctx.destination);
+          src.onended = restore;
+          src.start(0);
+        } catch (e) { this._playKeeperFallback(entry, restore); }
+      }).catch(() => this._playKeeperFallback(entry, restore));
+    } else {
+      this._playKeeperFallback(entry, restore);
+    }
+  }
+
+  _playKeeperFallback(entry, onDone) {
     try {
+      const a = entry.audio;
       a.currentTime = 0;
-      this.duckMusic();
-      let restored = false;
       const restore = () => {
-        if (restored) return;
-        restored = true;
         a.removeEventListener('ended', restore);
         a.removeEventListener('pause', restore);
         a.removeEventListener('error', restore);
-        this.unduckMusic();
+        onDone();
       };
       a.addEventListener('ended', restore);
       a.addEventListener('pause', restore);
       a.addEventListener('error', restore);
       a.play().catch(() => restore());
-    } catch (e) {}
+    } catch (e) { onDone(); }
   }
 
   stopKeeper() {
-    Object.values(this.keeperBuffers).forEach((a) => { try { a.pause(); a.currentTime = 0; } catch (e) {} });
+    Object.values(this.keeperBuffers).forEach((entry) => {
+      try { entry.audio.pause(); entry.audio.currentTime = 0; } catch (e) {}
+    });
   }
 }
 
