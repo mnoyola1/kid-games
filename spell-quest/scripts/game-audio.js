@@ -69,17 +69,39 @@ class SpellQuestAudio {
       try {
         const res = await fetch(entry.url);
         const ab = await res.arrayBuffer();
-        const buf = await new Promise((resolve, reject) => {
+        const raw = await new Promise((resolve, reject) => {
           try {
             const p = ctx.decodeAudioData(ab.slice(0), resolve, reject);
             if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
           } catch (e) { reject(e); }
         });
-        entry.buffer = buf;
-        return buf;
+        const trimmed = this._trimTail(ctx, raw);
+        entry.buffer = trimmed;
+        return trimmed;
       } catch (e) { return null; }
     })();
     return entry.decoding;
+  }
+
+  // Trim the trailing room-tone / breath off a decoded voice buffer so the
+  // compressor / unduck doesn't gasp at the end.
+  _trimTail(ctx, buffer, threshold = 0.012, tailMs = 60) {
+    const ch0 = buffer.getChannelData(0);
+    const ch1 = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : null;
+    let lastVoiceIdx = -1;
+    for (let i = ch0.length - 1; i >= 0; i--) {
+      const a = ch1 ? Math.max(Math.abs(ch0[i]), Math.abs(ch1[i])) : Math.abs(ch0[i]);
+      if (a > threshold) { lastVoiceIdx = i; break; }
+    }
+    if (lastVoiceIdx < 0) return buffer;
+    const tailSamples = Math.round((tailMs / 1000) * buffer.sampleRate);
+    const cutAt = Math.min(buffer.length, lastVoiceIdx + tailSamples);
+    if (cutAt >= buffer.length - 256) return buffer;
+    const out = ctx.createBuffer(buffer.numberOfChannels, cutAt, buffer.sampleRate);
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      out.getChannelData(c).set(buffer.getChannelData(c).subarray(0, cutAt));
+    }
+    return out;
   }
 
   // --- Music ---
@@ -221,7 +243,17 @@ class SpellQuestAudio {
           const src = ctx.createBufferSource();
           src.buffer = buf;
           const gain = ctx.createGain();
-          gain.gain.value = this.voiceGain;
+          // Per-clip fade-out so we don't trigger a compressor-tail "gasp" on stop.
+          const dur = buf.duration;
+          const now = ctx.currentTime;
+          const fadeMs = 70;
+          try {
+            gain.gain.setValueAtTime(this.voiceGain, now);
+            if (dur > fadeMs / 1000 + 0.01) {
+              gain.gain.setValueAtTime(this.voiceGain, now + dur - fadeMs / 1000);
+              gain.gain.linearRampToValueAtTime(0, now + dur);
+            }
+          } catch (e) { gain.gain.value = this.voiceGain; }
           src.connect(gain).connect(ctx.destination);
           src.onended = restore;
           src.start(0);

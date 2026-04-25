@@ -44,6 +44,31 @@ function normalizeBuffer(buffer, targetPeak = 0.97) {
   return buffer;
 }
 
+// Trim trailing silence/near-silence from the buffer. Cartesia leaves a soft
+// breath / room-tone tail on each clip; our compressor + makeup gain amplifies
+// that into an audible "gasp" before the music returns. We scan from the end
+// for the last sample above `threshold` and copy everything up to that point
+// (plus a small `tailMs` cushion of natural decay) into a new, shorter buffer.
+function trimTrailingSilence(ctx, buffer, { threshold = 0.012, tailMs = 40 } = {}) {
+  const sr = buffer.sampleRate;
+  const ch0 = buffer.getChannelData(0);
+  const ch1 = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : null;
+  let lastVoiceIdx = -1;
+  for (let i = ch0.length - 1; i >= 0; i--) {
+    const a = ch1 ? Math.max(Math.abs(ch0[i]), Math.abs(ch1[i])) : Math.abs(ch0[i]);
+    if (a > threshold) { lastVoiceIdx = i; break; }
+  }
+  if (lastVoiceIdx < 0) return buffer; // entirely silent? leave it
+  const tailSamples = Math.round((tailMs / 1000) * sr);
+  const cutAt = Math.min(buffer.length, lastVoiceIdx + tailSamples);
+  if (cutAt >= buffer.length - 256) return buffer; // nothing meaningful to trim
+  const out = ctx.createBuffer(buffer.numberOfChannels, cutAt, sr);
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    out.getChannelData(c).set(buffer.getChannelData(c).subarray(0, cutAt));
+  }
+  return out;
+}
+
 async function fetchTtsArrayBuffer(text, voice) {
   const key = voice + '|' + text;
   const res = await fetch('/api/tts', {
@@ -63,15 +88,16 @@ async function getDecodedBuffer(text, voice) {
   const ctx = getAudioCtx();
   if (!ctx) return null;
   const ab = await fetchTtsArrayBuffer(text, voice);
-  const buf = await new Promise((resolve, reject) => {
+  const raw = await new Promise((resolve, reject) => {
     try {
       const p = ctx.decodeAudioData(ab.slice(0), resolve, reject);
       if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
     } catch (e) { reject(e); }
   });
-  normalizeBuffer(buf, 0.97);
-  bufferCache.set(key, buf);
-  return buf;
+  normalizeBuffer(raw, 0.97);
+  const trimmed = trimTrailingSilence(ctx, raw, { threshold: 0.012, tailMs: 40 });
+  bufferCache.set(key, trimmed);
+  return trimmed;
 }
 
 function prewarmTts(text, voice = 'keeper') {
@@ -92,7 +118,9 @@ function getCompressorOutput(ctx) {
   try { comp.knee.setValueAtTime(10, ctx.currentTime); } catch (e) {}
   try { comp.ratio.setValueAtTime(8, ctx.currentTime); } catch (e) {}
   try { comp.attack.setValueAtTime(0.003, ctx.currentTime); } catch (e) {}
-  try { comp.release.setValueAtTime(0.18, ctx.currentTime); } catch (e) {}
+  // Slow release so the compressor doesn't pump the quiet tail of the clip
+  // back up (which previously sounded like a "gasp" right before music returns).
+  try { comp.release.setValueAtTime(0.45, ctx.currentTime); } catch (e) {}
   const makeup = ctx.createGain();
   makeup.gain.value = 1.6; // post-compression boost
   comp.connect(makeup).connect(ctx.destination);
@@ -108,7 +136,18 @@ function playViaWebAudio(buffer, gainValue) {
   const src = ctx.createBufferSource();
   src.buffer = buffer;
   const gain = ctx.createGain();
-  gain.gain.value = gainValue;
+  // Per-clip fade-out on the last 70ms so the source doesn't end abruptly,
+  // and any compressor release happens AFTER the listener stops hearing the clip.
+  const dur = buffer.duration;
+  const now = ctx.currentTime;
+  const fadeMs = 70;
+  try {
+    gain.gain.setValueAtTime(gainValue, now);
+    if (dur > fadeMs / 1000 + 0.01) {
+      gain.gain.setValueAtTime(gainValue, now + dur - fadeMs / 1000);
+      gain.gain.linearRampToValueAtTime(0, now + dur);
+    }
+  } catch (e) { gain.gain.value = gainValue; }
   const comp = getCompressorOutput(ctx);
   src.connect(gain).connect(comp);
   src.start(0);
