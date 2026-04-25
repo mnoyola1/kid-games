@@ -26,17 +26,30 @@ function prewarmTts(text, voice) {
 }
 
 // Play a word through The Keeper's voice. Returns a Promise that resolves when playback ends
-// (or rejects if the request/audio fails).
-function speakWord(text, { voice = 'keeper', volume = 1.0 } = {}) {
+// (or rejects if the request/audio fails). While the audio plays we duck the
+// background music via sqAudio so the dictated word is clearly audible.
+function speakWord(text, { voice = 'keeper', volume = 1.0, duck = true } = {}) {
   return new Promise(async (resolve, reject) => {
+    let ducked = false;
+    const unduck = () => {
+      if (ducked && window.sqAudio?.unduckMusic) {
+        ducked = false;
+        window.sqAudio.unduckMusic();
+      }
+    };
     try {
       const url = await fetchTtsBlobUrl(text, voice);
       const audio = new Audio(url);
       audio.volume = volume;
-      audio.addEventListener('ended', () => resolve());
-      audio.addEventListener('error', () => reject(new Error('TTS audio error')));
-      audio.play().catch((e) => reject(e));
-    } catch (e) { reject(e); }
+      if (duck && window.sqAudio?.duckMusic) {
+        ducked = true;
+        window.sqAudio.duckMusic();
+      }
+      const done = (fn) => { unduck(); fn(); };
+      audio.addEventListener('ended', () => done(() => resolve()));
+      audio.addEventListener('error', () => done(() => reject(new Error('TTS audio error'))));
+      audio.play().catch((e) => done(() => reject(e)));
+    } catch (e) { unduck(); reject(e); }
   });
 }
 

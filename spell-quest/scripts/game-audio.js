@@ -13,6 +13,13 @@ class SpellQuestAudio {
     this.musicEnabled = true;
     this.sfxEnabled = true;
 
+    // Ducking: temporarily attenuate background music while TTS / Keeper speaks,
+    // so the dictated word is always clearly audible over the score.
+    // `duckDepth` = multiplier applied to musicVolume; 0.15 == 85% quieter.
+    this.duckDepth = 0.15;
+    this._duckCount = 0;
+    this._duckAnim = null;
+
     this.sfxBuffers = {};
     this.keeperBuffers = {};
 
@@ -90,6 +97,34 @@ class SpellQuestAudio {
     else if (on && this.currentMusic) this.musicTracks[this.currentMusic].play().catch(() => {});
   }
 
+  // --- Ducking ---
+  // Ref-counted so overlapping voice lines keep the music ducked until the last one ends.
+  _animateMusicVolume(targetFactor, durationMs = 180) {
+    const cur = this.currentMusic && this.musicTracks[this.currentMusic];
+    if (!cur) return;
+    if (this._duckAnim) cancelAnimationFrame(this._duckAnim);
+    const startVol = cur.volume;
+    const endVol = this.musicVolume * targetFactor;
+    const startedAt = performance.now();
+    const tick = () => {
+      const t = Math.min(1, (performance.now() - startedAt) / durationMs);
+      cur.volume = startVol + (endVol - startVol) * t;
+      if (t < 1) this._duckAnim = requestAnimationFrame(tick);
+      else this._duckAnim = null;
+    };
+    this._duckAnim = requestAnimationFrame(tick);
+  }
+
+  duckMusic() {
+    this._duckCount++;
+    if (this._duckCount === 1) this._animateMusicVolume(this.duckDepth, 160);
+  }
+
+  unduckMusic() {
+    this._duckCount = Math.max(0, this._duckCount - 1);
+    if (this._duckCount === 0) this._animateMusicVolume(1, 320);
+  }
+
   // --- SFX ---
   playSfx(key, { volume = 0.7, rate = 1 } = {}) {
     if (!this.sfxEnabled) return;
@@ -117,7 +152,23 @@ class SpellQuestAudio {
   playKeeper(line) {
     const a = this.keeperBuffers[line];
     if (!a) return;
-    try { a.currentTime = 0; a.play().catch(() => {}); } catch (e) {}
+    try {
+      a.currentTime = 0;
+      this.duckMusic();
+      let restored = false;
+      const restore = () => {
+        if (restored) return;
+        restored = true;
+        a.removeEventListener('ended', restore);
+        a.removeEventListener('pause', restore);
+        a.removeEventListener('error', restore);
+        this.unduckMusic();
+      };
+      a.addEventListener('ended', restore);
+      a.addEventListener('pause', restore);
+      a.addEventListener('error', restore);
+      a.play().catch(() => restore());
+    } catch (e) {}
   }
 
   stopKeeper() {
