@@ -1,16 +1,18 @@
 // ==================== TTS (Cartesia Sonic-2 via /api/tts) ====================
-// Plays a word in The Keeper's voice, with in-session caching so replays are free.
-// The service worker also caches /api/tts responses, so across sessions we only pay once.
+// Plays a word in The Keeper's voice with consistent loudness:
+//   1. Decode MP3 to AudioBuffer once per (voice, text).
+//   2. Peak-normalize the buffer so every clip hits the same target level
+//      regardless of how quiet/loud Cartesia mastered it.
+//   3. Play through a graph: source -> Gain (boost) -> Compressor (even out)
+//      -> destination. Caps loud peaks while bringing up quiet ones.
 //
-// Playback uses Web Audio API with a GainNode so we can amplify the dictated word
-// ABOVE the natural <audio>-element ceiling of 1.0 — `<audio>.volume = 2` is
-// silently ignored everywhere. We decode the MP3 once into an AudioBuffer and
-// reuse it on every replay.
+// This is what fixes the "some words come out fine, some are very low" issue:
+// Cartesia masters each clip independently, so without normalization a soft
+// phoneme like "wave" can be 10 dB quieter than a punchy one like "trick".
 
-const blobCache = new Map();   // key -> blobUrl (kept for prewarm + fallback)
-const bufferCache = new Map(); // key -> AudioBuffer
+const blobCache = new Map();    // key -> blobUrl (fallback path)
+const bufferCache = new Map();  // key -> normalized AudioBuffer
 
-// Lazy-create a single AudioContext on the first user-gesture-triggered play.
 let _ctx = null;
 function getAudioCtx() {
   if (_ctx) return _ctx;
@@ -22,6 +24,26 @@ function getAudioCtx() {
   return _ctx;
 }
 
+// Scan a buffer for absolute peak across all channels; scale every sample so the
+// peak hits `targetPeak` (0..1). Returns the same buffer in place.
+function normalizeBuffer(buffer, targetPeak = 0.97) {
+  let peak = 0;
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    for (let i = 0; i < data.length; i++) {
+      const a = Math.abs(data[i]);
+      if (a > peak) peak = a;
+    }
+  }
+  if (peak === 0 || peak >= 0.999 * targetPeak) return buffer; // already loud enough
+  const scale = targetPeak / peak;
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    for (let i = 0; i < data.length; i++) data[i] *= scale;
+  }
+  return buffer;
+}
+
 async function fetchTtsArrayBuffer(text, voice) {
   const key = voice + '|' + text;
   const res = await fetch('/api/tts', {
@@ -31,9 +53,7 @@ async function fetchTtsArrayBuffer(text, voice) {
   });
   if (!res.ok) throw new Error(`TTS failed (${res.status})`);
   const ab = await res.arrayBuffer();
-  // Also stash a blob URL — used as a fallback playback path if Web Audio is unavailable.
-  const blob = new Blob([ab], { type: 'audio/mpeg' });
-  blobCache.set(key, URL.createObjectURL(blob));
+  blobCache.set(key, URL.createObjectURL(new Blob([ab], { type: 'audio/mpeg' })));
   return ab;
 }
 
@@ -43,28 +63,39 @@ async function getDecodedBuffer(text, voice) {
   const ctx = getAudioCtx();
   if (!ctx) return null;
   const ab = await fetchTtsArrayBuffer(text, voice);
-  // decodeAudioData on iOS still wants the legacy callback form for full reliability.
   const buf = await new Promise((resolve, reject) => {
     try {
       const p = ctx.decodeAudioData(ab.slice(0), resolve, reject);
       if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
     } catch (e) { reject(e); }
   });
+  normalizeBuffer(buf, 0.97);
   bufferCache.set(key, buf);
   return buf;
 }
 
-// Prewarm: fire-and-forget decode so playback is snappy on the next word.
 function prewarmTts(text, voice = 'keeper') {
   getDecodedBuffer(text, voice).catch(() => {
-    // If decode fails, at least keep a blob URL ready for the <audio> fallback.
     fetchTtsArrayBuffer(text, voice).catch(() => {});
   });
 }
 
-// Play through Web Audio with a GainNode (loudness boost above 1.0).
-// `gain` 1.0 == no change, 1.6 == ~+4 dB, 2.0 == ~+6 dB, 2.5 == ~+8 dB.
-// Above ~3.0 you'll start hearing clipping on louder phonemes.
+// Build a single shared compressor for steady, consistent output.
+let _compressor = null;
+function getCompressor(ctx) {
+  if (_compressor && _compressor.context === ctx) return _compressor;
+  const c = ctx.createDynamicsCompressor();
+  // Generous compression: catches any peaks above -16 dB, brings everything close.
+  try { c.threshold.setValueAtTime(-16, ctx.currentTime); } catch (e) {}
+  try { c.knee.setValueAtTime(8, ctx.currentTime); } catch (e) {}
+  try { c.ratio.setValueAtTime(6, ctx.currentTime); } catch (e) {}
+  try { c.attack.setValueAtTime(0.003, ctx.currentTime); } catch (e) {}
+  try { c.release.setValueAtTime(0.18, ctx.currentTime); } catch (e) {}
+  c.connect(ctx.destination);
+  _compressor = c;
+  return c;
+}
+
 function playViaWebAudio(buffer, gainValue) {
   const ctx = getAudioCtx();
   if (!ctx) return null;
@@ -73,12 +104,12 @@ function playViaWebAudio(buffer, gainValue) {
   src.buffer = buffer;
   const gain = ctx.createGain();
   gain.gain.value = gainValue;
-  src.connect(gain).connect(ctx.destination);
+  const comp = getCompressor(ctx);
+  src.connect(gain).connect(comp);
   src.start(0);
   return src;
 }
 
-// Fallback: plain <audio> at the requested volume (capped at 1.0).
 function playViaAudioElement(url, volume) {
   return new Promise((resolve, reject) => {
     const audio = new Audio(url);
@@ -89,11 +120,10 @@ function playViaAudioElement(url, volume) {
   });
 }
 
-// Play a word through The Keeper's voice. Returns a Promise that resolves when playback
-// ends. While the audio plays we duck the background music so the dictated word is
-// clearly audible. `gain` (default 1.8) lets the spoken word be louder than any
-// other audio element in the game.
-function speakWord(text, { voice = 'keeper', gain = 1.8, duck = true } = {}) {
+// `gain`: 1.0 == none, 2.5 == ~+8 dB. With the compressor in front of the
+// destination, we can push higher without harsh clipping; the compressor
+// catches the peaks. Default 2.8 is firmly above any reasonable music level.
+function speakWord(text, { voice = 'keeper', gain = 2.8, duck = true } = {}) {
   return new Promise(async (resolve, reject) => {
     let ducked = false;
     const unduck = () => {
@@ -103,7 +133,6 @@ function speakWord(text, { voice = 'keeper', gain = 1.8, duck = true } = {}) {
       }
     };
     try {
-      // Try Web Audio path first for the volume boost.
       const buffer = await getDecodedBuffer(text, voice).catch(() => null);
       if (duck && window.sqAudio?.duckMusic) { ducked = true; window.sqAudio.duckMusic(); }
 
@@ -115,7 +144,6 @@ function speakWord(text, { voice = 'keeper', gain = 1.8, duck = true } = {}) {
         }
       }
 
-      // Fallback: blob URL via <audio> element.
       const key = voice + '|' + text;
       let url = blobCache.get(key);
       if (!url) {

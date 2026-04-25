@@ -45,8 +45,11 @@ export default async function handler(req, res) {
 
   const voiceId = resolveVoiceId(voice);
 
-  // Stable ETag for identical (voice, text) pairs.
-  const etag = '"' + crypto.createHash('sha1').update(`${voiceId}|${text}`).digest('hex') + '"';
+  // Bump this whenever the upstream request shape (model, language, speed, ...) changes,
+  // so previously-cached MP3s on iPad / SW are not served as fresh.
+  const RENDER_VERSION = 'v2-slow-en';
+
+  const etag = '"' + crypto.createHash('sha1').update(`${RENDER_VERSION}|${voiceId}|${text}`).digest('hex') + '"';
   if (req.headers['if-none-match'] === etag) {
     res.status(304).setHeader('ETag', etag).end();
     return;
@@ -64,6 +67,10 @@ export default async function handler(req, res) {
         model_id: 'sonic-2',
         transcript: text,
         voice: { mode: 'id', id: voiceId },
+        // Pin the language and a slow, deliberate dictation speed so every word
+        // sounds like the same teacher reading at the same pace.
+        language: 'en',
+        speed: 'slow',
         output_format: {
           container: 'mp3',
           bit_rate: 128000,
