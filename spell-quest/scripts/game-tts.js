@@ -80,20 +80,25 @@ function prewarmTts(text, voice = 'keeper') {
   });
 }
 
-// Build a single shared compressor for steady, consistent output.
+// Shared compressor + post-makeup gain. The compressor evens out per-word
+// loudness; the makeup gain after it pushes the average level higher
+// without re-introducing peak clipping.
 let _compressor = null;
-function getCompressor(ctx) {
+let _makeupGain = null;
+function getCompressorOutput(ctx) {
   if (_compressor && _compressor.context === ctx) return _compressor;
-  const c = ctx.createDynamicsCompressor();
-  // Generous compression: catches any peaks above -16 dB, brings everything close.
-  try { c.threshold.setValueAtTime(-16, ctx.currentTime); } catch (e) {}
-  try { c.knee.setValueAtTime(8, ctx.currentTime); } catch (e) {}
-  try { c.ratio.setValueAtTime(6, ctx.currentTime); } catch (e) {}
-  try { c.attack.setValueAtTime(0.003, ctx.currentTime); } catch (e) {}
-  try { c.release.setValueAtTime(0.18, ctx.currentTime); } catch (e) {}
-  c.connect(ctx.destination);
-  _compressor = c;
-  return c;
+  const comp = ctx.createDynamicsCompressor();
+  try { comp.threshold.setValueAtTime(-18, ctx.currentTime); } catch (e) {}
+  try { comp.knee.setValueAtTime(10, ctx.currentTime); } catch (e) {}
+  try { comp.ratio.setValueAtTime(8, ctx.currentTime); } catch (e) {}
+  try { comp.attack.setValueAtTime(0.003, ctx.currentTime); } catch (e) {}
+  try { comp.release.setValueAtTime(0.18, ctx.currentTime); } catch (e) {}
+  const makeup = ctx.createGain();
+  makeup.gain.value = 1.6; // post-compression boost
+  comp.connect(makeup).connect(ctx.destination);
+  _compressor = comp;
+  _makeupGain = makeup;
+  return comp;
 }
 
 function playViaWebAudio(buffer, gainValue) {
@@ -104,7 +109,7 @@ function playViaWebAudio(buffer, gainValue) {
   src.buffer = buffer;
   const gain = ctx.createGain();
   gain.gain.value = gainValue;
-  const comp = getCompressor(ctx);
+  const comp = getCompressorOutput(ctx);
   src.connect(gain).connect(comp);
   src.start(0);
   return src;
@@ -120,10 +125,10 @@ function playViaAudioElement(url, volume) {
   });
 }
 
-// `gain`: 1.0 == none, 2.5 == ~+8 dB. With the compressor in front of the
-// destination, we can push higher without harsh clipping; the compressor
-// catches the peaks. Default 2.8 is firmly above any reasonable music level.
-function speakWord(text, { voice = 'keeper', gain = 2.8, duck = true } = {}) {
+// `gain`: pre-compression amplification. With the compressor + makeup gain on
+// the output, 4.0 is roughly +12 dB above the un-boosted clip. The compressor
+// reins in the peaks so this stays clean.
+function speakWord(text, { voice = 'keeper', gain = 4.0, duck = true } = {}) {
   return new Promise(async (resolve, reject) => {
     let ducked = false;
     const unduck = () => {

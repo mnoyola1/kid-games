@@ -13,12 +13,12 @@ class SpellQuestAudio {
     this.musicEnabled = true;
     this.sfxEnabled = true;
 
-    // Ducking: temporarily attenuate background music while TTS / Keeper speaks,
-    // so the dictated word is always clearly audible over the score.
-    // `duckDepth` = multiplier applied to musicVolume; 0.05 == 95% quieter.
-    this.duckDepth = 0.05;
+    // Ducking: temporarily silence the background music while TTS / Keeper speaks,
+    // so the dictated word is always clearly audible over the score. We literally
+    // pause the music element (not just lower volume) — most reliable on iPad.
     this._duckCount = 0;
     this._duckAnim = null;
+    this._wasMusicPlayingBeforeDuck = false;
 
     this.sfxBuffers = {};
     this.keeperBuffers = {};
@@ -46,7 +46,7 @@ class SpellQuestAudio {
       a.volume = 1.0;
       this.keeperBuffers[key] = { url, audio: a, buffer: null, decoding: null };
     });
-    this.voiceGain = 1.8; // amplification above 1.0 for Web Audio path
+    this.voiceGain = 3.0; // amplification above 1.0 for Web Audio path
     this._ctx = null;
   }
 
@@ -133,10 +133,12 @@ class SpellQuestAudio {
   }
 
   // --- Ducking ---
-  // Ref-counted so overlapping voice lines keep the music ducked until the last one ends.
-  _animateMusicVolume(targetFactor, durationMs = 180) {
+  // Ref-counted: overlapping speech keeps the music paused until the last one ends.
+  // Implemented as a quick volume fade-down + .pause() (and the reverse on unduck)
+  // so the spoken word competes with absolutely nothing.
+  _fadeMusicVolume(targetFactor, durationMs, onDone) {
     const cur = this.currentMusic && this.musicTracks[this.currentMusic];
-    if (!cur) return;
+    if (!cur) { if (onDone) onDone(); return; }
     if (this._duckAnim) cancelAnimationFrame(this._duckAnim);
     const startVol = cur.volume;
     const endVol = this.musicVolume * targetFactor;
@@ -145,19 +147,31 @@ class SpellQuestAudio {
       const t = Math.min(1, (performance.now() - startedAt) / durationMs);
       cur.volume = startVol + (endVol - startVol) * t;
       if (t < 1) this._duckAnim = requestAnimationFrame(tick);
-      else this._duckAnim = null;
+      else { this._duckAnim = null; if (onDone) onDone(); }
     };
     this._duckAnim = requestAnimationFrame(tick);
   }
 
   duckMusic() {
     this._duckCount++;
-    if (this._duckCount === 1) this._animateMusicVolume(this.duckDepth, 160);
+    if (this._duckCount !== 1) return;
+    const cur = this.currentMusic && this.musicTracks[this.currentMusic];
+    if (!cur) return;
+    this._wasMusicPlayingBeforeDuck = !cur.paused;
+    this._fadeMusicVolume(0, 120, () => {
+      try { cur.pause(); } catch (e) {}
+    });
   }
 
   unduckMusic() {
     this._duckCount = Math.max(0, this._duckCount - 1);
-    if (this._duckCount === 0) this._animateMusicVolume(1, 320);
+    if (this._duckCount !== 0) return;
+    const cur = this.currentMusic && this.musicTracks[this.currentMusic];
+    if (!cur) return;
+    if (!this._wasMusicPlayingBeforeDuck || !this.musicEnabled) return;
+    cur.volume = 0;
+    cur.play().catch(() => {});
+    this._fadeMusicVolume(1, 600);
   }
 
   // --- SFX ---
