@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cipher Heist - Noyola Hub</title>
+  <meta name="description" content="Crack rival vaults with skill-based deduction. Quiz-fueled multiplayer heist.">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔓</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- React & deps -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['"JetBrains Mono"', 'monospace'],
+            'display': ['Orbitron', 'sans-serif'],
+            'body': ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            terminal: {
+              bg: '#0b1020',
+              panel: '#121833',
+              border: '#1f2952',
+              text: '#a5b4fc',
+              dim: '#475569',
+            },
+            cipher: {
+              cyan: '#22d3ee',
+              violet: '#a78bfa',
+              magenta: '#f472b6',
+              gold: '#fbbf24',
+              danger: '#f87171',
+              success: '#4ade80',
+            },
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase client (Phase 3 online mode) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/supabase-config.js"></script>
+
+  <!-- LuminaCore -->
+  <script src="../shared/lumina-core.js"></script>
+
+  <!-- Service worker registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    }
+  </script>
+
+  <!-- Game styles -->
+  <link rel="stylesheet" href="./styles/game-base.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback, useMemo } = React;
+  </script>
+
+  <!-- Pure-data + non-React modules first (load synchronously for global scope) -->
+  <script src="./scripts/game-config.js"></script>
+  <script src="./scripts/game-engine.js"></script>
+  <script src="./scripts/game-bots.js"></script>
+  <script src="./scripts/game-audio.js"></script>
+  <script src="./scripts/game-juice.js"></script>
+  <script src="./scripts/game-online.js"></script>
+
+  <!-- React/JSX modules -->
+  <script type="text/babel" data-presets="react" src="./scripts/game-screens.js"></script>
+  <script type="text/babel" data-presets="react" src="./scripts/game-main.js"></script>
+  <script type="text/babel" data-presets="react" src="./scripts/game-init.js"></script>
+</body>
+</html>

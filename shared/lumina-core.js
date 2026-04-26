@@ -170,6 +170,15 @@ const LuminaCore = (function() {
     { id: 'sq_photo_upload', name: 'From the Scroll', desc: 'Add a list by photo', icon: '📸', xpBonus: 20 },
     { id: 'sq_streak_10', name: 'Rune Master', desc: 'Inscribe 10 runes correctly in one test', icon: '✨', xpBonus: 30 },
 
+    // Cipher Heist
+    { id: 'ch_first_heist', name: 'First Heist', desc: 'Successfully crack a vault', icon: '🔓', xpBonus: 15 },
+    { id: 'ch_master_cracker', name: 'Master Cracker', desc: 'Successfully crack 3 vaults', icon: '💎', xpBonus: 50 },
+    { id: 'ch_unbreakable', name: 'Unbreakable Vault', desc: 'Win a game without your vault being cracked', icon: '🛡️', xpBonus: 40 },
+    { id: 'ch_speed_demon', name: 'Speed Demon', desc: 'Answer 10 questions correctly within 5 seconds each', icon: '⚡', xpBonus: 30 },
+    { id: 'ch_logical_mind', name: 'Logical Mind', desc: 'Successfully crack a vault after using a Scan action', icon: '🧠', xpBonus: 35 },
+    { id: 'ch_100bits_club', name: '100 Bits Club', desc: 'Accumulate 100+ bits in a single game', icon: '🪙', xpBonus: 25 },
+    { id: 'ch_comeback_kid', name: 'Comeback Kid', desc: 'Win a game after having your vault cracked at least once', icon: '🏆', xpBonus: 40 },
+
     // Secret achievements
     { id: 'secret_night', name: 'Night Owl', desc: 'Play after 8 PM', icon: '🦉', xpBonus: 10, secret: true },
     { id: 'secret_weekend', name: 'Weekend Warrior', desc: 'Play on Saturday and Sunday', icon: '🎉', xpBonus: 15, secret: true },
@@ -1385,6 +1394,16 @@ const LuminaCore = (function() {
         if (stats.hintsUsed === 0) checkAchievement(playerId, 'wh_no_hints');
         if (stats.difficulty === 'hard') checkAchievement(playerId, 'wh_word_master');
         // Check if all themes completed (would need theme tracking in stats)
+        break;
+
+      case 'cipherHeist':
+        if (stats.cracksSucceeded >= 1) checkAchievement(playerId, 'ch_first_heist');
+        if (stats.cracksSucceeded >= 3) checkAchievement(playerId, 'ch_master_cracker');
+        if (stats.score >= 100) checkAchievement(playerId, 'ch_100bits_club');
+        if (stats.fastCorrect >= 10) checkAchievement(playerId, 'ch_speed_demon');
+        if (stats.usedScan && stats.cracksSucceeded >= 1) checkAchievement(playerId, 'ch_logical_mind');
+        if (stats.place === 1 && (stats.timesCracked || 0) === 0) checkAchievement(playerId, 'ch_unbreakable');
+        if (stats.place === 1 && (stats.timesCracked || 0) >= 1) checkAchievement(playerId, 'ch_comeback_kid');
         break;
     }
   }

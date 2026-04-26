@@ -12,6 +12,17 @@ const GAMES = [
     tags: ['new']
   },
   {
+    id: 'cipher-heist',
+    name: 'Cipher Heist',
+    subtitle: 'Hacker Heist Quiz',
+    icon: '🔓',
+    url: './cipher-heist/index.html',
+    description: 'Crack rival vaults with skill-based deduction. Answer questions to fuel your tools, defend your code, outsmart your opponents.',
+    features: ['🧠 Mastermind Logic', '🤖 Solo or Vs', '🛡 Firewalls', '⚡ Bit Surge'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'spell-siege',
     name: 'Spell Siege',
     subtitle: 'Tower Defense Spelling',

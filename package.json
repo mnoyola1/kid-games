@@ -9,7 +9,8 @@
     "postinstall": "echo 'Noyola Hub ready. Run: npx vercel dev'"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.2"
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@supabase/supabase-js": "^2.104.1"
   },
   "engines": {
     "node": "20.x"
