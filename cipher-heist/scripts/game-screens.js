@@ -18,6 +18,45 @@
 const VEX_FACE = '🦝'; // Used everywhere a Vex sprite isn't loaded
 
 // ============================================================
+// Avatar — renders <img> for URL paths, text for emoji
+// ============================================================
+
+function resolveAvatarPath(src) {
+  if (!src || typeof src !== 'string') return '';
+  // Absolute URL (http/https/data) — pass through.
+  if (/^(https?:|data:)/i.test(src)) return src;
+  // Hub stores avatars relative to hub root, e.g. "./assets/foo.png".
+  // Cipher Heist runs from /cipher-heist/, so rewrite to absolute /assets/...
+  let s = src.trim();
+  if (s.startsWith('./')) s = s.slice(2);
+  if (s.startsWith('assets/')) return '/' + s;
+  if (s.startsWith('/')) return s;
+  return s;
+}
+
+function isImageAvatar(src) {
+  if (!src || typeof src !== 'string') return false;
+  return /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(src) || src.startsWith('http') || src.startsWith('/') || src.includes('/');
+}
+
+function Avatar({ src, name = '', size = 32, fallback = '🧑', className = '' }) {
+  if (isImageAvatar(src)) {
+    return (
+      <img
+        src={resolveAvatarPath(src)}
+        alt={name || 'avatar'}
+        width={size}
+        height={size}
+        className={`inline-block rounded-full object-cover bg-terminal-panel ${className}`}
+        style={{ width: size, height: size }}
+        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+      />
+    );
+  }
+  return <span className={className} style={{ fontSize: Math.round(size * 0.85), lineHeight: 1 }}>{src || fallback}</span>;
+}
+
+// ============================================================
 // VexBubble — small mascot speech component
 // ============================================================
 
@@ -392,7 +431,7 @@ function HUDScreen({
         {/* Top HUD */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{player.avatar}</span>
+            <Avatar src={player.avatar} name={player.name} size={36} />
             <div>
               <div className="text-terminal-text text-sm">{player.name}</div>
               <div className="bits-counter">
@@ -494,7 +533,7 @@ function HUDScreen({
             <h3 className="font-display text-sm tracking-widest text-cipher-magenta mb-1">RIVALS</h3>
             <div className="opponent-card you">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{player.avatar}</span>
+                <Avatar src={player.avatar} name={player.name} size={28} />
                 <div>
                   <div className="font-bold text-cipher-cyan">{player.name} (you)</div>
                   <div className="text-xs text-terminal-dim">
@@ -507,7 +546,7 @@ function HUDScreen({
             {others.map(o => (
               <div key={o.id} className="opponent-card">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{o.avatar}</span>
+                  <Avatar src={o.avatar} name={o.name} size={28} />
                   <div>
                     <div className="font-bold text-white">{o.name}</div>
                     <div className="text-xs text-terminal-dim">
@@ -633,7 +672,7 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
                   className="opponent-card targetable w-full"
                   onClick={() => pick('scan', { targetId: o.id })}>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{o.avatar}</span>
+                    <Avatar src={o.avatar} name={o.name} size={28} />
                     <div>
                       <div className="font-bold text-white">{o.name}</div>
                       <div className="text-xs text-terminal-dim">⚡{o.bits} bits</div>
@@ -705,7 +744,7 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
                 className={`opponent-card targetable ${targetId === o.id ? 'border-cipher-magenta' : ''}`}
                 onClick={() => { setTargetId(o.id); setGuess([]); }}>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{o.avatar}</span>
+                  <Avatar src={o.avatar} name={o.name} size={28} />
                   <div>
                     <div className="font-bold text-white">{o.name}</div>
                     <div className="text-xs text-terminal-dim">
@@ -844,7 +883,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
             return (
               <div key={row.pid} className={`podium-row ${klass}`}>
                 <div className="text-3xl w-12 text-center">{trophy}</div>
-                <div className="text-3xl">{player.avatar}</div>
+                <Avatar src={player.avatar} name={player.name} size={40} />
                 <div className="flex-1">
                   <div className="font-bold text-white">{player.name}{row.pid === selfId ? ' (you)' : ''}</div>
                   <div className="text-xs text-terminal-dim">
@@ -916,7 +955,7 @@ function OnlineLobby({ roomCode, players, isHost, onStart, onLeave, status }) {
           {players.map(p => (
             <div key={p.id} className="opponent-card">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{p.avatar}</span>
+                <Avatar src={p.avatar} name={p.name} size={28} />
                 <div className="font-bold text-white">{p.name}</div>
               </div>
               <div className={`text-xs font-mono ${p.vaultLocked ? 'text-cipher-success' : 'text-terminal-dim'}`}>
