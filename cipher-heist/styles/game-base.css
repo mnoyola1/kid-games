@@ -469,15 +469,16 @@ h1, h2, h3, h4 {
 
 .vex-bubble {
   position: relative;
-  background: linear-gradient(135deg, rgba(140, 22, 22, 0.55), rgba(40, 8, 8, 0.78));
+  background: linear-gradient(135deg, rgba(140, 22, 22, 0.4), rgba(40, 8, 8, 0.55));
   border: 1.5px double #c9a04a;
   border-radius: 14px;
   padding: 1rem 1.4rem;
   font-style: italic;
   color: #f5e6c7;
+  backdrop-filter: blur(3px);
   box-shadow:
     inset 0 0 0 1px rgba(245, 215, 124, 0.22),
-    inset 0 0 24px rgba(0, 0, 0, 0.4),
+    inset 0 0 24px rgba(0, 0, 0, 0.3),
     0 8px 24px -10px rgba(0, 0, 0, 0.6);
   background-clip: padding-box;
 }
@@ -562,9 +563,11 @@ h1, h2, h3, h4 {
 
 .lobby-frame {
   position: relative;
-  /* Subtle gold edge so the dossier reads as a panel inside the smoky room */
+  /* Near-transparent panel so the smoke + corner spotlight read through.
+     The gold edge + outer glow do all the framing work. */
   border: 1px solid rgba(212, 175, 55, 0.45);
-  background: linear-gradient(180deg, rgba(20, 12, 12, 0.72) 0%, rgba(8, 6, 6, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(20, 12, 12, 0.28) 0%, rgba(8, 6, 6, 0.45) 100%);
+  backdrop-filter: blur(1px);
   box-shadow:
     0 0 0 1px rgba(212, 175, 55, 0.18) inset,
     0 30px 90px -20px rgba(0, 0, 0, 0.85),
@@ -634,13 +637,14 @@ h1, h2, h3, h4 {
   gap: 0.5rem;
   padding: 1.1rem 1.1rem 1rem;
   border-radius: 14px;
-  background: linear-gradient(160deg, rgba(8, 6, 6, 0.62) 0%, rgba(0, 0, 0, 0.74) 100%);
+  /* Semi-transparent so the smoky background reads through the card */
+  background: linear-gradient(160deg, rgba(8, 6, 6, 0.32) 0%, rgba(0, 0, 0, 0.42) 100%);
   border: 1.5px solid rgba(201, 160, 74, 0.32);
   text-align: left;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
   color: #e8d39c;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
   box-shadow:
     inset 0 1px 0 rgba(245, 215, 124, 0.05),
     0 8px 22px -12px rgba(0, 0, 0, 0.7);
@@ -649,17 +653,17 @@ h1, h2, h3, h4 {
 .noir-card:hover {
   transform: translateY(-2px);
   border-color: rgba(245, 215, 124, 0.65);
-  background: linear-gradient(160deg, rgba(20, 10, 10, 0.7) 0%, rgba(8, 4, 4, 0.82) 100%);
+  background: linear-gradient(160deg, rgba(20, 10, 10, 0.4) 0%, rgba(8, 4, 4, 0.5) 100%);
   box-shadow:
     inset 0 1px 0 rgba(245, 215, 124, 0.14),
     0 14px 28px -10px rgba(245, 215, 124, 0.18),
     0 0 0 1px rgba(245, 215, 124, 0.3);
 }
 
-/* Active = red gradient see-through */
+/* Active = red gradient see-through (smoke still visible underneath) */
 .noir-card.is-active {
   border-color: #f5d77c;
-  background: linear-gradient(160deg, rgba(196, 30, 58, 0.55) 0%, rgba(110, 15, 15, 0.45) 50%, rgba(60, 8, 8, 0.55) 100%);
+  background: linear-gradient(160deg, rgba(196, 30, 58, 0.42) 0%, rgba(110, 15, 15, 0.32) 50%, rgba(60, 8, 8, 0.42) 100%);
   box-shadow:
     inset 0 0 0 1px rgba(245, 215, 124, 0.5),
     0 14px 32px -10px rgba(196, 30, 58, 0.45),
@@ -699,12 +703,12 @@ h1, h2, h3, h4 {
   font-size: 0.95rem;
   padding: 0.75rem 1rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(8, 6, 6, 0.6) 0%, rgba(0, 0, 0, 0.78) 100%);
+  background: linear-gradient(180deg, rgba(8, 6, 6, 0.32) 0%, rgba(0, 0, 0, 0.42) 100%);
   border: 1.5px solid rgba(201, 160, 74, 0.32);
   color: #e8d39c;
   cursor: pointer;
   transition: all 180ms ease;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 }
 
 .noir-pill:hover {
@@ -713,7 +717,7 @@ h1, h2, h3, h4 {
 }
 
 .noir-pill.is-active {
-  background: linear-gradient(180deg, rgba(196, 30, 58, 0.6) 0%, rgba(110, 15, 15, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(196, 30, 58, 0.42) 0%, rgba(110, 15, 15, 0.32) 100%);
   color: #fff4cc;
   border-color: #f5d77c;
   box-shadow:
