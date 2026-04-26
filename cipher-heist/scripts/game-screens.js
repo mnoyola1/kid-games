@@ -25,6 +25,9 @@ const VEX_SPRITES = {
   sad:      '/assets/sprites/cipher-heist/noir/vex-sad_nobg.png',
 };
 
+// Hub icon (used by the "Hub" return button in the lobby + end screen)
+const HUB_ICON = '/assets/sprites/cipher-heist/noir/icon-hub.png';
+
 // Background images for full-screen panels.
 const BG_IMAGES = {
   lobby: '/assets/backgrounds/cipher-heist/noir/lobby.png',
@@ -119,7 +122,7 @@ function VexBubble({ lineKey, fallbackText, compact = false, mood = 'idle' }) {
           <img
             src={sprite}
             alt="Vex"
-            className={compact ? 'w-10 h-10' : 'w-14 h-14'}
+            className={compact ? 'w-14 h-14' : 'w-20 h-20'}
             style={{ objectFit: 'contain' }}
             onError={() => setErrored(true)}
           />
@@ -193,8 +196,8 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {playerProfile && (
           <div className="mb-6 text-sm text-terminal-text">
-            Logged in as <span className="font-bold text-cipher-gold">{playerProfile.name}</span>
-            {' • Level '}<span className="font-bold text-cipher-gold">{playerProfile.level}</span>
+            Logged in as <span className="font-bold text-cipher-magenta">{playerProfile.name}</span>
+            {' • Level '}<span className="font-bold text-cipher-magenta">{playerProfile.level}</span>
           </div>
         )}
 
@@ -283,7 +286,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
                 key={p.id}
                 className={`noir-card noir-card--pack ${packId === p.id ? 'is-active' : ''}`}
                 onClick={() => setPackId(p.id)}>
-                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={48} alt={p.name} />
+                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={64} alt={p.name} />
                 <div className="noir-card__label">{p.name}</div>
                 <div className="noir-card__desc">{p.description}</div>
               </button>
@@ -316,7 +319,10 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
             ▶  Start Heist
           </button>
           {onReturnToHub && (
-            <button className="btn-secondary" onClick={onReturnToHub}>🏠 Hub</button>
+            <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
+              <UIIcon src={HUB_ICON} fallback="🏠" size={28} alt="Hub" />
+              <span>Hub</span>
+            </button>
           )}
         </div>
       </div>
@@ -329,7 +335,7 @@ function ModeCard({ active, onClick, iconImage, fallback = '', icon, label, desc
     <button
       className={`noir-card noir-card--mode ${active ? 'is-active' : ''}`}
       onClick={onClick}>
-      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={56} alt={label} />
+      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={80} alt={label} />
       <div className="noir-card__label">{label}</div>
       <div className="noir-card__desc">{desc}</div>
     </button>
@@ -1031,7 +1037,10 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
         <div className="flex flex-col md:flex-row gap-2">
           <button className="btn-primary flex-1" onClick={onPlayAgain}>▶ Play Again</button>
           {onReturnToHub && (
-            <button className="btn-secondary" onClick={onReturnToHub}>🏠 Hub</button>
+            <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
+              <UIIcon src={HUB_ICON} fallback="🏠" size={28} alt="Hub" />
+              <span>Hub</span>
+            </button>
           )}
         </div>
       </div>

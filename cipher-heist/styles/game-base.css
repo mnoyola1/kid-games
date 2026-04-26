@@ -584,9 +584,12 @@ h1, h2, h3, h4 {
 }
 
 .lobby-title {
-  font-family: 'Cinzel Decorative', 'Cinzel', 'Playfair Display', serif;
-  font-weight: 900;
-  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  /* Della Respira: art-deco display serif with vintage poster character.
+     Limelight: 1930s broadway-poster fallback.
+     Cinzel: classic engraved serif fallback. */
+  font-family: 'Della Respira', 'Limelight', 'Cinzel Decorative', 'Cinzel', serif;
+  font-weight: 400;  /* Della Respira ships at single weight */
+  font-size: clamp(2.75rem, 6.5vw, 4.75rem);
   line-height: 0.95;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -594,14 +597,18 @@ h1, h2, h3, h4 {
   /* Metallic gold gradient */
   background: linear-gradient(180deg,
     #fff4cc 0%,
-    #f5d77c 30%,
-    #c9a04a 55%,
-    #8a6f1f 80%,
+    #f5d77c 28%,
+    #e0b659 50%,
+    #8a6f1f 78%,
     #f5d77c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  /* Thin dark hairline stroke around each letter — gives the
+     vintage "inline" letterform definition the mockup has */
+  -webkit-text-stroke: 1px rgba(40, 24, 8, 0.85);
+  paint-order: stroke fill;
   filter:
     drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6))
     drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55))
