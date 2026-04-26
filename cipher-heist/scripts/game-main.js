@@ -663,7 +663,7 @@ function CipherHeist() {
           />
         )}
         {statusMsg && (
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-terminal-panel border border-cipher-cyan text-cipher-cyan font-bold shadow-xl">
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-terminal-panel border border-cipher-gold text-cipher-gold font-bold shadow-xl">
             {statusMsg}
           </div>
         )}

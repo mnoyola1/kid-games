@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cipher Heist - Noyola Hub</title>
   <meta name="description" content="Crack rival vaults with skill-based deduction. Quiz-fueled multiplayer heist.">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#0a0807">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔓</text></svg>">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- React & deps -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -26,24 +26,25 @@
         extend: {
           fontFamily: {
             'mono': ['"JetBrains Mono"', 'monospace'],
-            'display': ['Orbitron', 'sans-serif'],
+            'display': ['Cinzel', 'serif'],
+            'noir': ['Cinzel', 'serif'],
             'body': ['Quicksand', 'sans-serif'],
           },
           colors: {
             terminal: {
-              bg: '#0b1020',
-              panel: '#121833',
-              border: '#1f2952',
-              text: '#a5b4fc',
-              dim: '#475569',
+              bg: '#0a0807',
+              panel: '#1a0e0e',
+              border: '#3a2a1a',
+              text: '#e8d39c',
+              dim: '#7a6a55',
             },
             cipher: {
-              cyan: '#22d3ee',
-              violet: '#a78bfa',
-              magenta: '#f472b6',
-              gold: '#fbbf24',
-              danger: '#f87171',
-              success: '#4ade80',
+              cyan: '#f5d77c',
+              violet: '#d4af37',
+              magenta: '#c41e3a',
+              gold: '#f5d77c',
+              danger: '#c41e3a',
+              success: '#d4af37',
             },
           },
         }
@@ -66,7 +67,7 @@
   </script>
 
   <!-- Game styles -->
-  <link rel="stylesheet" href="./styles/game-base.css?v=4">
+  <link rel="stylesheet" href="./styles/game-base.css?v=6">
 </head>
 <body>
   <div id="root"></div>
@@ -76,16 +77,16 @@
   </script>
 
   <!-- Pure-data + non-React modules first (load synchronously for global scope) -->
-  <script src="./scripts/game-config.js?v=4"></script>
-  <script src="./scripts/game-engine.js?v=4"></script>
-  <script src="./scripts/game-bots.js?v=4"></script>
-  <script src="./scripts/game-audio.js?v=4"></script>
-  <script src="./scripts/game-juice.js?v=4"></script>
-  <script src="./scripts/game-online.js?v=4"></script>
+  <script src="./scripts/game-config.js?v=6"></script>
+  <script src="./scripts/game-engine.js?v=6"></script>
+  <script src="./scripts/game-bots.js?v=6"></script>
+  <script src="./scripts/game-audio.js?v=6"></script>
+  <script src="./scripts/game-juice.js?v=6"></script>
+  <script src="./scripts/game-online.js?v=6"></script>
 
   <!-- React/JSX modules -->
-  <script type="text/babel" data-presets="react" src="./scripts/game-screens.js?v=4"></script>
-  <script type="text/babel" data-presets="react" src="./scripts/game-main.js?v=4"></script>
-  <script type="text/babel" data-presets="react" src="./scripts/game-init.js?v=4"></script>
+  <script type="text/babel" data-presets="react" src="./scripts/game-screens.js?v=6"></script>
+  <script type="text/babel" data-presets="react" src="./scripts/game-main.js?v=6"></script>
+  <script type="text/babel" data-presets="react" src="./scripts/game-init.js?v=6"></script>
 </body>
 </html>

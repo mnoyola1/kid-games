@@ -19,17 +19,30 @@ const VEX_FACE = '🦝'; // Emoji fallback if Vex sprite fails to load
 
 // Where Vex sprites live (absolute paths so they resolve from /cipher-heist/).
 const VEX_SPRITES = {
-  idle:     '/assets/sprites/cipher-heist/vex-idle_nobg.png',
-  briefing: '/assets/sprites/cipher-heist/vex-briefing_nobg.png',
-  cheer:    '/assets/sprites/cipher-heist/vex-cheer_nobg.png',
-  sad:      '/assets/sprites/cipher-heist/vex-sad_nobg.png',
+  idle:     '/assets/sprites/cipher-heist/noir/vex-idle_nobg.png',
+  briefing: '/assets/sprites/cipher-heist/noir/vex-briefing_nobg.png',
+  cheer:    '/assets/sprites/cipher-heist/noir/vex-cheer_nobg.png',
+  sad:      '/assets/sprites/cipher-heist/noir/vex-sad_nobg.png',
 };
 
 // Background images for full-screen panels.
 const BG_IMAGES = {
-  lobby: '/assets/backgrounds/cipher-heist/lobby.png',
-  crack: '/assets/backgrounds/cipher-heist/vault-crack.png',
-  end:   '/assets/backgrounds/cipher-heist/end.png',
+  lobby: '/assets/backgrounds/cipher-heist/noir/lobby.png',
+  crack: '/assets/backgrounds/cipher-heist/noir/vault-crack.png',
+  end:   '/assets/backgrounds/cipher-heist/noir/end.png',
+};
+
+// Noir UI icon paths (used throughout the game).
+const NOIR_ICONS = {
+  modeSolo:    '/assets/sprites/cipher-heist/noir/icon-mode-solo.png',
+  modeHotseat: '/assets/sprites/cipher-heist/noir/icon-mode-hotseat.png',
+  modeOnline:  '/assets/sprites/cipher-heist/noir/icon-mode-online.png',
+  vault:       '/assets/sprites/cipher-heist/noir/icon-vault.png',
+  firewall:    '/assets/sprites/cipher-heist/noir/icon-firewall.png',
+  scope:       '/assets/sprites/cipher-heist/noir/icon-scope.png',
+  bitSurge:    '/assets/sprites/cipher-heist/noir/icon-bit-surge.png',
+  lockLocked:   '/assets/sprites/cipher-heist/noir/icon-lock-locked.png',
+  lockUnlocked: '/assets/sprites/cipher-heist/noir/icon-lock-unlocked.png',
 };
 
 // ============================================================
@@ -157,21 +170,22 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
-      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.85), rgba(11,16,32,0.95)), url(${BG_IMAGES.lobby})` }}>
+      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.78), rgba(5,3,2,0.92)), url(${BG_IMAGES.lobby})` }}>
       <div className="terminal-frame max-w-3xl w-full p-6 md:p-10">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="text-cipher-cyan font-mono text-xs tracking-widest mb-1">[ TERMINAL READY ]</div>
-            <h1 className="font-display text-4xl md:text-5xl font-black bg-gradient-to-r from-cipher-cyan via-cipher-violet to-cipher-magenta bg-clip-text text-transparent">
+            <div className="text-cipher-gold font-noir text-xs tracking-[0.3em] mb-1">·  D O S S I E R   O P E N  ·</div>
+            <h1 className="font-display text-4xl md:text-5xl font-black bg-gradient-to-r from-cipher-gold via-amber-200 to-cipher-gold bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 2px 8px rgba(245,215,124,0.35))' }}>
               CIPHER HEIST
             </h1>
-            <p className="text-terminal-text mt-2">Quiz-fueled multiplayer hacker heist.</p>
+            <p className="text-terminal-text mt-2 italic">A quiz-fueled multiplayer heist.</p>
           </div>
           <UIIcon
-            src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png"
+            src={NOIR_ICONS.vault}
             fallback="🔓"
-            size={72}
-            alt="Cipher Heist logo"
+            size={84}
+            alt="Cipher Heist vault"
+            className="opacity-95"
           />
         </div>
 
@@ -181,7 +195,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {playerProfile && (
           <div className="mb-6 text-sm text-terminal-text">
-            Logged in as <span className="font-bold text-cipher-cyan">{playerProfile.name}</span>
+            Case file:&nbsp;<span className="font-bold text-cipher-gold">{playerProfile.name}</span>
             {' • Level '}<span className="font-bold text-cipher-gold">{playerProfile.level}</span>
           </div>
         )}
@@ -190,11 +204,11 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
         <Section title="Mode">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <ModeCard active={mode === 'solo'} onClick={() => setMode('solo')}
-              icon="🤖" label="Solo vs AI" desc="Take on Scout & Sage." />
+              iconImage={NOIR_ICONS.modeSolo} fallback="🤖" label="Solo vs AI" desc="Take on Scout & Sage." />
             <ModeCard active={mode === 'hotseat'} onClick={() => setMode('hotseat')}
-              icon="🪑" label="Local Hot-Seat" desc="Pass the iPad. Same device." />
+              iconImage={NOIR_ICONS.modeHotseat} fallback="🪑" label="Local Hot-Seat" desc="Pass the iPad. Same device." />
             <ModeCard active={mode === 'online'} onClick={() => setMode('online')}
-              icon="🌐" label="Online" desc="Room code, two devices." />
+              iconImage={NOIR_ICONS.modeOnline} fallback="🌐" label="Online" desc="Room code, two devices." />
           </div>
         </Section>
 
@@ -233,7 +247,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
             <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 className={`p-3 rounded-lg border text-left ${onlineMode === 'host'
-                  ? 'border-cipher-cyan bg-cipher-cyan/10 text-cipher-cyan'
+                  ? 'border-cipher-gold bg-cipher-gold/10 text-cipher-gold'
                   : 'border-terminal-border text-terminal-text'}`}
                 onClick={() => setOnlineMode('host')}>
                 <div className="font-bold">Host a room</div>
@@ -241,7 +255,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
               </button>
               <button
                 className={`p-3 rounded-lg border text-left ${onlineMode === 'join'
-                  ? 'border-cipher-cyan bg-cipher-cyan/10 text-cipher-cyan'
+                  ? 'border-cipher-gold bg-cipher-gold/10 text-cipher-gold'
                   : 'border-terminal-border text-terminal-text'}`}
                 onClick={() => setOnlineMode('join')}>
                 <div className="font-bold">Join with code</div>
@@ -250,7 +264,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
             </div>
             {onlineMode === 'join' && (
               <input
-                className="w-full bg-terminal-panel border border-terminal-border rounded-lg px-3 py-2 text-cipher-cyan font-mono text-2xl tracking-widest text-center"
+                className="w-full bg-terminal-panel border border-terminal-border rounded-lg px-3 py-2 text-cipher-gold font-mono text-2xl tracking-widest text-center"
                 placeholder="ABCD"
                 maxLength={4}
                 value={joinCode}
@@ -270,11 +284,11 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
               <button
                 key={p.id}
                 className={`p-3 rounded-lg border text-left transition ${packId === p.id
-                  ? 'border-cipher-violet bg-cipher-violet/15 text-white'
-                  : 'border-terminal-border text-terminal-text hover:border-cipher-violet/60'}`}
+                  ? 'border-cipher-gold bg-cipher-gold/10 text-white'
+                  : 'border-terminal-border text-terminal-text hover:border-cipher-gold/60'}`}
                 onClick={() => setPackId(p.id)}>
-                <div className="text-2xl">{p.icon}</div>
-                <div className="font-bold mt-1">{p.name}</div>
+                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={36} alt={p.name} />
+                <div className="font-bold mt-2">{p.name}</div>
                 <div className="text-xs opacity-80">{p.description}</div>
               </button>
             ))}
@@ -314,15 +328,15 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
   );
 }
 
-function ModeCard({ active, onClick, icon, label, desc }) {
+function ModeCard({ active, onClick, iconImage, fallback = '', icon, label, desc }) {
   return (
     <button
       className={`p-4 rounded-xl border text-left transition ${active
-        ? 'border-cipher-cyan bg-cipher-cyan/10 terminal-glow'
-        : 'border-terminal-border bg-terminal-panel/40 hover:border-cipher-cyan/50'}`}
+        ? 'border-cipher-gold bg-cipher-gold/10 terminal-glow'
+        : 'border-terminal-border bg-terminal-panel/40 hover:border-cipher-gold/50'}`}
       onClick={onClick}>
-      <div className="text-3xl">{icon}</div>
-      <div className={`font-bold mt-1 ${active ? 'text-cipher-cyan' : 'text-terminal-text'}`}>{label}</div>
+      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={44} alt={label} />
+      <div className={`font-bold mt-2 ${active ? 'text-cipher-gold' : 'text-terminal-text'}`}>{label}</div>
       <div className="text-xs text-terminal-dim mt-1">{desc}</div>
     </button>
   );
@@ -331,7 +345,7 @@ function ModeCard({ active, onClick, icon, label, desc }) {
 function Section({ title, children }) {
   return (
     <div className="mb-5">
-      <h3 className="font-display text-sm tracking-widest text-cipher-violet mb-2">{title.toUpperCase()}</h3>
+      <h3 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">{title.toUpperCase()}</h3>
       {children}
     </div>
   );
@@ -342,8 +356,8 @@ function PickerButton({ active, onClick, label }) {
     <button
       onClick={onClick}
       className={`py-2 px-3 rounded-lg border font-bold transition ${active
-        ? 'border-cipher-violet bg-cipher-violet/20 text-white'
-        : 'border-terminal-border text-terminal-text hover:border-cipher-violet/60'}`}>
+        ? 'border-cipher-gold bg-cipher-gold/15 text-white'
+        : 'border-terminal-border text-terminal-text hover:border-cipher-gold/60'}`}>
       {label}
     </button>
   );
@@ -382,7 +396,7 @@ function VaultPickScreen({ playerName, onConfirm, onCancel, hotseatHint = false 
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="terminal-frame max-w-md w-full p-6 md:p-8">
         <div className="text-center mb-4">
-          <div className="text-cipher-cyan font-mono text-xs tracking-widest">[ VAULT REGISTRATION ]</div>
+          <div className="text-cipher-gold font-noir text-xs tracking-[0.3em]">·  V A U L T   R E G I S T R Y  ·</div>
           <h2 className="font-display text-3xl font-black text-white mt-1">Set Your Code</h2>
           <p className="text-terminal-text mt-2">
             <span className="font-bold text-cipher-gold">{playerName || 'Agent'}</span>, choose 3 digits (1–9, no repeats).
@@ -491,21 +505,21 @@ function HUDScreen({
             <div>
               <div className="text-terminal-text text-sm">{player.name}</div>
               <div className="bits-counter flex items-center gap-1">
-                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={20} alt="bits" />
+                <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={20} alt="bits" />
                 {player.bits}
                 <span className="text-sm text-terminal-dim font-body ml-1">bits</span>
               </div>
             </div>
             {player.firewalls > 0 && (
-              <div className="px-3 py-1 rounded-full bg-cyan-700/30 border border-cipher-cyan text-cipher-cyan text-sm flex items-center gap-1">
-                <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={18} alt="firewall" />
+              <div className="px-3 py-1 rounded-full bg-cipher-gold/15 border border-cipher-gold text-cipher-gold text-sm flex items-center gap-1">
+                <UIIcon src={NOIR_ICONS.firewall} fallback="🛡️" size={18} alt="firewall" />
                 × {player.firewalls}
               </div>
             )}
           </div>
 
           <div className={`timer-pill ${danger ? 'danger' : ''}`}>
-            ⏱ {window.chFormatTime(remainingSec)}
+            {window.chFormatTime(remainingSec)}
           </div>
 
           <div className="flex gap-2">
@@ -523,7 +537,7 @@ function HUDScreen({
 
         {finalMinute && (
           <div className="vex-bubble mb-3 text-sm">
-            <strong className="text-cipher-magenta">Vex:</strong> Sixty seconds. Make every guess count.
+            <strong className="text-cipher-gold">Vex:</strong> Sixty seconds. Make every guess count.
           </div>
         )}
 
@@ -535,8 +549,8 @@ function HUDScreen({
             {q ? (
               <div className="question-card">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-mono tracking-wider text-cipher-cyan">
-                    {q.type === 'bonus' ? '🔥 BONUS QUESTION' : 'STANDARD QUERY'}
+                  <div className="text-xs font-noir tracking-[0.3em] text-cipher-gold">
+                    {q.type === 'bonus' ? '· BONUS CASE FILE ·' : '· CASE FILE ·'}
                   </div>
                   <div className="text-xs text-terminal-dim font-mono">
                     {q.type === 'bonus' ? '10s' : '15s'}
@@ -576,11 +590,11 @@ function HUDScreen({
             {player.pendingAction === 'unlocked' && (
               <button
                 onClick={onOpenActionPicker}
-                className="w-full p-4 rounded-xl border-2 border-cipher-gold bg-gradient-to-r from-amber-500/15 to-yellow-500/15 pulse-glow text-left flex items-center gap-3">
-                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={36} alt="action" />
+                className="w-full p-4 rounded-xl border-2 border-cipher-gold bg-gradient-to-r from-amber-500/15 to-yellow-700/10 pulse-glow text-left flex items-center gap-3">
+                <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={36} alt="action" />
                 <div>
-                  <div className="font-display text-cipher-gold font-black tracking-wider">HEIST ACTION READY</div>
-                  <div className="text-terminal-text text-sm mt-1">Tap to use your unlocked move.</div>
+                  <div className="font-display text-cipher-gold font-black tracking-[0.2em]">HEIST ACTION READY</div>
+                  <div className="text-terminal-text text-sm mt-1 italic">Tap to use your unlocked move.</div>
                 </div>
               </button>
             )}
@@ -591,19 +605,19 @@ function HUDScreen({
 
           {/* Opponents column */}
           <div className="space-y-2">
-            <h3 className="font-display text-sm tracking-widest text-cipher-magenta mb-1">RIVALS</h3>
+            <h3 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-1">RIVALS</h3>
             <div className="opponent-card you">
               <div className="flex items-center gap-2">
                 <Avatar src={player.avatar} name={player.name} size={28} />
                 <div>
-                  <div className="font-bold text-cipher-cyan">{player.name} (you)</div>
+                  <div className="font-bold text-cipher-gold">{player.name} (you)</div>
                   <div className="text-xs text-terminal-dim">
                     Code: {player.vaultCode ? '●●●' : '— pick again —'}
                   </div>
                 </div>
               </div>
               <div className="bits-counter text-base flex items-center gap-1">
-                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={16} alt="bits" />
+                <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={16} alt="bits" />
                 {player.bits}
               </div>
             </div>
@@ -615,8 +629,8 @@ function HUDScreen({
                     <div className="font-bold text-white">{o.name}</div>
                     <div className="text-xs text-terminal-dim flex items-center gap-1">
                       {o.firewalls > 0 ? (
-                        <span className="text-cipher-cyan flex items-center gap-1">
-                          <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="firewall" />
+                        <span className="text-cipher-gold flex items-center gap-1">
+                          <UIIcon src={NOIR_ICONS.firewall} fallback="🛡️" size={14} alt="firewall" />
                           ×{o.firewalls}
                         </span>
                       ) : 'no firewall'}
@@ -624,7 +638,7 @@ function HUDScreen({
                   </div>
                 </div>
                 <div className="bits-counter text-base flex items-center gap-1">
-                  <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={16} alt="bits" />
+                  <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={16} alt="bits" />
                   {o.bits}
                 </div>
               </div>
@@ -646,7 +660,7 @@ function QuestionTimer({ startedAt, maxMs, now }) {
   return (
     <div className="mt-3 h-1.5 bg-terminal-border rounded-full overflow-hidden">
       <div
-        className={`h-full transition-all ${danger ? 'bg-cipher-danger' : 'bg-cipher-cyan'}`}
+        className={`h-full transition-all ${danger ? 'bg-cipher-danger' : 'bg-cipher-gold'}`}
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -659,7 +673,7 @@ function CrackHistoryPanel({ state, selfId }) {
   if (!targets.length) return null;
   return (
     <div className="terminal-frame p-4">
-      <h4 className="font-display text-sm tracking-widest text-cipher-violet mb-2">YOUR CRACK LOG</h4>
+      <h4 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">CRACK LOG</h4>
       <div className="space-y-3">
         {targets.map(tid => {
           const target = state.players[tid];
@@ -704,8 +718,8 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
       <div className="cipher-modal-content terminal-frame p-6" onClick={e => e.stopPropagation()}>
         {!pendingScan ? (
           <>
-            <h3 className="font-display text-2xl text-cipher-cyan font-black mb-1">CHOOSE YOUR MOVE</h3>
-            <p className="text-terminal-text text-sm mb-4">You unlocked one heist action.</p>
+            <h3 className="font-display text-2xl text-cipher-gold font-black mb-1 tracking-[0.15em]">CHOOSE YOUR MOVE</h3>
+            <p className="text-terminal-text text-sm mb-4 italic">You unlocked one heist action.</p>
 
             <div className="grid grid-cols-2 gap-3">
               {Object.values(ACTIONS).map(a => {
@@ -738,7 +752,7 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
           </>
         ) : (
           <>
-            <h3 className="font-display text-xl text-cipher-cyan font-black mb-3">SCAN — pick a target</h3>
+            <h3 className="font-display text-xl text-cipher-gold font-black mb-3 tracking-[0.15em]">SCAN — pick a target</h3>
             <div className="space-y-2">
               {opponents.map(o => (
                 <button
@@ -750,12 +764,12 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
                     <div>
                       <div className="font-bold text-white">{o.name}</div>
                       <div className="text-xs text-terminal-dim flex items-center gap-1">
-                        <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={14} alt="bits" />
+                        <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={14} alt="bits" />
                         {o.bits} bits
                       </div>
                     </div>
                   </div>
-                  <UIIcon src="/assets/sprites/cipher-heist/scope_nobg.png" fallback="🔍" size={28} alt="scan" className="text-cipher-magenta" />
+                  <UIIcon src={NOIR_ICONS.scope} fallback="🔍" size={28} alt="scan" className="text-cipher-gold" />
                 </button>
               ))}
             </div>
@@ -808,11 +822,11 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
-      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.86), rgba(11,16,32,0.94)), url(${BG_IMAGES.crack})` }}>
+      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.82), rgba(5,3,2,0.94)), url(${BG_IMAGES.crack})` }}>
       <div className="terminal-frame max-w-2xl w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-2xl font-black text-cipher-magenta flex items-center gap-2">
-            <UIIcon src="/assets/sprites/cipher-heist/vault_nobg.png" fallback="🔓" size={32} alt="vault" />
+          <h2 className="font-display text-2xl font-black text-cipher-gold flex items-center gap-2">
+            <UIIcon src={NOIR_ICONS.vault} fallback="🔓" size={32} alt="vault" />
             CRACK A VAULT
           </h2>
           <button className="btn-secondary text-sm" onClick={onCancel}>← Skip</button>
@@ -823,18 +837,18 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
             {opponents.map(o => (
               <button
                 key={o.id}
-                className={`opponent-card targetable ${targetId === o.id ? 'border-cipher-magenta' : ''}`}
+                className={`opponent-card targetable ${targetId === o.id ? 'border-cipher-gold' : ''}`}
                 onClick={() => { setTargetId(o.id); setGuess([]); }}>
                 <div className="flex items-center gap-2">
                   <Avatar src={o.avatar} name={o.name} size={28} />
                   <div>
                     <div className="font-bold text-white">{o.name}</div>
                     <div className="text-xs text-terminal-dim flex items-center gap-1">
-                      <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={14} alt="bits" />
+                      <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={14} alt="bits" />
                       {o.bits}
                       {o.firewalls > 0 && (
-                        <span className="text-cipher-cyan ml-1 flex items-center gap-1">
-                          <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="firewall" />
+                        <span className="text-cipher-gold ml-1 flex items-center gap-1">
+                          <UIIcon src={NOIR_ICONS.firewall} fallback="🛡️" size={14} alt="firewall" />
                           ×{o.firewalls}
                         </span>
                       )}
@@ -872,7 +886,7 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
 
             {knownDigit && (
               <div className="vex-bubble text-sm mb-3">
-                <strong className="text-cipher-magenta">Scan intel:</strong> their code contains the digit
+                <strong className="text-cipher-gold">Scan intel:</strong> their code contains the digit
                 <span className="font-mono font-bold text-cipher-gold mx-1">{knownDigit.digit}</span>
                 (location unknown).
               </div>
@@ -900,7 +914,7 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
               <div className="grid grid-cols-2 gap-2">
                 <button className="btn-secondary" onClick={back} disabled={guess.length === 0}>⌫ Backspace</button>
                 <button className="btn-primary flex items-center justify-center gap-2" onClick={submit} disabled={guess.length !== 3 || remaining <= 0}>
-                  <UIIcon src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png" fallback="🔓" size={20} alt="" />
+                  <UIIcon src={NOIR_ICONS.lockUnlocked} fallback="🔓" size={20} alt="" />
                   Crack It
                 </button>
               </div>
@@ -920,13 +934,13 @@ function HotSeatHandoff({ nextPlayerName, onReady }) {
   return (
     <div className="hotseat-curtain">
       <div className="text-center max-w-md w-full p-6">
-        <div className="text-7xl mb-4">📲</div>
-        <div className="text-cipher-cyan font-mono text-xs tracking-widest mb-2">[ PASS THE TERMINAL ]</div>
+        <UIIcon src={NOIR_ICONS.lockLocked} fallback="🔒" size={96} alt="" className="mx-auto mb-4" />
+        <div className="text-cipher-gold font-noir text-xs tracking-[0.3em] mb-2">·  P A S S   T H E   D O S S I E R  ·</div>
         <h2 className="font-display text-3xl md:text-4xl text-white font-black mb-2">
           {nextPlayerName}'s turn
         </h2>
-        <p className="text-terminal-text mb-6">
-          Hand the device over. The screen stays hidden until they tap below.
+        <p className="text-terminal-text mb-6 italic">
+          Hand the device over. The case stays sealed until they tap below.
         </p>
         <button className="btn-primary text-xl px-8 py-4 w-full" onClick={onReady}>
           I'm {nextPlayerName} — Ready
@@ -954,19 +968,19 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
-      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.85), rgba(11,16,32,0.95)), url(${BG_IMAGES.end})` }}>
+      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.78), rgba(5,3,2,0.92)), url(${BG_IMAGES.end})` }}>
       <div className="terminal-frame max-w-2xl w-full p-6">
         <div className="text-center mb-6">
-          <div className="text-cipher-cyan font-mono text-xs tracking-widest mb-1">[ HEIST COMPLETE ]</div>
-          <h2 className="font-display text-4xl md:text-5xl font-black bg-gradient-to-r from-cipher-cyan via-cipher-violet to-cipher-magenta bg-clip-text text-transparent">
-            {won ? 'YOU RAN THE TERMINAL' : 'TIME UP'}
+          <div className="text-cipher-gold font-noir text-xs tracking-[0.3em] mb-1">·  C A S E   C L O S E D  ·</div>
+          <h2 className="font-display text-4xl md:text-5xl font-black bg-gradient-to-r from-cipher-gold via-amber-200 to-cipher-gold bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 2px 8px rgba(245,215,124,0.35))' }}>
+            {won ? 'YOU RAN THE JOB' : 'TIME UP'}
           </h2>
           <div className="mt-3">
             <VexBubble lineKey={won ? 'win' : 'lose'} compact mood={won ? 'cheer' : 'sad'} />
           </div>
         </div>
 
-        <h3 className="font-display text-sm tracking-widest text-cipher-violet mb-2">FINAL STANDINGS</h3>
+        <h3 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">FINAL STANDINGS</h3>
         <div className="space-y-2 mb-6">
           {sorted.map((row, idx) => {
             const player = state.players[row.pid];
@@ -982,16 +996,16 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
                     <span>{player.stats.correct}✓</span>
                     <span className="flex items-center gap-1">
                       {player.stats.cracksSucceeded}
-                      <UIIcon src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png" fallback="🔓" size={14} alt="cracks" />
+                      <UIIcon src={NOIR_ICONS.lockUnlocked} fallback="🔓" size={14} alt="cracks" />
                     </span>
                     <span className="flex items-center gap-1">
                       {player.stats.defended}
-                      <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="defended" />
+                      <UIIcon src={NOIR_ICONS.firewall} fallback="🛡️" size={14} alt="defended" />
                     </span>
                   </div>
                 </div>
                 <div className="bits-counter text-xl flex items-center gap-1">
-                  <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={20} alt="bits" />
+                  <UIIcon src={NOIR_ICONS.bitSurge} fallback="⚡" size={20} alt="bits" />
                   {row.bits}
                 </div>
               </div>
@@ -1001,7 +1015,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
 
         {myReward && (
           <div className="terminal-frame p-4 mb-6">
-            <h4 className="font-display text-sm tracking-widest text-cipher-gold mb-2">YOUR REWARDS</h4>
+            <h4 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">TAKE OF THE NIGHT</h4>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
                 <div className="text-3xl">⭐</div>
@@ -1015,7 +1029,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
               </div>
               <div>
                 <div className="text-3xl">🎁</div>
-                <div className="text-2xl font-bold text-cipher-magenta">+{myReward.rewardPoints}</div>
+                <div className="text-2xl font-bold text-cipher-danger">+{myReward.rewardPoints}</div>
                 <div className="text-xs text-terminal-dim">reward pts</div>
               </div>
             </div>
@@ -1041,18 +1055,18 @@ function OnlineLobby({ roomCode, players, isHost, onStart, onLeave, status }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="terminal-frame max-w-md w-full p-6">
-        <div className="text-cipher-cyan font-mono text-xs tracking-widest mb-1">[ ROOM ACTIVE ]</div>
+        <div className="text-cipher-gold font-noir text-xs tracking-[0.3em] mb-1">·  R O O M   A C T I V E  ·</div>
         <h2 className="font-display text-2xl text-white font-black mb-1">Online Heist</h2>
-        <p className="text-terminal-text text-sm mb-4">
-          Share this code with players. They join from the lobby.
+        <p className="text-terminal-text text-sm mb-4 italic">
+          Share this code with your crew. They join from the lobby.
         </p>
         <div className="text-center mb-5">
-          <div className="font-mono text-5xl font-black tracking-widest text-cipher-cyan py-3">
+          <div className="font-mono text-5xl font-black tracking-widest text-cipher-gold py-3">
             {roomCode}
           </div>
         </div>
 
-        <h3 className="font-display text-sm tracking-widest text-cipher-violet mb-2">PLAYERS</h3>
+        <h3 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">CREW</h3>
         <div className="space-y-1.5 mb-4">
           {players.length === 0 && <div className="text-terminal-dim">Waiting for players…</div>}
           {players.map(p => (

@@ -50,34 +50,34 @@ const CIPHER_CONFIG = {
     crack: {
       id: 'crack',
       icon: '🔓',
-      iconImage: '/assets/sprites/cipher-heist/lock-unlocked_nobg.png',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-lock-unlocked.png',
       label: 'Crack a Vault',
       description: 'Answer a bonus question, then take a shot at a rival code.',
-      colorClass: 'from-pink-600 to-rose-500',
+      colorClass: 'from-rose-700 to-red-900',
     },
     firewall: {
       id: 'firewall',
       icon: '🛡️',
-      iconImage: '/assets/sprites/cipher-heist/firewall_nobg.png',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-firewall.png',
       label: 'Install Firewall',
       description: 'Absorb the next failed crack on your vault.',
-      colorClass: 'from-cyan-600 to-blue-500',
+      colorClass: 'from-amber-700 to-yellow-900',
     },
     surge: {
       id: 'surge',
       icon: '⚡',
-      iconImage: '/assets/sprites/cipher-heist/bit-surge_nobg.png',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-bit-surge.png',
       label: 'Bit Surge',
       description: 'Instant +20 bits.',
-      colorClass: 'from-amber-500 to-yellow-500',
+      colorClass: 'from-amber-600 to-yellow-700',
     },
     scan: {
       id: 'scan',
       icon: '🔍',
-      iconImage: '/assets/sprites/cipher-heist/scope_nobg.png',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-scope.png',
       label: 'Scan Opponent',
       description: 'Reveal one digit (only the value, not the position) of an opponent\'s code.',
-      colorClass: 'from-violet-600 to-purple-500',
+      colorClass: 'from-amber-700 to-amber-900',
     },
   },
 
@@ -103,7 +103,7 @@ const CIPHER_CONFIG = {
     scout: {
       id: 'scout',
       name: 'Scout Bot',
-      avatar: '/assets/sprites/cipher-heist/scout-bot.png',
+      avatar: '/assets/sprites/cipher-heist/noir/scout-bot_nobg.png',
       grade: 3,
       // Eager kid — fast but error-prone, loves cracking
       accuracy: { regular: 0.72, bonus: 0.55 },
@@ -121,7 +121,7 @@ const CIPHER_CONFIG = {
     sage: {
       id: 'sage',
       name: 'Sage Bot',
-      avatar: '/assets/sprites/cipher-heist/sage-bot.png',
+      avatar: '/assets/sprites/cipher-heist/noir/sage-bot_nobg.png',
       grade: 5,
       // Strategic — slower but accurate, plays defense
       accuracy: { regular: 0.86, bonus: 0.7 },
@@ -166,6 +166,7 @@ const CIPHER_CONFIG = {
       id: 'math',
       name: 'Math Blast',
       icon: '🧮',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-pack-math.png',
       description: 'Multiplication, division, fractions, mental math.',
       tier3: {
         regular: [
@@ -229,6 +230,7 @@ const CIPHER_CONFIG = {
       id: 'spelling',
       name: 'Spell Storm',
       icon: '🔤',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-pack-spell.png',
       description: 'Pick the correctly spelled word.',
       tier3: {
         regular: [
@@ -284,6 +286,7 @@ const CIPHER_CONFIG = {
       id: 'science',
       name: 'Science Lab',
       icon: '🧪',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-pack-science.png',
       description: 'Earth, life, and physical science basics.',
       tier3: {
         regular: [
@@ -339,6 +342,7 @@ const CIPHER_CONFIG = {
       id: 'vocab',
       name: 'Word Quest',
       icon: '📖',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-pack-word.png',
       description: 'Vocabulary, definitions, and synonyms.',
       tier3: {
         regular: [
@@ -394,6 +398,7 @@ const CIPHER_CONFIG = {
       id: 'geography',
       name: 'Geography Run',
       icon: '🌍',
+      iconImage: '/assets/sprites/cipher-heist/noir/icon-pack-geo.png',
       description: 'States, capitals, continents, and landmarks.',
       tier3: {
         regular: [
