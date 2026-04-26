@@ -584,11 +584,11 @@ h1, h2, h3, h4 {
 }
 
 .lobby-title {
-  /* Della Respira: art-deco display serif with vintage poster character.
-     Limelight: 1930s broadway-poster fallback.
-     Cinzel: classic engraved serif fallback. */
-  font-family: 'Della Respira', 'Limelight', 'Cinzel Decorative', 'Cinzel', serif;
-  font-weight: 400;  /* Della Respira ships at single weight */
+  /* Limelight: heavy 1930s broadway-poster art-deco display serif —
+     closest free Google Font match to the vintage inline serif
+     from the mockup. Della Respira / Cinzel as fallbacks. */
+  font-family: 'Limelight', 'Della Respira', 'Cinzel Decorative', 'Cinzel', serif;
+  font-weight: 400;  /* Limelight ships at single weight */
   font-size: clamp(2.75rem, 6.5vw, 4.75rem);
   line-height: 0.95;
   letter-spacing: 0.04em;
@@ -605,9 +605,9 @@ h1, h2, h3, h4 {
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  /* Thin dark hairline stroke around each letter — gives the
-     vintage "inline" letterform definition the mockup has */
-  -webkit-text-stroke: 1px rgba(40, 24, 8, 0.85);
+  /* Faux-inline groove: thicker dark stroke around each gold letter
+     gives the vintage poster "double-traced" letterform feel. */
+  -webkit-text-stroke: 1.5px rgba(28, 14, 6, 0.92);
   paint-order: stroke fill;
   filter:
     drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6))

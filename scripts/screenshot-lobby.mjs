@@ -68,6 +68,27 @@ async function main() {
   });
   const page = await context.newPage();
 
+  // Pre-seed a Lumina profile in localStorage so the "Logged in as ..."
+  // line renders (otherwise headless visits start with no profile).
+  await context.addInitScript(() => {
+    const STORAGE_KEY = 'lumina_game_data';
+    const profile = {
+      id: 'mario',
+      name: 'Mario',
+      level: 3,
+      xp: 240,
+      currency: 50,
+      avatar: '/assets/avatars/mario_step_profile.png',
+      createdAt: Date.now(),
+    };
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ currentPlayer: 'mario', profiles: { mario: profile } })
+      );
+    } catch (_) { /* ignore */ }
+  });
+
   page.on('pageerror', (err) => console.warn(`[browser pageerror] ${err.message}`));
   page.on('console', (msg) => {
     const type = msg.type();
