@@ -122,7 +122,7 @@ function VexBubble({ lineKey, fallbackText, compact = false, mood = 'idle' }) {
           <img
             src={sprite}
             alt="Vex"
-            className={compact ? 'w-14 h-14' : 'w-20 h-20'}
+            className={compact ? 'w-16 h-16' : 'w-28 h-28'}
             style={{ objectFit: 'contain' }}
             onError={() => setErrored(true)}
           />
@@ -184,7 +184,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
           <UIIcon
             src={NOIR_ICONS.vault}
             fallback="🔓"
-            size={92}
+            size={128}
             alt="Cipher Heist vault"
             className="opacity-95 mt-2 shrink-0"
           />
@@ -286,7 +286,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
                 key={p.id}
                 className={`noir-card noir-card--pack ${packId === p.id ? 'is-active' : ''}`}
                 onClick={() => setPackId(p.id)}>
-                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={64} alt={p.name} />
+                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={88} alt={p.name} />
                 <div className="noir-card__label">{p.name}</div>
                 <div className="noir-card__desc">{p.description}</div>
               </button>
@@ -320,7 +320,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
           </button>
           {onReturnToHub && (
             <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
-              <UIIcon src={HUB_ICON} fallback="🏠" size={28} alt="Hub" />
+              <UIIcon src={HUB_ICON} fallback="🏠" size={44} alt="Hub" />
               <span>Hub</span>
             </button>
           )}
@@ -335,7 +335,7 @@ function ModeCard({ active, onClick, iconImage, fallback = '', icon, label, desc
     <button
       className={`noir-card noir-card--mode ${active ? 'is-active' : ''}`}
       onClick={onClick}>
-      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={80} alt={label} />
+      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={104} alt={label} />
       <div className="noir-card__label">{label}</div>
       <div className="noir-card__desc">{desc}</div>
     </button>
@@ -1038,7 +1038,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
           <button className="btn-primary flex-1" onClick={onPlayAgain}>▶ Play Again</button>
           {onReturnToHub && (
             <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
-              <UIIcon src={HUB_ICON} fallback="🏠" size={28} alt="Hub" />
+              <UIIcon src={HUB_ICON} fallback="🏠" size={44} alt="Hub" />
               <span>Hub</span>
             </button>
           )}

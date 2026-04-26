@@ -142,7 +142,7 @@ const CIPHER_CONFIG = {
   // Used for in-game text bubbles + (optionally) audio playback if voice files exist.
   // file: filename in assets/audio/cipher-heist/voice/ — if missing, falls back to text-only.
   VEX_LINES: {
-    welcome: { text: "Welcome to the Cipher Heist Terminal, Agent. Pick your code, paws first.", file: "vex-welcome.mp3" },
+    welcome: { text: "Welcome to the Cipher Heist Terminal, Agent. Lock in your vault code — make it one only you'd remember.", file: "vex-welcome.mp3" },
     vaultTip: { text: "Pick digits you'll remember. Enemies are watching… well, not yet.", file: "vex-vault-tip.mp3" },
     correct: { text: "Boom! Bits incoming. What's your move?", file: "vex-correct.mp3" },
     wrong: { text: "Shake it off. Next question's yours.", file: "vex-wrong.mp3" },
