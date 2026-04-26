@@ -169,23 +169,21 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
-      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.78), rgba(5,3,2,0.92)), url(${BG_IMAGES.lobby})` }}>
-      <div className="terminal-frame max-w-3xl w-full p-6 md:p-10">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="text-cipher-gold font-noir text-xs tracking-[0.3em] mb-1">·  D O S S I E R   O P E N  ·</div>
-            <h1 className="font-display text-4xl md:text-5xl font-black bg-gradient-to-r from-cipher-gold via-amber-200 to-cipher-gold bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 2px 8px rgba(245,215,124,0.35))' }}>
-              CIPHER HEIST
-            </h1>
-            <p className="text-terminal-text mt-2 italic">A quiz-fueled multiplayer heist.</p>
+      className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center"
+      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.62), rgba(5,3,2,0.84)), url(${BG_IMAGES.lobby})` }}>
+      <div className="terminal-frame lobby-frame max-w-5xl w-full p-6 md:p-12">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex-1 min-w-0">
+            <div className="lobby-eyebrow">[ TERMINAL READY ]</div>
+            <h1 className="lobby-title">CIPHER HEIST</h1>
+            <p className="lobby-subtitle">Quiz-fueled multiplayer hacker heist.</p>
           </div>
           <UIIcon
             src={NOIR_ICONS.vault}
             fallback="🔓"
-            size={84}
+            size={92}
             alt="Cipher Heist vault"
-            className="opacity-95"
+            className="opacity-95 mt-2 shrink-0"
           />
         </div>
 
@@ -195,7 +193,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {playerProfile && (
           <div className="mb-6 text-sm text-terminal-text">
-            Case file:&nbsp;<span className="font-bold text-cipher-gold">{playerProfile.name}</span>
+            Logged in as <span className="font-bold text-cipher-gold">{playerProfile.name}</span>
             {' • Level '}<span className="font-bold text-cipher-gold">{playerProfile.level}</span>
           </div>
         )}
@@ -279,17 +277,15 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {/* Subject pack */}
         <Section title="Subject Pack">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {packs.map(p => (
               <button
                 key={p.id}
-                className={`p-3 rounded-lg border text-left transition ${packId === p.id
-                  ? 'border-cipher-gold bg-cipher-gold/10 text-white'
-                  : 'border-terminal-border text-terminal-text hover:border-cipher-gold/60'}`}
+                className={`noir-card noir-card--pack ${packId === p.id ? 'is-active' : ''}`}
                 onClick={() => setPackId(p.id)}>
-                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={36} alt={p.name} />
-                <div className="font-bold mt-2">{p.name}</div>
-                <div className="text-xs opacity-80">{p.description}</div>
+                <UIIcon src={p.iconImage} fallback={p.icon || '•'} size={48} alt={p.name} />
+                <div className="noir-card__label">{p.name}</div>
+                <div className="noir-card__desc">{p.description}</div>
               </button>
             ))}
           </div>
@@ -297,7 +293,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {/* Grade tier */}
         <Section title="Grade level">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <PickerButton active={gradeTier === 'tier3'} onClick={() => setGradeTier('tier3')}
               label="Grade 3 (easier)" />
             <PickerButton active={gradeTier === 'tier5'} onClick={() => setGradeTier('tier5')}
@@ -307,7 +303,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
         {/* Duration */}
         <Section title="Round length">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {window.CIPHER_CONFIG.DURATIONS.map(d => (
               <PickerButton key={d.id} active={durationSec === d.seconds}
                 onClick={() => setDurationSec(d.seconds)} label={d.label} />
@@ -331,13 +327,11 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 function ModeCard({ active, onClick, iconImage, fallback = '', icon, label, desc }) {
   return (
     <button
-      className={`p-4 rounded-xl border text-left transition ${active
-        ? 'border-cipher-gold bg-cipher-gold/10 terminal-glow'
-        : 'border-terminal-border bg-terminal-panel/40 hover:border-cipher-gold/50'}`}
+      className={`noir-card noir-card--mode ${active ? 'is-active' : ''}`}
       onClick={onClick}>
-      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={44} alt={label} />
-      <div className={`font-bold mt-2 ${active ? 'text-cipher-gold' : 'text-terminal-text'}`}>{label}</div>
-      <div className="text-xs text-terminal-dim mt-1">{desc}</div>
+      <UIIcon src={iconImage} fallback={fallback || icon || '•'} size={56} alt={label} />
+      <div className="noir-card__label">{label}</div>
+      <div className="noir-card__desc">{desc}</div>
     </button>
   );
 }
@@ -345,7 +339,7 @@ function ModeCard({ active, onClick, iconImage, fallback = '', icon, label, desc
 function Section({ title, children }) {
   return (
     <div className="mb-5">
-      <h3 className="font-noir text-sm tracking-[0.3em] text-cipher-gold mb-2">{title.toUpperCase()}</h3>
+      <h3 className="noir-section-title">{title.toUpperCase()}</h3>
       {children}
     </div>
   );
@@ -355,9 +349,7 @@ function PickerButton({ active, onClick, label }) {
   return (
     <button
       onClick={onClick}
-      className={`py-2 px-3 rounded-lg border font-bold transition ${active
-        ? 'border-cipher-gold bg-cipher-gold/15 text-white'
-        : 'border-terminal-border text-terminal-text hover:border-cipher-gold/60'}`}>
+      className={`noir-pill ${active ? 'is-active' : ''}`}>
       {label}
     </button>
   );
