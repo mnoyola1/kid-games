@@ -463,64 +463,112 @@ h1, h2, h3, h4 {
 }
 
 /* ====== Mascot/Vex ====== */
+/* Ornate gold-embroidered speech bubble.
+   The decorative SVG border lives in the .vex-frame wrapper rendered by
+   the React component; .vex-bubble keeps the dark interior + crimson tone. */
 
 .vex-bubble {
-  background: linear-gradient(135deg, rgba(140, 22, 22, 0.78), rgba(60, 12, 12, 0.92));
-  border: 1.5px solid #c9a04a;
-  border-radius: 18px;
-  padding: 1rem 1.4rem;
   position: relative;
+  background: linear-gradient(135deg, rgba(140, 22, 22, 0.55), rgba(40, 8, 8, 0.78));
+  border: 1.5px double #c9a04a;
+  border-radius: 14px;
+  padding: 1rem 1.4rem;
   font-style: italic;
   color: #f5e6c7;
   box-shadow:
-    inset 0 0 0 1px rgba(245, 215, 124, 0.18),
-    inset 0 0 24px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(245, 215, 124, 0.22),
+    inset 0 0 24px rgba(0, 0, 0, 0.4),
     0 8px 24px -10px rgba(0, 0, 0, 0.6);
+  background-clip: padding-box;
 }
 
 /* Speech tail pointing left toward Vex */
 .vex-bubble::before {
   content: '';
   position: absolute;
-  left: -10px;
+  left: -12px;
   top: 22px;
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 9px 11px 9px 0;
+  border-width: 9px 12px 9px 0;
   border-color: transparent #c9a04a transparent transparent;
+  filter: drop-shadow(0 0 4px rgba(245, 215, 124, 0.25));
 }
 
-/* Art-deco scrollwork: gold filigree on the right end of the bubble */
+/* Inner gold filigree pinstripe (subtle embroidery effect) */
 .vex-bubble::after {
   content: '';
   position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 38px;
-  height: 80%;
+  inset: 5px;
+  border: 1px solid rgba(245, 215, 124, 0.45);
+  border-radius: 9px;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 50% 22%, rgba(245, 215, 124, 0.85) 0 2px, transparent 3px),
-    radial-gradient(circle at 50% 78%, rgba(245, 215, 124, 0.85) 0 2px, transparent 3px),
-    linear-gradient(180deg, transparent 26%, rgba(245, 215, 124, 0.55) 26%, rgba(245, 215, 124, 0.55) 28%, transparent 28%, transparent 72%, rgba(245, 215, 124, 0.55) 72%, rgba(245, 215, 124, 0.55) 74%, transparent 74%);
-  background-repeat: no-repeat;
-  background-size: 100% 100%, 100% 100%, 100% 100%;
-  opacity: 0.85;
-  border-left: 1px solid rgba(245, 215, 124, 0.35);
-  mask-image: radial-gradient(ellipse at right center, black 0%, black 60%, transparent 100%);
+    /* Tiny corner ornaments — top-left, top-right, bottom-left, bottom-right */
+    radial-gradient(circle at 6px 6px, rgba(245, 215, 124, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 6px) 6px, rgba(245, 215, 124, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 6px calc(100% - 6px), rgba(245, 215, 124, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), rgba(245, 215, 124, 0.8) 0 2px, transparent 3px);
 }
 
 /* ====== Lobby — match film-noir mockup ====== */
 
+/* Wrapper that paints a smoky background + corner spotlight that bleeds
+   beyond the dossier card. Sits behind .lobby-frame. */
+.lobby-stage {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Smoky base + lobby photo */
+.lobby-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(180deg, rgba(10, 8, 7, 0.45) 0%, rgba(5, 3, 2, 0.85) 100%),
+    var(--lobby-bg, none);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.95) contrast(1.05);
+}
+
+/* Diagonal corner spotlight pouring from top-right + warm haze
+   This is the "light shining through the corner" the mockup has */
+.lobby-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 65% at 92% -8%, rgba(245, 215, 124, 0.45) 0%, rgba(245, 215, 124, 0.12) 22%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 10%, rgba(255, 244, 204, 0.30) 0%, transparent 45%),
+    /* Smoky drift on the lower half */
+    radial-gradient(ellipse 90% 70% at 30% 100%, rgba(40, 30, 22, 0.55) 0%, transparent 60%),
+    /* Soft beam line */
+    linear-gradient(220deg, rgba(245, 215, 124, 0.18) 0%, rgba(245, 215, 124, 0.04) 18%, transparent 35%);
+  mix-blend-mode: screen;
+}
+
 .lobby-frame {
-  /* Slightly tighter glow + thicker gold inner so it feels like a vault dossier */
-  border: 1px solid rgba(212, 175, 55, 0.55);
+  position: relative;
+  /* Subtle gold edge so the dossier reads as a panel inside the smoky room */
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: linear-gradient(180deg, rgba(20, 12, 12, 0.72) 0%, rgba(8, 6, 6, 0.85) 100%);
   box-shadow:
     0 0 0 1px rgba(212, 175, 55, 0.18) inset,
     0 30px 90px -20px rgba(0, 0, 0, 0.85),
-    0 0 80px -20px rgba(212, 175, 55, 0.28);
+    0 0 80px -20px rgba(212, 175, 55, 0.22);
 }
 
 .lobby-eyebrow {
@@ -528,27 +576,31 @@ h1, h2, h3, h4 {
   font-size: 0.75rem;
   letter-spacing: 0.32em;
   color: #f5d77c;
-  margin-bottom: 0.35rem;
-  text-shadow: 0 0 12px rgba(245, 215, 124, 0.4);
+  margin-bottom: 0.45rem;
+  text-shadow: 0 0 12px rgba(245, 215, 124, 0.45);
 }
 
 .lobby-title {
-  font-family: 'Cinzel', 'Playfair Display', serif;
+  font-family: 'Cinzel Decorative', 'Cinzel', 'Playfair Display', serif;
   font-weight: 900;
-  font-size: clamp(2.5rem, 7vw, 4.75rem);
+  font-size: clamp(2.75rem, 7.5vw, 5.25rem);
   line-height: 0.95;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  /* Metallic gold gradient */
   background: linear-gradient(180deg,
     #fff4cc 0%,
-    #f5d77c 35%,
-    #c9a04a 65%,
-    #8a6f1f 100%);
+    #f5d77c 30%,
+    #c9a04a 55%,
+    #8a6f1f 80%,
+    #f5d77c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 4px 18px rgba(245, 215, 124, 0.18);
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55));
+  filter:
+    drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6))
+    drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 22px rgba(245, 215, 124, 0.18));
 }
 
 .lobby-subtitle {
@@ -556,7 +608,7 @@ h1, h2, h3, h4 {
   font-style: italic;
   font-weight: 500;
   color: #d8c79a;
-  margin-top: 0.6rem;
+  margin-top: 0.7rem;
   font-size: 1rem;
   letter-spacing: 0.04em;
 }
@@ -569,10 +621,11 @@ h1, h2, h3, h4 {
   letter-spacing: 0.36em;
   color: #c41e3a;
   margin-bottom: 0.85rem;
-  text-shadow: 0 0 14px rgba(196, 30, 58, 0.35);
+  text-shadow: 0 0 14px rgba(196, 30, 58, 0.4);
 }
 
-/* Generic noir card (mode + pack share these) */
+/* ===== Cards: black semi-transparent default, red gradient see-through when active ===== */
+
 .noir-card {
   position: relative;
   display: flex;
@@ -581,32 +634,35 @@ h1, h2, h3, h4 {
   gap: 0.5rem;
   padding: 1.1rem 1.1rem 1rem;
   border-radius: 14px;
-  background: linear-gradient(160deg, rgba(110, 15, 15, 0.55) 0%, rgba(40, 8, 8, 0.85) 60%, rgba(20, 6, 6, 0.92) 100%);
-  border: 1.5px solid rgba(201, 160, 74, 0.5);
+  background: linear-gradient(160deg, rgba(8, 6, 6, 0.62) 0%, rgba(0, 0, 0, 0.74) 100%);
+  border: 1.5px solid rgba(201, 160, 74, 0.32);
   text-align: left;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
-  color: #f0e6d2;
+  color: #e8d39c;
+  backdrop-filter: blur(2px);
   box-shadow:
-    inset 0 1px 0 rgba(245, 215, 124, 0.08),
+    inset 0 1px 0 rgba(245, 215, 124, 0.05),
     0 8px 22px -12px rgba(0, 0, 0, 0.7);
 }
 
 .noir-card:hover {
   transform: translateY(-2px);
-  border-color: #f5d77c;
+  border-color: rgba(245, 215, 124, 0.65);
+  background: linear-gradient(160deg, rgba(20, 10, 10, 0.7) 0%, rgba(8, 4, 4, 0.82) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(245, 215, 124, 0.18),
-    0 14px 28px -10px rgba(245, 215, 124, 0.25),
-    0 0 0 1px rgba(245, 215, 124, 0.35);
+    inset 0 1px 0 rgba(245, 215, 124, 0.14),
+    0 14px 28px -10px rgba(245, 215, 124, 0.18),
+    0 0 0 1px rgba(245, 215, 124, 0.3);
 }
 
+/* Active = red gradient see-through */
 .noir-card.is-active {
   border-color: #f5d77c;
-  background: linear-gradient(160deg, rgba(140, 22, 22, 0.78) 0%, rgba(60, 12, 12, 0.92) 100%);
+  background: linear-gradient(160deg, rgba(196, 30, 58, 0.55) 0%, rgba(110, 15, 15, 0.45) 50%, rgba(60, 8, 8, 0.55) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(245, 215, 124, 0.45),
-    0 14px 32px -10px rgba(245, 215, 124, 0.4),
+    inset 0 0 0 1px rgba(245, 215, 124, 0.5),
+    0 14px 32px -10px rgba(196, 30, 58, 0.45),
     0 0 0 1px rgba(245, 215, 124, 0.55);
 }
 
@@ -626,44 +682,43 @@ h1, h2, h3, h4 {
   font-size: 0.78rem;
   font-style: italic;
   line-height: 1.35;
-  color: rgba(240, 230, 210, 0.78);
+  color: rgba(240, 230, 210, 0.72);
 }
 
-/* Mode cards: a touch wider/taller on desktop so icons breathe */
+.noir-card.is-active .noir-card__desc { color: rgba(255, 244, 204, 0.92); }
+
 .noir-card--mode { min-height: 140px; }
 .noir-card--pack { min-height: 130px; }
 
-/* Picker pill (Grade level + Round length): filled crimson with gold border, gold-fill when active */
+/* ===== Picker pills (Grade / Round Length): same logic ===== */
+
 .noir-pill {
   font-family: 'Cinzel', 'Playfair Display', serif;
   font-weight: 700;
   letter-spacing: 0.06em;
   font-size: 0.95rem;
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(110, 15, 15, 0.55) 0%, rgba(40, 8, 8, 0.85) 100%);
-  border: 1.5px solid rgba(201, 160, 74, 0.55);
-  color: #f0e6d2;
+  background: linear-gradient(180deg, rgba(8, 6, 6, 0.6) 0%, rgba(0, 0, 0, 0.78) 100%);
+  border: 1.5px solid rgba(201, 160, 74, 0.32);
+  color: #e8d39c;
   cursor: pointer;
   transition: all 180ms ease;
-  box-shadow: inset 0 1px 0 rgba(245, 215, 124, 0.08);
+  backdrop-filter: blur(2px);
 }
 
 .noir-pill:hover {
-  border-color: #f5d77c;
+  border-color: rgba(245, 215, 124, 0.7);
   color: #fff4cc;
-  box-shadow:
-    inset 0 1px 0 rgba(245, 215, 124, 0.18),
-    0 0 0 1px rgba(245, 215, 124, 0.35);
 }
 
 .noir-pill.is-active {
-  background: linear-gradient(180deg, #c9a04a 0%, #8a6f1f 100%);
-  color: #1a0e0e;
+  background: linear-gradient(180deg, rgba(196, 30, 58, 0.6) 0%, rgba(110, 15, 15, 0.5) 100%);
+  color: #fff4cc;
   border-color: #f5d77c;
   box-shadow:
-    inset 0 1px 0 rgba(255, 244, 204, 0.45),
-    0 6px 16px -4px rgba(245, 215, 124, 0.55);
+    inset 0 0 0 1px rgba(245, 215, 124, 0.4),
+    0 6px 16px -4px rgba(196, 30, 58, 0.55);
 }
 
 /* ====== Timer ====== */

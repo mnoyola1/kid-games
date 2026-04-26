@@ -169,8 +169,8 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-cover bg-center"
-      style={{ backgroundImage: `linear-gradient(rgba(10,8,7,0.62), rgba(5,3,2,0.84)), url(${BG_IMAGES.lobby})` }}>
+      className="lobby-stage"
+      style={{ '--lobby-bg': `url(${BG_IMAGES.lobby})` }}>
       <div className="terminal-frame lobby-frame max-w-5xl w-full p-6 md:p-12">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div className="flex-1 min-w-0">
