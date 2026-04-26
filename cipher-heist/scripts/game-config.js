@@ -45,10 +45,12 @@ const CIPHER_CONFIG = {
   },
 
   // ----- Heist actions -----
+  // iconImage is preferred when present; icon (emoji) is the fallback if asset 404s.
   ACTIONS: {
     crack: {
       id: 'crack',
       icon: '🔓',
+      iconImage: '/assets/sprites/cipher-heist/lock-unlocked_nobg.png',
       label: 'Crack a Vault',
       description: 'Answer a bonus question, then take a shot at a rival code.',
       colorClass: 'from-pink-600 to-rose-500',
@@ -56,6 +58,7 @@ const CIPHER_CONFIG = {
     firewall: {
       id: 'firewall',
       icon: '🛡️',
+      iconImage: '/assets/sprites/cipher-heist/firewall_nobg.png',
       label: 'Install Firewall',
       description: 'Absorb the next failed crack on your vault.',
       colorClass: 'from-cyan-600 to-blue-500',
@@ -63,6 +66,7 @@ const CIPHER_CONFIG = {
     surge: {
       id: 'surge',
       icon: '⚡',
+      iconImage: '/assets/sprites/cipher-heist/bit-surge_nobg.png',
       label: 'Bit Surge',
       description: 'Instant +20 bits.',
       colorClass: 'from-amber-500 to-yellow-500',
@@ -70,6 +74,7 @@ const CIPHER_CONFIG = {
     scan: {
       id: 'scan',
       icon: '🔍',
+      iconImage: '/assets/sprites/cipher-heist/scope_nobg.png',
       label: 'Scan Opponent',
       description: 'Reveal one digit (only the value, not the position) of an opponent\'s code.',
       colorClass: 'from-violet-600 to-purple-500',
@@ -98,7 +103,7 @@ const CIPHER_CONFIG = {
     scout: {
       id: 'scout',
       name: 'Scout Bot',
-      avatar: '🦊',
+      avatar: '/assets/sprites/cipher-heist/scout-bot.png',
       grade: 3,
       // Eager kid — fast but error-prone, loves cracking
       accuracy: { regular: 0.72, bonus: 0.55 },
@@ -116,7 +121,7 @@ const CIPHER_CONFIG = {
     sage: {
       id: 'sage',
       name: 'Sage Bot',
-      avatar: '🦉',
+      avatar: '/assets/sprites/cipher-heist/sage-bot.png',
       grade: 5,
       // Strategic — slower but accurate, plays defense
       accuracy: { regular: 0.86, bonus: 0.7 },

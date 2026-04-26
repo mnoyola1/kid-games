@@ -15,7 +15,22 @@
  *   <VexBubble>           — small helper for mascot text
  */
 
-const VEX_FACE = '🦝'; // Used everywhere a Vex sprite isn't loaded
+const VEX_FACE = '🦝'; // Emoji fallback if Vex sprite fails to load
+
+// Where Vex sprites live (absolute paths so they resolve from /cipher-heist/).
+const VEX_SPRITES = {
+  idle:     '/assets/sprites/cipher-heist/vex-idle_nobg.png',
+  briefing: '/assets/sprites/cipher-heist/vex-briefing_nobg.png',
+  cheer:    '/assets/sprites/cipher-heist/vex-cheer_nobg.png',
+  sad:      '/assets/sprites/cipher-heist/vex-sad_nobg.png',
+};
+
+// Background images for full-screen panels.
+const BG_IMAGES = {
+  lobby: '/assets/backgrounds/cipher-heist/lobby.png',
+  crack: '/assets/backgrounds/cipher-heist/vault-crack.png',
+  end:   '/assets/backgrounds/cipher-heist/end.png',
+};
 
 // ============================================================
 // Avatar — renders <img> for URL paths, text for emoji
@@ -23,10 +38,7 @@ const VEX_FACE = '🦝'; // Used everywhere a Vex sprite isn't loaded
 
 function resolveAvatarPath(src) {
   if (!src || typeof src !== 'string') return '';
-  // Absolute URL (http/https/data) — pass through.
   if (/^(https?:|data:)/i.test(src)) return src;
-  // Hub stores avatars relative to hub root, e.g. "./assets/foo.png".
-  // Cipher Heist runs from /cipher-heist/, so rewrite to absolute /assets/...
   let s = src.trim();
   if (s.startsWith('./')) s = s.slice(2);
   if (s.startsWith('assets/')) return '/' + s;
@@ -40,7 +52,8 @@ function isImageAvatar(src) {
 }
 
 function Avatar({ src, name = '', size = 32, fallback = '🧑', className = '' }) {
-  if (isImageAvatar(src)) {
+  const [errored, setErrored] = useState(false);
+  if (isImageAvatar(src) && !errored) {
     return (
       <img
         src={resolveAvatarPath(src)}
@@ -49,22 +62,58 @@ function Avatar({ src, name = '', size = 32, fallback = '🧑', className = '' }
         height={size}
         className={`inline-block rounded-full object-cover bg-terminal-panel ${className}`}
         style={{ width: size, height: size }}
-        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+        onError={() => setErrored(true)}
       />
     );
   }
-  return <span className={className} style={{ fontSize: Math.round(size * 0.85), lineHeight: 1 }}>{src || fallback}</span>;
+  return <span className={className} style={{ fontSize: Math.round(size * 0.85), lineHeight: 1 }}>{(isImageAvatar(src) ? fallback : src) || fallback}</span>;
 }
 
 // ============================================================
-// VexBubble — small mascot speech component
+// UIIcon — polished PNG icon with emoji fallback
 // ============================================================
 
-function VexBubble({ lineKey, fallbackText, compact = false }) {
+function UIIcon({ src, fallback = '', size = 24, className = '', alt = '' }) {
+  const [errored, setErrored] = useState(false);
+  if (src && !errored) {
+    return (
+      <img
+        src={src}
+        alt={alt || fallback}
+        width={size}
+        height={size}
+        className={`inline-block align-middle ${className}`}
+        style={{ width: size, height: size, objectFit: 'contain' }}
+        onError={() => setErrored(true)}
+      />
+    );
+  }
+  return <span className={`inline-block align-middle ${className}`} style={{ fontSize: Math.round(size * 0.9), lineHeight: 1 }}>{fallback}</span>;
+}
+
+// ============================================================
+// VexBubble — small mascot speech component (uses real sprite)
+// ============================================================
+
+function VexBubble({ lineKey, fallbackText, compact = false, mood = 'idle' }) {
   const text = (window.CIPHER_CONFIG?.VEX_LINES?.[lineKey]?.text) || fallbackText || '';
+  const sprite = VEX_SPRITES[mood] || VEX_SPRITES.idle;
+  const [errored, setErrored] = useState(false);
   return (
     <div className={`flex items-start gap-2 ${compact ? 'text-sm' : ''}`}>
-      <div className="text-3xl flex-shrink-0">{VEX_FACE}</div>
+      <div className="flex-shrink-0">
+        {!errored ? (
+          <img
+            src={sprite}
+            alt="Vex"
+            className={compact ? 'w-10 h-10' : 'w-14 h-14'}
+            style={{ objectFit: 'contain' }}
+            onError={() => setErrored(true)}
+          />
+        ) : (
+          <div className={compact ? 'text-2xl' : 'text-3xl'}>{VEX_FACE}</div>
+        )}
+      </div>
       <div className="vex-bubble flex-1">{text}</div>
     </div>
   );
@@ -106,7 +155,9 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.85), rgba(11,16,32,0.95)), url(${BG_IMAGES.lobby})` }}>
       <div className="terminal-frame max-w-3xl w-full p-6 md:p-10">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -116,11 +167,16 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
             </h1>
             <p className="text-terminal-text mt-2">Quiz-fueled multiplayer hacker heist.</p>
           </div>
-          <div className="text-5xl md:text-6xl select-none">🔓</div>
+          <UIIcon
+            src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png"
+            fallback="🔓"
+            size={72}
+            alt="Cipher Heist logo"
+          />
         </div>
 
         <div className="mb-6">
-          <VexBubble lineKey="welcome" />
+          <VexBubble lineKey="welcome" mood="briefing" />
         </div>
 
         {playerProfile && (
@@ -334,7 +390,7 @@ function VaultPickScreen({ playerName, onConfirm, onCancel, hotseatHint = false 
         </div>
 
         <div className="mb-5">
-          <VexBubble lineKey="vaultTip" compact />
+          <VexBubble lineKey="vaultTip" compact mood="briefing" />
         </div>
 
         {/* Display */}
@@ -434,14 +490,16 @@ function HUDScreen({
             <Avatar src={player.avatar} name={player.name} size={36} />
             <div>
               <div className="text-terminal-text text-sm">{player.name}</div>
-              <div className="bits-counter">
-                <span className="text-base">⚡</span>{player.bits}
+              <div className="bits-counter flex items-center gap-1">
+                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={20} alt="bits" />
+                {player.bits}
                 <span className="text-sm text-terminal-dim font-body ml-1">bits</span>
               </div>
             </div>
             {player.firewalls > 0 && (
-              <div className="px-3 py-1 rounded-full bg-cyan-700/30 border border-cipher-cyan text-cipher-cyan text-sm">
-                🛡️ × {player.firewalls}
+              <div className="px-3 py-1 rounded-full bg-cyan-700/30 border border-cipher-cyan text-cipher-cyan text-sm flex items-center gap-1">
+                <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={18} alt="firewall" />
+                × {player.firewalls}
               </div>
             )}
           </div>
@@ -518,9 +576,12 @@ function HUDScreen({
             {player.pendingAction === 'unlocked' && (
               <button
                 onClick={onOpenActionPicker}
-                className="w-full p-4 rounded-xl border-2 border-cipher-gold bg-gradient-to-r from-amber-500/15 to-yellow-500/15 pulse-glow text-left">
-                <div className="font-display text-cipher-gold font-black tracking-wider">⚡ HEIST ACTION READY</div>
-                <div className="text-terminal-text text-sm mt-1">Tap to use your unlocked move.</div>
+                className="w-full p-4 rounded-xl border-2 border-cipher-gold bg-gradient-to-r from-amber-500/15 to-yellow-500/15 pulse-glow text-left flex items-center gap-3">
+                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={36} alt="action" />
+                <div>
+                  <div className="font-display text-cipher-gold font-black tracking-wider">HEIST ACTION READY</div>
+                  <div className="text-terminal-text text-sm mt-1">Tap to use your unlocked move.</div>
+                </div>
               </button>
             )}
 
@@ -541,7 +602,10 @@ function HUDScreen({
                   </div>
                 </div>
               </div>
-              <div className="bits-counter text-base">⚡{player.bits}</div>
+              <div className="bits-counter text-base flex items-center gap-1">
+                <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={16} alt="bits" />
+                {player.bits}
+              </div>
             </div>
             {others.map(o => (
               <div key={o.id} className="opponent-card">
@@ -549,12 +613,20 @@ function HUDScreen({
                   <Avatar src={o.avatar} name={o.name} size={28} />
                   <div>
                     <div className="font-bold text-white">{o.name}</div>
-                    <div className="text-xs text-terminal-dim">
-                      {o.firewalls > 0 ? <span className="text-cipher-cyan">🛡️ ×{o.firewalls}</span> : 'no firewall'}
+                    <div className="text-xs text-terminal-dim flex items-center gap-1">
+                      {o.firewalls > 0 ? (
+                        <span className="text-cipher-cyan flex items-center gap-1">
+                          <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="firewall" />
+                          ×{o.firewalls}
+                        </span>
+                      ) : 'no firewall'}
                     </div>
                   </div>
                 </div>
-                <div className="bits-counter text-base">⚡{o.bits}</div>
+                <div className="bits-counter text-base flex items-center gap-1">
+                  <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={16} alt="bits" />
+                  {o.bits}
+                </div>
               </div>
             ))}
             <div className="text-xs text-terminal-dim mt-2">
@@ -650,7 +722,9 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
                       if (isScan) { setPendingScan(true); return; }
                       pick(a.id, {});
                     }}>
-                    <div className="action-icon mb-1">{a.icon}</div>
+                    <div className="action-icon mb-1 flex justify-center">
+                      <UIIcon src={a.iconImage} fallback={a.icon} size={48} alt={a.label} />
+                    </div>
                     <div className="font-display font-bold text-white text-sm">{a.label}</div>
                     <div className="text-xs text-terminal-dim mt-1">{a.description}</div>
                   </div>
@@ -675,10 +749,13 @@ function ActionPicker({ state, selfId, onPick, onClose }) {
                     <Avatar src={o.avatar} name={o.name} size={28} />
                     <div>
                       <div className="font-bold text-white">{o.name}</div>
-                      <div className="text-xs text-terminal-dim">⚡{o.bits} bits</div>
+                      <div className="text-xs text-terminal-dim flex items-center gap-1">
+                        <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={14} alt="bits" />
+                        {o.bits} bits
+                      </div>
                     </div>
                   </div>
-                  <span className="text-cipher-magenta">🔍</span>
+                  <UIIcon src="/assets/sprites/cipher-heist/scope_nobg.png" fallback="🔍" size={28} alt="scan" className="text-cipher-magenta" />
                 </button>
               ))}
             </div>
@@ -729,10 +806,15 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
     .slice(-1)[0];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.86), rgba(11,16,32,0.94)), url(${BG_IMAGES.crack})` }}>
       <div className="terminal-frame max-w-2xl w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-2xl font-black text-cipher-magenta">🔓 CRACK A VAULT</h2>
+          <h2 className="font-display text-2xl font-black text-cipher-magenta flex items-center gap-2">
+            <UIIcon src="/assets/sprites/cipher-heist/vault_nobg.png" fallback="🔓" size={32} alt="vault" />
+            CRACK A VAULT
+          </h2>
           <button className="btn-secondary text-sm" onClick={onCancel}>← Skip</button>
         </div>
 
@@ -747,8 +829,15 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
                   <Avatar src={o.avatar} name={o.name} size={28} />
                   <div>
                     <div className="font-bold text-white">{o.name}</div>
-                    <div className="text-xs text-terminal-dim">
-                      ⚡{o.bits} {o.firewalls > 0 && <span className="text-cipher-cyan ml-1">🛡️ ×{o.firewalls}</span>}
+                    <div className="text-xs text-terminal-dim flex items-center gap-1">
+                      <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={14} alt="bits" />
+                      {o.bits}
+                      {o.firewalls > 0 && (
+                        <span className="text-cipher-cyan ml-1 flex items-center gap-1">
+                          <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="firewall" />
+                          ×{o.firewalls}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -810,8 +899,9 @@ function CrackScreen({ state, selfId, onGuess, onCancel }) {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button className="btn-secondary" onClick={back} disabled={guess.length === 0}>⌫ Backspace</button>
-                <button className="btn-primary" onClick={submit} disabled={guess.length !== 3 || remaining <= 0}>
-                  🔓 Crack It
+                <button className="btn-primary flex items-center justify-center gap-2" onClick={submit} disabled={guess.length !== 3 || remaining <= 0}>
+                  <UIIcon src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png" fallback="🔓" size={20} alt="" />
+                  Crack It
                 </button>
               </div>
             </Section>
@@ -862,7 +952,9 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
   }, [won]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+      style={{ backgroundImage: `linear-gradient(rgba(11,16,32,0.85), rgba(11,16,32,0.95)), url(${BG_IMAGES.end})` }}>
       <div className="terminal-frame max-w-2xl w-full p-6">
         <div className="text-center mb-6">
           <div className="text-cipher-cyan font-mono text-xs tracking-widest mb-1">[ HEIST COMPLETE ]</div>
@@ -870,7 +962,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
             {won ? 'YOU RAN THE TERMINAL' : 'TIME UP'}
           </h2>
           <div className="mt-3">
-            <VexBubble lineKey={won ? 'win' : 'lose'} compact />
+            <VexBubble lineKey={won ? 'win' : 'lose'} compact mood={won ? 'cheer' : 'sad'} />
           </div>
         </div>
 
@@ -886,11 +978,22 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
                 <Avatar src={player.avatar} name={player.name} size={40} />
                 <div className="flex-1">
                   <div className="font-bold text-white">{player.name}{row.pid === selfId ? ' (you)' : ''}</div>
-                  <div className="text-xs text-terminal-dim">
-                    {player.stats.correct}✓ {player.stats.cracksSucceeded}🔓 {player.stats.defended}🛡️
+                  <div className="text-xs text-terminal-dim flex items-center gap-2 mt-0.5">
+                    <span>{player.stats.correct}✓</span>
+                    <span className="flex items-center gap-1">
+                      {player.stats.cracksSucceeded}
+                      <UIIcon src="/assets/sprites/cipher-heist/lock-unlocked_nobg.png" fallback="🔓" size={14} alt="cracks" />
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {player.stats.defended}
+                      <UIIcon src="/assets/sprites/cipher-heist/firewall_nobg.png" fallback="🛡️" size={14} alt="defended" />
+                    </span>
                   </div>
                 </div>
-                <div className="bits-counter text-xl">⚡{row.bits}</div>
+                <div className="bits-counter text-xl flex items-center gap-1">
+                  <UIIcon src="/assets/sprites/cipher-heist/bit-surge_nobg.png" fallback="⚡" size={20} alt="bits" />
+                  {row.bits}
+                </div>
               </div>
             );
           })}
