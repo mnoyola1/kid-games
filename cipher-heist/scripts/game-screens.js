@@ -171,7 +171,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
     <div
       className="lobby-stage"
       style={{ '--lobby-bg': `url(${BG_IMAGES.lobby})` }}>
-      <div className="terminal-frame lobby-frame max-w-5xl w-full p-6 md:p-12">
+      <div className="terminal-frame lobby-frame max-w-3xl w-full p-6 md:p-10">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div className="flex-1 min-w-0">
             <div className="lobby-eyebrow">[ TERMINAL READY ]</div>
