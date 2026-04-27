@@ -1,12 +1,13 @@
 // ==================== API CLIENTS ====================
 // Thin wrappers around /api/extract-words and /api/grade-spelling.
-// Both API routes expect a JSON POST and return JSON. Both accept data-URL
-// strings directly, but we strip the prefix here to keep payloads small.
+// We pass the FULL data URL through; the server sniffs magic bytes to determine
+// the correct media_type to send Claude. (Stripping the data-URL prefix client
+// side previously made the server tell Claude every JPEG was a PNG, which
+// caused 500s on photo upload.)
 
-function stripDataUrl(s) {
-  if (typeof s !== 'string') return '';
-  const m = s.match(/^data:image\/(?:png|jpeg|jpg);base64,(.+)$/i);
-  return m ? m[1] : s;
+function describeServerError(body, status, label) {
+  const main = body?.error || `${label} failed (${status})`;
+  return body?.detail ? `${main} — ${body.detail}` : main;
 }
 
 async function extractWords(imageDataUrl, grade) {
@@ -14,12 +15,12 @@ async function extractWords(imageDataUrl, grade) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      imageBase64: stripDataUrl(imageDataUrl),
+      imageBase64: imageDataUrl,
       grade,
     }),
   });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body?.error || `Extraction failed (${res.status})`);
+  if (!res.ok) throw new Error(describeServerError(body, res.status, 'Extraction'));
   return body; // { suggestedName, words: [{word, sentence?}] }
 }
 
@@ -28,7 +29,7 @@ async function gradeSpelling(canvases, { studentName } = {}) {
     studentName,
     canvases: canvases.map(({ word, dataUrl }) => ({
       word,
-      imageBase64: stripDataUrl(dataUrl),
+      imageBase64: dataUrl,
     })),
   };
   const res = await fetch('/api/grade-spelling', {
@@ -37,7 +38,7 @@ async function gradeSpelling(canvases, { studentName } = {}) {
     body: JSON.stringify(payload),
   });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body?.error || `Grading failed (${res.status})`);
+  if (!res.ok) throw new Error(describeServerError(body, res.status, 'Grading'));
   return body; // { items, overall_feedback, strengths, areas_to_improve, correct_count, total_count, score }
 }
 

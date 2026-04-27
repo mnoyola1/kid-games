@@ -18,7 +18,7 @@
 
 import {
   readJsonBody, sendJson, sendError, applyCors,
-  parseImagePayload, getAnthropicClient, extractJson,
+  parseImagePayload, getAnthropicClient, extractJson, describeError,
   CLAUDE_MODEL, CLAUDE_MAX_TOKENS,
 } from './_shared.js';
 
@@ -150,6 +150,8 @@ export default async function handler(req, res) {
       score,
     });
   } catch (err) {
-    sendError(res, 500, 'Grading failed', { detail: String(err?.message || err) });
+    const detail = describeError(err);
+    console.error('[grade-spelling] claude error', detail, err?.stack || '');
+    sendError(res, 500, 'Grading failed', { detail });
   }
 }

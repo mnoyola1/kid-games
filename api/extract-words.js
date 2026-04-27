@@ -9,7 +9,7 @@
 
 import {
   readJsonBody, sendJson, sendError, applyCors,
-  parseImagePayload, getAnthropicClient, extractJson,
+  parseImagePayload, getAnthropicClient, extractJson, describeError,
   CLAUDE_MODEL, CLAUDE_MAX_TOKENS,
 } from './_shared.js';
 
@@ -79,6 +79,13 @@ export default async function handler(req, res) {
 
   const grade = Number.isFinite(body?.grade) ? Number(body.grade) : undefined;
 
+  console.log('[extract-words] received', {
+    bytes: approxBytes,
+    mediaType,
+    base64Head: base64.slice(0, 12),
+    grade,
+  });
+
   try {
     const claude = await getAnthropicClient();
     const message = await claude.messages.create({
@@ -100,7 +107,11 @@ export default async function handler(req, res) {
 
     const textPart = message.content.find((c) => c.type === 'text');
     const parsed = extractJson(textPart?.text || '');
-    if (!parsed) { sendError(res, 502, 'Claude did not return JSON'); return; }
+    if (!parsed) {
+      console.error('[extract-words] claude returned non-JSON', textPart?.text?.slice(0, 200));
+      sendError(res, 502, "We couldn't read the list from that photo. Try a clearer, better-lit shot.");
+      return;
+    }
 
     const words = sanitizeWords(parsed.words);
     if (words.length === 0) {
@@ -114,6 +125,8 @@ export default async function handler(req, res) {
 
     sendJson(res, 200, { suggestedName: suggestedName || 'Spelling List', words });
   } catch (err) {
-    sendError(res, 500, 'Word extraction failed', { detail: String(err?.message || err) });
+    const detail = describeError(err);
+    console.error('[extract-words] claude error', detail, err?.stack || '');
+    sendError(res, 500, 'Word extraction failed', { detail });
   }
 }

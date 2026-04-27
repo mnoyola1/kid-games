@@ -14,6 +14,15 @@ export function sendError(res, status, message, extra = {}) {
   sendJson(res, status, { error: message, ...extra });
 }
 
+// Pull a human-friendly message out of an Anthropic SDK error or generic Error.
+export function describeError(err) {
+  if (!err) return 'Unknown error';
+  // Anthropic SDK errors have .status / .error.error.message
+  const status = err.status || err.statusCode;
+  const inner = err.error?.error?.message || err.error?.message || err.message || String(err);
+  return status ? `${status}: ${inner}` : inner;
+}
+
 // Vercel Node functions receive req.body pre-parsed when Content-Type is JSON,
 // but Safari sometimes posts as text/plain with a JSON string. Handle both.
 export async function readJsonBody(req) {
@@ -34,17 +43,41 @@ export async function readJsonBody(req) {
   });
 }
 
-// Strip "data:image/png;base64,..." prefix if present. Returns { base64, mediaType }.
+// Sniff the image format from the first few decoded bytes so we always tell
+// Claude the right media_type, regardless of what the client claimed.
+function sniffMediaType(base64, fallback = 'image/png') {
+  try {
+    // Decode just enough to read the magic header.
+    const head = Buffer.from(base64.slice(0, 32), 'base64');
+    if (head.length >= 3 && head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return 'image/jpeg';
+    if (head.length >= 8 &&
+        head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47) return 'image/png';
+    if (head.length >= 12 &&
+        head[0] === 0x52 && head[1] === 0x49 && head[2] === 0x46 && head[3] === 0x46 &&
+        head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42 && head[11] === 0x50) return 'image/webp';
+    if (head.length >= 6 && head[0] === 0x47 && head[1] === 0x49 && head[2] === 0x46) return 'image/gif';
+  } catch { /* fall through */ }
+  return fallback;
+}
+
+// Strip "data:image/png;base64,..." prefix if present, then sniff magic bytes
+// so the returned mediaType always matches what's actually inside `base64`.
+// Returns { base64, mediaType }.
 export function parseImagePayload(input, fallbackMedia = 'image/png') {
   if (!input || typeof input !== 'string') {
     return { base64: '', mediaType: fallbackMedia };
   }
   const match = input.match(/^data:(image\/(?:png|jpeg|jpg|gif|webp));base64,(.+)$/i);
+  let base64 = input;
+  let claimed = fallbackMedia;
   if (match) {
-    const mt = match[1].toLowerCase() === 'image/jpg' ? 'image/jpeg' : match[1].toLowerCase();
-    return { base64: match[2], mediaType: mt };
+    claimed = match[1].toLowerCase() === 'image/jpg' ? 'image/jpeg' : match[1].toLowerCase();
+    base64 = match[2];
   }
-  return { base64: input, mediaType: fallbackMedia };
+  // Strip whitespace/newlines that some clients introduce.
+  base64 = base64.replace(/\s+/g, '');
+  const sniffed = sniffMediaType(base64, claimed);
+  return { base64, mediaType: sniffed };
 }
 
 export function getAnthropicClient() {
