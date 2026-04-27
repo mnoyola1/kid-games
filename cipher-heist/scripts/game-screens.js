@@ -122,7 +122,7 @@ function VexBubble({ lineKey, fallbackText, compact = false, mood = 'idle' }) {
           <img
             src={sprite}
             alt="Vex"
-            className={compact ? 'w-16 h-16' : 'w-28 h-28'}
+            className={compact ? 'w-20 h-20' : 'w-40 h-40'}
             style={{ objectFit: 'contain' }}
             onError={() => setErrored(true)}
           />
@@ -320,7 +320,7 @@ function LobbyScreen({ playerProfile, onStart, onReturnToHub }) {
           </button>
           {onReturnToHub && (
             <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
-              <UIIcon src={HUB_ICON} fallback="🏠" size={44} alt="Hub" />
+              <UIIcon src={HUB_ICON} fallback="🏠" size={64} alt="Hub" />
               <span>Hub</span>
             </button>
           )}
@@ -1038,7 +1038,7 @@ function EndScreen({ state, selfId, rewardsByPlayer, onPlayAgain, onReturnToHub 
           <button className="btn-primary flex-1" onClick={onPlayAgain}>▶ Play Again</button>
           {onReturnToHub && (
             <button className="btn-secondary flex items-center gap-2 justify-center" onClick={onReturnToHub}>
-              <UIIcon src={HUB_ICON} fallback="🏠" size={44} alt="Hub" />
+              <UIIcon src={HUB_ICON} fallback="🏠" size={64} alt="Hub" />
               <span>Hub</span>
             </button>
           )}
