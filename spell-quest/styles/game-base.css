@@ -14,6 +14,18 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
   touch-action: manipulation;
+  /* Stop iPadOS from selecting button text or showing the magnifier callout
+     when a stroke runs off the canvas onto a nearby UI element (e.g. the
+     "HEAR THE WORD" button while a kid is writing fast). */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Inputs and contenteditable areas still need text selection. */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 #root {
