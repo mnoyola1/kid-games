@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.8.6';
+const CACHE_VERSION = 'v1.9.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -320,27 +320,61 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
-  // Cache-first for game assets (fast offline loading)
+
+  // === Network-first for the app shell ===
+  // HTML, JS, CSS (and explicit versioned requests like ?v=16) change on
+  // every deploy, so we MUST hit the network when online — otherwise users
+  // see stale UI until they hard-refresh (Ctrl+Shift+R). The cache is still
+  // populated on success so offline play continues to work.
+  const isAppShell =
+    url.pathname === '/' ||
+    url.pathname.endsWith('/') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css');
+
+  if (isAppShell || url.search) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              // Cache by pathname (no query) so `?v=N` and bare requests
+              // share an offline fallback entry.
+              const cacheKey = url.search
+                ? new Request(url.origin + url.pathname)
+                : event.request;
+              cache.put(cacheKey, clone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Offline: fall back to whatever's in cache (exact match first,
+          // then by pathname so versioned requests still resolve).
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            if (url.search) return caches.match(url.pathname);
+            // Final fallback for HTML navigations: the hub shell.
+            if (url.pathname.endsWith('.html') || url.pathname === '/') {
+              return caches.match('/index.html');
+            }
+            return new Response('', { status: 504, statusText: 'Offline' });
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-first for static game assets (sprites, audio, fonts, images) —
+  // these are large and stable, so cache wins for performance + offline.
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
         if (cachedResponse) {
-          // Return cached version immediately
           return cachedResponse;
         }
-
-        // If request has a query string, try cache by pathname (e.g., ?v=2)
-        if (url.search) {
-          return caches.match(url.pathname).then((cacheByPath) => {
-            if (cacheByPath) {
-              return cacheByPath;
-            }
-            return fetchAndCache(event.request, url);
-          });
-        }
-
-        // Not in cache, fetch from network
         return fetchAndCache(event.request, url);
       })
   );

@@ -62,7 +62,17 @@
   <!-- Service worker registration -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+      // updateViaCache:'none' tells the browser to always re-fetch the SW
+      // script (instead of using its 24-hour HTTP cache for the SW itself),
+      // so freshly-deployed SW versions activate on the next visit.
+      navigator.serviceWorker
+        .register('/service-worker.js', { updateViaCache: 'none' })
+        .then((reg) => {
+          // Check for updates immediately, then every 60s while open.
+          reg.update().catch(() => {});
+          setInterval(() => reg.update().catch(() => {}), 60_000);
+        })
+        .catch(() => {});
     }
   </script>
 
