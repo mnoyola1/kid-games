@@ -1,32 +1,38 @@
 // ==================== WRITING CANVAS ====================
-// Ported from n-learn's DrawingCanvas.tsx, then iterated until iPad worked:
+// Ported from n-learn's DrawingCanvas.tsx, then iterated against real iPad
+// hardware. Final design:
 //
-//   • iOS path: native TOUCH events. PointerEvent synthesis on iPadOS Safari
-//     is flaky for rapid taps — every-other-stroke is dropped on fast
-//     handwriting (we observed exactly this with PointerEvent). Touch events
-//     are the underlying iOS input mechanism and don't have that problem,
-//     which is also why n-learn's canvas uses them.
+//   • iOS path: native TOUCH events bound on the CANVAS element only.
+//     Touch events have implicit pointer capture in the spec — once
+//     touchstart fires on the canvas, all subsequent touchmove / end /
+//     cancel events for that touch keep firing on the canvas, even while
+//     the finger is outside the canvas's bounds. So canvas-only listeners
+//     handle the "fast stroke briefly leaves the canvas" case cleanly,
+//     without the window-level race conditions we hit earlier.
 //   • Non-iOS path: native POINTER events (mouse + Pen + Android touch).
-//   • Down-event on canvas; move + end events on WINDOW so a fast stroke
-//     that briefly leaves the canvas keeps painting AND never lands a drag
-//     on the neighbouring "Hear the word" button (which would trigger
-//     iPadOS text-select / button-press).
-//   • Window listeners are attached once (for the lifetime of the canvas)
-//     so we never race against attach/detach during rapid touches.
+//   • New-touch detection uses `e.changedTouches.length` (touches that
+//     STARTED in this event), NOT `e.touches.length` (all currently active
+//     touches). On rapid taps, iOS sometimes hasn't dispatched the
+//     previous touchend yet by the time the next touchstart fires —
+//     `e.touches.length` reads as 2 transiently, and the old
+//     `> 1 ⇒ multi-finger ⇒ bail` check was eating every other letter.
+//   • touchmove / end / cancel are passive: `touch-action: none` on the
+//     canvas (in CSS) already locks the gesture for its full duration, so
+//     we don't need to preventDefault on every move and risk wedging iOS's
+//     gesture arbiter.
 //   • Initial seed segment on down so a tap-without-move (e.g. dot on "i")
 //     still leaves ink.
-//   • touch-action: none on the canvas + user-select: none on body (in CSS)
-//     so iPadOS releases scroll / zoom / callout gestures and can't select
-//     button text mid-stroke.
+//   • `touch-action: none` on canvas + `user-select: none` on html/body
+//     (CSS) so iPadOS doesn't try to scroll, zoom, or select button text
+//     when a fast stroke briefly grazes the "Hear the word" button.
 //
 // What we DON'T do, learned the hard way on iPadOS Safari:
-//   • setPointerCapture: stuck state after ~2 strokes with Apple Pencil/touch.
-//   • preventDefault on `touchstart` AND using PointerEvent: cancels the
-//     synthesized pointerdown for the next touch, silently breaking the
-//     second stroke. (Safe with the touch-event path because we don't rely
-//     on pointer-event synthesis there.)
-//   • preventDefault on window-level pointermove: iOS uses these events for
-//     gesture arbitration; preventing can wedge the next stroke.
+//   • setPointerCapture: stuck state after ~2 strokes with Apple Pencil.
+//   • PointerEvent on iOS: synthesis from native touches is flaky for
+//     rapid taps — Safari drops every other pointerdown.
+//   • Window-level touchend with passive:true: not always delivered when
+//     the touch ends on a non-canvas element while the canvas is between
+//     re-renders.
 
 const WritingCanvas = React.forwardRef(function WritingCanvas(
   { onStroke, onChange, disabled = false, heightClass = 'h-[260px] sm:h-[300px]', className = '' },
@@ -157,71 +163,72 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
 
     if (IS_IOS) {
       // ---- TOUCH EVENTS (iOS only) ----
+      // All four touch listeners on the CANVAS itself. Touch events have
+      // implicit pointer capture in the spec — touchmove / end / cancel keep
+      // firing on the element where touchstart originated, even when the
+      // finger leaves that element's bounds. So canvas-only is enough to
+      // track strokes that briefly overshoot the canvas.
+      //
+      // Critical: we check `e.changedTouches.length` (touches that started
+      // in THIS event), not `e.touches.length` (all currently active touches).
+      // On rapid taps, the previous stroke's touchend hasn't always been
+      // processed by iOS by the time the next touchstart arrives, so
+      // `e.touches.length` momentarily reads as 2 even though the user only
+      // has one finger / Pencil down. That false-positive multi-touch was
+      // dropping every other letter on fast handwriting.
       let activeTouchId = null;
+
+      const findActiveTouch = (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            return e.changedTouches[i];
+          }
+        }
+        return null;
+      };
 
       const onTouchStart = (e) => {
         if (disabledRef.current) return;
-        // Multi-touch: cancel any in-flight stroke and bail (don't fight
-        // pinch/zoom from a second finger).
-        if (e.touches.length > 1) {
-          endStroke();
-          activeTouchId = null;
-          return;
-        }
-        // Need preventDefault here so iOS doesn't generate the synthetic
-        // mouseclick that follows touchend. (Pointer-event suppression that
-        // bit us before doesn't apply, because we ARE NOT using PointerEvent
-        // on this code path.)
+        // Reject only TRUE multi-finger starts (>1 touch *changed* this event).
+        if (e.changedTouches.length !== 1) return;
+        // preventDefault suppresses the synthesized click that would follow
+        // touchend — without this, the click can land on whatever button
+        // happens to be under where the stroke ended.
         if (e.cancelable) e.preventDefault();
+        // Reset any leftover stroke state, then start fresh.
+        endStroke();
         const t = e.changedTouches[0];
         activeTouchId = t.identifier;
         const { x, y } = pointAt(t.clientX, t.clientY);
-        // Reset any leftover stroke state, then start fresh.
-        endStroke();
         startStroke(x, y);
       };
 
       const onTouchMove = (e) => {
         if (!drawingRef.current || disabledRef.current) return;
-        let touch = null;
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          if (e.changedTouches[i].identifier === activeTouchId) {
-            touch = e.changedTouches[i];
-            break;
-          }
-        }
+        const touch = findActiveTouch(e);
         if (!touch) return;
-        if (e.cancelable) e.preventDefault();
+        // No preventDefault needed — `touch-action: none` on the canvas in
+        // CSS already locks the gesture for its full duration.
         const { x, y } = pointAt(touch.clientX, touch.clientY);
         continueStroke(x, y);
       };
 
       const onTouchEnd = (e) => {
-        let matched = false;
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          if (e.changedTouches[i].identifier === activeTouchId) {
-            matched = true;
-            break;
-          }
-        }
-        if (!matched) return;
+        if (!findActiveTouch(e)) return;
         endStroke();
         activeTouchId = null;
       };
 
-      // touchstart on canvas: only strokes that originate on the canvas count.
-      canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-      // touchmove / end on WINDOW so a fast stroke that briefly leaves the
-      // canvas keeps painting (and the drag can't land selection on a button).
-      window.addEventListener('touchmove',   onTouchMove, { passive: false });
-      window.addEventListener('touchend',    onTouchEnd,  { passive: true });
-      window.addEventListener('touchcancel', onTouchEnd,  { passive: true });
+      canvas.addEventListener('touchstart',  onTouchStart, { passive: false });
+      canvas.addEventListener('touchmove',   onTouchMove,  { passive: true });
+      canvas.addEventListener('touchend',    onTouchEnd,   { passive: true });
+      canvas.addEventListener('touchcancel', onTouchEnd,   { passive: true });
 
       return () => {
-        canvas.removeEventListener('touchstart', onTouchStart);
-        window.removeEventListener('touchmove',   onTouchMove);
-        window.removeEventListener('touchend',    onTouchEnd);
-        window.removeEventListener('touchcancel', onTouchEnd);
+        canvas.removeEventListener('touchstart',  onTouchStart);
+        canvas.removeEventListener('touchmove',   onTouchMove);
+        canvas.removeEventListener('touchend',    onTouchEnd);
+        canvas.removeEventListener('touchcancel', onTouchEnd);
       };
     }
 

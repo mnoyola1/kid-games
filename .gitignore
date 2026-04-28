@@ -26,6 +26,11 @@ Thumbs.db
 node_modules/
 .vercel/
 
+# Playwright test artifacts
+test/canvas-harness-result.png
+test-results/
+playwright-report/
+
 # Generated assets (optional - uncomment if you want to exclude large generated files)
 # assets/sprites/
 # assets/backgrounds/

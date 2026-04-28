@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WritingCanvas test harness</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: #1c1830;
+      color: #f5f0e1;
+      font: 14px/1.4 ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+    }
+    input, textarea, [contenteditable] {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .layout { max-width: 720px; margin: 16px auto; padding: 12px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    .sq-canvas-wrap {
+      position: relative;
+      width: 100%;
+      background: #fffaee;
+      border: 2px solid #6b5a30;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .sq-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      cursor: crosshair;
+    }
+    .h260 { height: 260px; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    button {
+      background: #3a2c5d;
+      color: #f5f0e1;
+      border: 1px solid #6b5a98;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .stats {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #110d22;
+      border: 1px solid #2a234a;
+      border-radius: 8px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12px;
+      white-space: pre;
+    }
+    .neighbour {
+      margin-top: 16px;
+      padding: 14px;
+      background: #2c2147;
+      border: 1px solid #4f3e7a;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+  </style>
+
+  <!-- React 18 + Babel standalone, same versions as spell-quest/index.html -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <h1>WritingCanvas — test harness</h1>
+    <div id="root"></div>
+
+    <div class="row">
+      <button id="btn-clear">Clear canvas</button>
+      <button id="btn-snapshot">Snapshot</button>
+    </div>
+
+    <!-- Stand-in for the "Hear the word" button so we can verify a stroke
+         that overshoots onto a neighbour does NOT land a tap on it. -->
+    <div class="neighbour" id="neighbour">HEAR THE WORD</div>
+
+    <div class="stats" id="stats">strokes=0  drawn=false  pixels=0</div>
+  </div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+    // Test hooks the harness/Playwright will read.
+    window.__test = {
+      strokes: 0,
+      hasDrawn: false,
+      lastDataUrl: null,
+      neighbourTaps: 0,
+    };
+
+    document.getElementById('neighbour').addEventListener('click', () => {
+      window.__test.neighbourTaps += 1;
+      refreshStats();
+    });
+    document.getElementById('neighbour').addEventListener('pointerdown', () => {
+      window.__test.neighbourTaps += 1;
+      refreshStats();
+    });
+
+    function inkPixelCount(canvas) {
+      const ctx = canvas.getContext('2d');
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let n = 0;
+      // The canvas itself is fully transparent until ink lands on it (the
+      // cream background comes from the wrap div, NOT the canvas). So any
+      // pixel with non-zero alpha counts as ink. Filter to "dark" alpha to
+      // ignore stray anti-aliasing fluff (alpha < 32).
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] >= 32) n++;
+      }
+      return n;
+    }
+
+    function refreshStats() {
+      const canvas = document.querySelector('.sq-canvas-wrap canvas');
+      const px = canvas ? inkPixelCount(canvas) : 0;
+      document.getElementById('stats').textContent =
+        `strokes=${window.__test.strokes}  drawn=${window.__test.hasDrawn}  pixels=${px}  neighbourTaps=${window.__test.neighbourTaps}`;
+    }
+    window.__test.refreshStats = refreshStats;
+    window.__test.inkPixelCount = () => {
+      const canvas = document.querySelector('.sq-canvas-wrap canvas');
+      return canvas ? inkPixelCount(canvas) : 0;
+    };
+  </script>
+
+  <!-- Load the actual WritingCanvas under test. -->
+  <script type="text/babel" src="../spell-quest/scripts/game-canvas.js"></script>
+
+  <script type="text/babel">
+    function Harness() {
+      const ref = useRef(null);
+      return (
+        <div>
+          <WritingCanvas
+            ref={ref}
+            heightClass="h260"
+            onStroke={() => {
+              window.__test.strokes += 1;
+              window.__test.refreshStats();
+            }}
+            onChange={({ hasDrawn }) => {
+              window.__test.hasDrawn = !!hasDrawn;
+              window.__test.refreshStats();
+            }}
+          />
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Harness />);
+
+    // Snapshot button: dump dataUrl into window.__test.lastDataUrl.
+    document.getElementById('btn-snapshot').addEventListener('click', () => {
+      const canvas = document.querySelector('.sq-canvas-wrap canvas');
+      if (!canvas) return;
+      window.__test.lastDataUrl = canvas.toDataURL('image/png');
+      window.__test.refreshStats();
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      const canvas = document.querySelector('.sq-canvas-wrap canvas');
+      const ctx = canvas && canvas.getContext('2d');
+      if (ctx) {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+      window.__test.strokes = 0;
+      window.__test.hasDrawn = false;
+      window.__test.refreshStats();
+    });
+
+    // Wait for canvas to finish first resize, then mark ready.
+    setTimeout(() => {
+      window.__test.ready = true;
+      window.__test.refreshStats();
+    }, 200);
+  </script>
+</body>
+</html>
