@@ -1,9 +1,18 @@
 // ==================== WRITING CANVAS ====================
-// Ported from n-learn's DrawingCanvas.tsx, adapted to:
-//  - plain React via Babel (no TS)
-//  - ref-based API so the parent can clear/read on demand
-//  - Spell Quest "ink on parchment" styling + stroke hook
-//  - resilient high-DPI layout that reflows on container resize
+// Ported from n-learn's DrawingCanvas.tsx, then hardened for iPad:
+//
+//   • Pointer Events (mouse + touch + Apple Pencil unified, no extra logic).
+//   • Native non-passive listeners attached via useEffect — React 17+ attaches
+//     onTouchStart / onTouchMove as PASSIVE, so evt.preventDefault() inside is
+//     silently ignored by Safari. That made the iPad steal fast double-touches
+//     for double-tap-to-zoom and miss the start of the second letter.
+//   • setPointerCapture on pointerdown so we keep getting moves even if the
+//     pointer briefly drifts outside the canvas during a quick stroke.
+//   • Initial dot on pointerdown so a tap-without-move (e.g. dot on "i") still
+//     leaves ink, and so the very first sample of every stroke is committed
+//     even if the next pointermove is delayed.
+//   • touch-action: none + user-select: none on the canvas so iPadOS releases
+//     gestures (zoom / scroll / callout) immediately to us.
 
 const WritingCanvas = React.forwardRef(function WritingCanvas(
   { onStroke, onChange, disabled = false, heightClass = 'h-[260px] sm:h-[300px]', className = '' },
@@ -13,9 +22,17 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const drawingRef = useRef(false);
+  const activePointerRef = useRef(null);
   const strokeStartedRef = useRef(false);
   const hasDrawnRef = useRef(false);
+  const onStrokeRef = useRef(onStroke);
+  const onChangeRef = useRef(onChange);
+  const disabledRef = useRef(disabled);
   const [hasDrawn, setHasDrawn] = useState(false);
+
+  useEffect(() => { onStrokeRef.current = onStroke; }, [onStroke]);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+  useEffect(() => { disabledRef.current = disabled; }, [disabled]);
 
   // (Re)initialise the canvas to the current CSS size, preserving existing ink.
   const resizeCanvas = useCallback(() => {
@@ -28,7 +45,6 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     const cssW = Math.max(200, Math.floor(rect.width));
     const cssH = Math.max(120, Math.floor(rect.height));
 
-    // Preserve existing ink across resizes.
     const prev = document.createElement('canvas');
     prev.width = canvas.width;
     prev.height = canvas.height;
@@ -47,11 +63,10 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 4.5;
-    ctx.strokeStyle = '#231505'; // dark sepia ink
-    ctx.fillStyle = 'rgba(255,255,255,0)'; // transparent so parchment bg shows
+    ctx.strokeStyle = '#231505';
+    ctx.fillStyle = '#231505';
     ctxRef.current = ctx;
 
-    // Restore previous ink scaled to new size (approx).
     if (prev.width && prev.height) {
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -60,7 +75,6 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     }
   }, []);
 
-  // Initialise + observe resize.
   useEffect(() => {
     resizeCanvas();
     const ro = typeof ResizeObserver !== 'undefined'
@@ -74,69 +88,115 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     };
   }, [resizeCanvas]);
 
-  // -------------- Event coordinates --------------
-  const pointAt = useCallback((evt) => {
+  // ---- Native pointer / touch handling (non-passive) -----------------------
+  useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    const t = evt.touches?.[0] || evt.changedTouches?.[0];
-    const clientX = t ? t.clientX : evt.clientX;
-    const clientY = t ? t.clientY : evt.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
+    if (!canvas) return;
+
+    const pointAt = (clientX, clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    };
+
+    const dot = (x, y) => {
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      const r = ctx.lineWidth / 2;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    const onDown = (e) => {
+      if (disabledRef.current) return;
+      // Right-click / middle mouse button: ignore.
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      const { x, y } = pointAt(e.clientX, e.clientY);
+
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      activePointerRef.current = e.pointerId;
+      drawingRef.current = true;
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      dot(x, y); // ensures a tap-without-move leaves ink, and seeds the path
+
+      if (!strokeStartedRef.current) {
+        strokeStartedRef.current = true;
+        onStrokeRef.current?.();
+      }
+      if (!hasDrawnRef.current) {
+        hasDrawnRef.current = true;
+        setHasDrawn(true);
+        onChangeRef.current?.({ hasDrawn: true });
+      }
+    };
+
+    const onMove = (e) => {
+      if (!drawingRef.current || disabledRef.current) return;
+      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
+      e.preventDefault();
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      const { x, y } = pointAt(e.clientX, e.clientY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    };
+
+    const onUp = (e) => {
+      if (!drawingRef.current) return;
+      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
+      drawingRef.current = false;
+      strokeStartedRef.current = false;
+      activePointerRef.current = null;
+      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      const ctx = ctxRef.current;
+      if (ctx) ctx.closePath();
+    };
+
+    // Pointer Events cover mouse + touch + Pencil with a single API.
+    canvas.addEventListener('pointerdown',   onDown, { passive: false });
+    canvas.addEventListener('pointermove',   onMove, { passive: false });
+    canvas.addEventListener('pointerup',     onUp,   { passive: false });
+    canvas.addEventListener('pointercancel', onUp,   { passive: false });
+    canvas.addEventListener('pointerleave',  onUp,   { passive: false });
+
+    // Belt-and-suspenders: stop iPadOS from interpreting the gesture as scroll
+    // or double-tap-to-zoom even before pointerdown fires.
+    const swallow = (e) => { e.preventDefault(); };
+    canvas.addEventListener('touchstart', swallow, { passive: false });
+    canvas.addEventListener('touchmove',  swallow, { passive: false });
+
+    return () => {
+      canvas.removeEventListener('pointerdown',   onDown);
+      canvas.removeEventListener('pointermove',   onMove);
+      canvas.removeEventListener('pointerup',     onUp);
+      canvas.removeEventListener('pointercancel', onUp);
+      canvas.removeEventListener('pointerleave',  onUp);
+      canvas.removeEventListener('touchstart', swallow);
+      canvas.removeEventListener('touchmove',  swallow);
+    };
   }, []);
 
-  const beginStroke = useCallback((evt) => {
-    if (disabled) return;
-    evt.preventDefault();
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-    const { x, y } = pointAt(evt);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    drawingRef.current = true;
-    if (!strokeStartedRef.current) {
-      strokeStartedRef.current = true;
-      if (typeof onStroke === 'function') onStroke();
-    }
-  }, [disabled, pointAt, onStroke]);
-
-  const continueStroke = useCallback((evt) => {
-    if (!drawingRef.current || disabled) return;
-    evt.preventDefault();
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-    const { x, y } = pointAt(evt);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    if (!hasDrawnRef.current) {
-      hasDrawnRef.current = true;
-      setHasDrawn(true);
-      if (typeof onChange === 'function') onChange({ hasDrawn: true });
-    }
-  }, [disabled, pointAt, onChange]);
-
-  const endStroke = useCallback(() => {
-    if (!drawingRef.current) return;
-    drawingRef.current = false;
-    strokeStartedRef.current = false;
-    const ctx = ctxRef.current;
-    if (ctx) ctx.closePath();
-  }, []);
-
-  // -------------- Imperative API for parent --------------
+  // ---- Imperative API for parent ------------------------------------------
   React.useImperativeHandle(ref, () => ({
     clear() {
       const canvas = canvasRef.current;
       const ctx = ctxRef.current;
       if (!canvas || !ctx) return;
-      const dpr = window.devicePixelRatio || 1;
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
       hasDrawnRef.current = false;
       setHasDrawn(false);
-      if (typeof onChange === 'function') onChange({ hasDrawn: false });
+      drawingRef.current = false;
+      strokeStartedRef.current = false;
+      activePointerRef.current = null;
+      onChangeRef.current?.({ hasDrawn: false });
     },
     getDataUrl() {
       const canvas = canvasRef.current;
@@ -154,21 +214,11 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     isEmpty() {
       return !hasDrawnRef.current;
     },
-  }), [onChange]);
+  }), []);
 
   return (
     <div ref={wrapRef} className={`sq-canvas-wrap ${heightClass} ${className}`}>
-      <canvas
-        ref={canvasRef}
-        onMouseDown={beginStroke}
-        onMouseMove={continueStroke}
-        onMouseUp={endStroke}
-        onMouseLeave={endStroke}
-        onTouchStart={beginStroke}
-        onTouchMove={continueStroke}
-        onTouchEnd={endStroke}
-        onTouchCancel={endStroke}
-      />
+      <canvas ref={canvasRef} />
       {!hasDrawn && !disabled && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <p className="sq-scribe text-2xl sm:text-3xl opacity-40">

@@ -9,7 +9,7 @@ class SpellQuestAudio {
 
     this.musicTracks = {};
     this.currentMusic = null;
-    this.musicVolume = 0.35;
+    this.musicVolume = 0.22; // background score sits well under voice on all devices
     this.musicEnabled = true;
     this.sfxEnabled = true;
 
@@ -48,6 +48,13 @@ class SpellQuestAudio {
     });
     this.voiceGain = 3.0; // amplification above 1.0 for Web Audio path
     this._ctx = null;
+
+    // iOS Safari routes Web Audio through a quieter channel than <audio>, so
+    // on iPad/iPhone we deliberately use the HTMLAudioElement fallback path
+    // for voice lines (loud "media" channel, music paused). Detection mirrors
+    // game-tts.js.
+    this._isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
   _getCtx() {
@@ -233,6 +240,11 @@ class SpellQuestAudio {
       restored = true;
       this.unduckMusic();
     };
+
+    if (this._isIOS) {
+      this._playKeeperFallback(entry, restore);
+      return;
+    }
 
     const ctx = this._getCtx();
     if (ctx) {

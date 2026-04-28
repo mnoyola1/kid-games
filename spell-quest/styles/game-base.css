@@ -244,7 +244,12 @@ html, body {
   display: block;
   width: 100%;
   height: 100%;
+  /* Prevent iPadOS from claiming the gesture as scroll, zoom, or callout, and
+     stop text-selection / image-callout from interrupting fast strokes. */
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   cursor: crosshair;
 }
 

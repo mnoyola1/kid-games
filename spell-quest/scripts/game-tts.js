@@ -13,6 +13,15 @@
 const blobCache = new Map();    // key -> blobUrl (fallback path)
 const bufferCache = new Map();  // key -> normalized AudioBuffer
 
+// iOS Safari routes Web Audio output through a noticeably quieter channel than
+// HTMLAudioElement, even with a GainNode at 4x. On iPad/iPhone we therefore
+// play voice through a plain <audio> element (the music has already been
+// paused while the word plays, so loudness, not separation, is what matters).
+const IS_IOS =
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
 let _ctx = null;
 function getAudioCtx() {
   if (_ctx) return _ctx;
@@ -166,7 +175,7 @@ function playViaAudioElement(url, volume) {
 
 // `gain`: pre-compression amplification. With the compressor + makeup gain on
 // the output, 4.0 is roughly +12 dB above the un-boosted clip. The compressor
-// reins in the peaks so this stays clean.
+// reins in the peaks so this stays clean. Ignored on iOS (see IS_IOS above).
 function speakWord(text, { voice = 'keeper', gain = 4.0, duck = true } = {}) {
   return new Promise(async (resolve, reject) => {
     let ducked = false;
@@ -177,6 +186,22 @@ function speakWord(text, { voice = 'keeper', gain = 4.0, duck = true } = {}) {
       }
     };
     try {
+      // iOS path: HTMLAudioElement on the loud "media" channel, music paused.
+      if (IS_IOS) {
+        const key = voice + '|' + text;
+        let url = blobCache.get(key);
+        if (!url) {
+          const ab = await fetchTtsArrayBuffer(text, voice);
+          url = URL.createObjectURL(new Blob([ab], { type: 'audio/mpeg' }));
+        }
+        if (duck && window.sqAudio?.duckMusic) { ducked = true; window.sqAudio.duckMusic(); }
+        await playViaAudioElement(url, 1.0);
+        unduck();
+        resolve();
+        return;
+      }
+
+      // Desktop / Android: Web Audio path with gain + compressor.
       const buffer = await getDecodedBuffer(text, voice).catch(() => null);
       if (duck && window.sqAudio?.duckMusic) { ducked = true; window.sqAudio.duckMusic(); }
 
