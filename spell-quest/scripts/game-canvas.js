@@ -89,6 +89,12 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
   }, [resizeCanvas]);
 
   // ---- Native pointer / touch handling (non-passive) -----------------------
+  // Pattern: pointerdown ON THE CANVAS starts the stroke; pointermove and
+  // pointerup/pointercancel are bound to the WINDOW for the duration of the
+  // stroke and then removed. This avoids `setPointerCapture`, which on iPadOS
+  // Safari has a known stuck-after-N-strokes bug with Apple Pencil / touch
+  // (the third pointerdown stops being delivered to the captured element).
+  // Window-level move/up is the same pattern long-standing drawing apps use.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -107,22 +113,67 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
       ctx.fill();
     };
 
+    const endStroke = () => {
+      if (!drawingRef.current) return;
+      drawingRef.current = false;
+      strokeStartedRef.current = false;
+      activePointerRef.current = null;
+      const ctx = ctxRef.current;
+      if (ctx) ctx.closePath();
+      detachWindow();
+    };
+
+    const onWindowMove = (e) => {
+      if (!drawingRef.current || disabledRef.current) return;
+      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
+      // We registered as non-passive on window, so this is honored.
+      if (e.cancelable) e.preventDefault();
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      const { x, y } = pointAt(e.clientX, e.clientY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    };
+
+    const onWindowUp = (e) => {
+      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
+      endStroke();
+    };
+
+    const attachWindow = () => {
+      window.addEventListener('pointermove',   onWindowMove, { passive: false });
+      window.addEventListener('pointerup',     onWindowUp,   { passive: false });
+      window.addEventListener('pointercancel', onWindowUp,   { passive: false });
+      // Tab loses focus / app backgrounded: terminate cleanly.
+      window.addEventListener('blur',          endStroke);
+    };
+    const detachWindow = () => {
+      window.removeEventListener('pointermove',   onWindowMove);
+      window.removeEventListener('pointerup',     onWindowUp);
+      window.removeEventListener('pointercancel', onWindowUp);
+      window.removeEventListener('blur',          endStroke);
+    };
+
     const onDown = (e) => {
       if (disabledRef.current) return;
-      // Right-click / middle mouse button: ignore.
-      if (e.button !== undefined && e.button !== 0) return;
-      e.preventDefault();
+      // Ignore non-primary mouse buttons. Touch / pen always report button 0.
+      if (e.button !== undefined && e.button > 0) return;
+      // If a previous stroke somehow didn't terminate, clean up first.
+      if (drawingRef.current) endStroke();
+
+      if (e.cancelable) e.preventDefault();
       const ctx = ctxRef.current;
       if (!ctx) return;
       const { x, y } = pointAt(e.clientX, e.clientY);
 
-      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       activePointerRef.current = e.pointerId;
       drawingRef.current = true;
 
       ctx.beginPath();
       ctx.moveTo(x, y);
-      dot(x, y); // ensures a tap-without-move leaves ink, and seeds the path
+      dot(x, y); // tap-without-move still leaves ink + seeds the path
+
+      attachWindow();
 
       if (!strokeStartedRef.current) {
         strokeStartedRef.current = true;
@@ -135,49 +186,27 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
       }
     };
 
-    const onMove = (e) => {
-      if (!drawingRef.current || disabledRef.current) return;
-      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
-      e.preventDefault();
-      const ctx = ctxRef.current;
-      if (!ctx) return;
-      const { x, y } = pointAt(e.clientX, e.clientY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    };
+    canvas.addEventListener('pointerdown', onDown, { passive: false });
 
-    const onUp = (e) => {
-      if (!drawingRef.current) return;
-      if (activePointerRef.current != null && e.pointerId !== activePointerRef.current) return;
-      drawingRef.current = false;
-      strokeStartedRef.current = false;
-      activePointerRef.current = null;
-      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
-      const ctx = ctxRef.current;
-      if (ctx) ctx.closePath();
-    };
-
-    // Pointer Events cover mouse + touch + Pencil with a single API.
-    canvas.addEventListener('pointerdown',   onDown, { passive: false });
-    canvas.addEventListener('pointermove',   onMove, { passive: false });
-    canvas.addEventListener('pointerup',     onUp,   { passive: false });
-    canvas.addEventListener('pointercancel', onUp,   { passive: false });
-    canvas.addEventListener('pointerleave',  onUp,   { passive: false });
-
-    // Belt-and-suspenders: stop iPadOS from interpreting the gesture as scroll
-    // or double-tap-to-zoom even before pointerdown fires.
-    const swallow = (e) => { e.preventDefault(); };
+    // Belt-and-suspenders: stop iPadOS from interpreting the touch as scroll
+    // or double-tap-to-zoom before pointerdown is even dispatched.
+    const swallow = (e) => { if (e.cancelable) e.preventDefault(); };
     canvas.addEventListener('touchstart', swallow, { passive: false });
     canvas.addEventListener('touchmove',  swallow, { passive: false });
+    // Block default gesture handlers on iOS (zoom-on-double-tap on canvases).
+    const blockGesture = (e) => e.preventDefault();
+    canvas.addEventListener('gesturestart',  blockGesture);
+    canvas.addEventListener('gesturechange', blockGesture);
+    canvas.addEventListener('gestureend',    blockGesture);
 
     return () => {
-      canvas.removeEventListener('pointerdown',   onDown);
-      canvas.removeEventListener('pointermove',   onMove);
-      canvas.removeEventListener('pointerup',     onUp);
-      canvas.removeEventListener('pointercancel', onUp);
-      canvas.removeEventListener('pointerleave',  onUp);
-      canvas.removeEventListener('touchstart', swallow);
-      canvas.removeEventListener('touchmove',  swallow);
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('touchstart',  swallow);
+      canvas.removeEventListener('touchmove',   swallow);
+      canvas.removeEventListener('gesturestart',  blockGesture);
+      canvas.removeEventListener('gesturechange', blockGesture);
+      canvas.removeEventListener('gestureend',    blockGesture);
+      detachWindow();
     };
   }, []);
 
