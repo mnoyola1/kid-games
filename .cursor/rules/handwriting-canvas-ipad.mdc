@@ -37,7 +37,12 @@ Working reference: `spell-quest/scripts/game-canvas.js`. Run `npm run test:canva
 
 ## Audio side-quest (most handwriting apps speak words)
 
-iOS Safari routes Web Audio output through a noticeably quieter channel than `<audio>` elements, even with a 4× `GainNode`. **On iOS, play voice via `HTMLAudioElement` (loud "media" channel) and pause the music while it plays.** Web Audio with gain + dynamics-compressor + peak-normalize is fine for desktop and Android. Reference: `spell-quest/scripts/game-tts.js` and `game-audio.js`.
+iOS Safari routes Web Audio output through a noticeably quieter channel than `<audio>` elements, even with a 4× `GainNode`. Two things are required for loud, consistent voice on iPad — neither alone is enough:
+
+1. **Route playback through `HTMLAudioElement`, not Web Audio output.** `<audio>` plays on the loud "media" channel; Web Audio is quieter on iPad even at the same hardware volume.
+2. **Pre-amplify the samples** — `<audio>.volume` is hard-capped at 1.0, so if the source MP3 is mastered quietly (Cartesia does this inconsistently per-clip), the iPad has no way to make it louder. The fix: decode the MP3 to an `AudioBuffer` → peak + RMS-normalize to a target loudness (e.g. peak ≤ 0.985, RMS ≈ 0.22) → encode the processed buffer to a 16-bit PCM WAV blob → play that blob via `<audio>`. Combines the loud channel with consistent, hot levels.
+
+Always pause the music while voice plays (just lowering its volume isn't reliable on iPad). Reference implementation: `spell-quest/scripts/game-tts.js` (`loudnessNormalizeBuffer` + `audioBufferToWavBlob` + `getWavUrl` + the iOS branch of `speakWord`) and `game-audio.js` (ducking).
 
 ## How to verify a fix without bothering the user
 
