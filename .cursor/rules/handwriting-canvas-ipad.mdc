@@ -1,0 +1,49 @@
+---
+description: How to build a handwriting / drawing canvas that works on real iPad/iOS Safari. Read BEFORE writing or editing any touch-driven canvas code.
+globs: **/*canvas*.{js,jsx,ts,tsx},**/Drawing*.{js,jsx,ts,tsx},**/Writing*.{js,jsx,ts,tsx}
+alwaysApply: false
+---
+
+# Handwriting Canvas — iPad/iOS lessons
+
+Real iPad Safari (especially with Apple Pencil) is the toughest target. We've burned ~5 iterations on it. **Always start from this checklist** rather than re-deriving — the symptoms are subtle (every other letter dropped, third stroke freezes, only-one-stroke captured) and the root causes are non-obvious.
+
+Working reference: `spell-quest/scripts/game-canvas.js`. Run `npm run test:canvas` to validate any change.
+
+## DO
+
+- **Two input paths:** native **TouchEvents on iOS**, native **PointerEvents elsewhere** (mouse + Pen + Android touch). Detect iOS via `/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)` (the second clause catches iPadOS-as-MacIntel).
+- **Bind all four touch listeners (`touchstart` / `move` / `end` / `cancel`) on the canvas element itself, not on `window`.** TouchEvents have implicit pointer capture — once `touchstart` fires on the canvas, the rest of that touch's events keep firing on the canvas even when the finger is outside its bounds. Canvas-only is sufficient and avoids WebKit window-listener quirks.
+- **Multi-finger guard:** check `e.changedTouches.length === 1`, **NOT** `e.touches.length === 1`. On rapid taps, the previous touch's `touchend` isn't always processed before the next `touchstart` fires, so `e.touches.length` reads as 2 transiently — the wrong check rejects every other letter ("D_n_s_u_s" / dinosaur bug).
+- **Track the active touch by `touch.identifier`** so move/end handlers only act on the touch we started with. Reset to `null` on end/cancel.
+- **Seed the path on `down`** with a hairline `ctx.lineTo(x + 0.01, y + 0.01); ctx.stroke()` so a tap-without-move (dot on "i") still leaves ink AND the very first sample is committed before the next move arrives.
+- **Listener passivity:** `passive: false` only on `touchstart` (need `preventDefault` to suppress the synthetic click that follows `touchend` and would land on a neighbouring button). `touchmove`/`end`/`cancel` should be `passive: true` — `touch-action: none` on the canvas already locks the gesture for its full duration.
+- **CSS that matters:**
+  - `touch-action: none` on the canvas itself (locks scroll/zoom/pan from the moment of touchstart).
+  - `-webkit-user-select: none; user-select: none; -webkit-touch-callout: none;` on `html, body` so iPadOS doesn't select button text or show the magnifier callout when a fast stroke briefly grazes a neighbouring button. Re-enable for `input, textarea, [contenteditable]`.
+  - `overscroll-behavior: none` on body to kill rubber-band scroll.
+- **Flatten transparent canvas onto white before sending to vision APIs:** create a temp canvas → fill white → drawImage → `toDataURL('image/png')`. The display canvas should stay transparent (background comes from the wrap div).
+- **Resize via `ResizeObserver` + `orientationchange`** preserving existing ink (copy old canvas to a temp, resize, draw temp back). Account for `devicePixelRatio` on the backing store.
+
+## DON'T
+
+- **`setPointerCapture`** — stuck state after ~2 strokes with Apple Pencil/touch on iPadOS. Don't use it; rely on TouchEvent's implicit capture (and on PointerEvents path, just skip capture entirely; the canvas-down + window-move/up pattern works).
+- **PointerEvents on the iOS path** — synthesis from native touches is flaky for rapid taps; Safari drops every other `pointerdown`. Use raw `TouchEvent` on iOS.
+- **Window-level `touchend` with `passive: true`** — not always delivered when the touch ends on a non-canvas element while the canvas is between re-renders. Bind on the canvas.
+- **`preventDefault` on `touchstart` while ALSO using PointerEvents on the same element** — cancels the synthesized `pointerdown` for the next touch, silently breaking the second stroke. (Safe on the touch-only iOS path because we're not relying on PointerEvent synthesis.)
+- **`preventDefault` on window-level `pointermove` / `touchmove`** — iOS uses these for gesture arbitration; preventing can wedge the next stroke.
+- **React's JSX `onTouchStart={...}` props for non-passive behaviour** — React 17+ attaches them as passive, so `e.preventDefault()` is a no-op. Use `useEffect` + `addEventListener(..., { passive: false })` when you need to call `preventDefault`.
+- **Counting "ink" by RGB darkness** in tests — the canvas is transparent until ink lands; check `data[i+3] >= 32` (alpha) instead.
+
+## Audio side-quest (most handwriting apps speak words)
+
+iOS Safari routes Web Audio output through a noticeably quieter channel than `<audio>` elements, even with a 4× `GainNode`. **On iOS, play voice via `HTMLAudioElement` (loud "media" channel) and pause the music while it plays.** Web Audio with gain + dynamics-compressor + peak-normalize is fine for desktop and Android. Reference: `spell-quest/scripts/game-tts.js` and `game-audio.js`.
+
+## How to verify a fix without bothering the user
+
+`spell-quest/test/canvas-harness.html` + `test/test-canvas.mjs` drive the actual `WritingCanvas` under Chromium iPad emulation, dispatch 10 rapid sequential `TouchEvent` strokes, and assert ink monotonically grows on every stroke (catches the every-other-letter regression). Always run `npm run test:canvas` after touching canvas code. Note: Chromium emulation does NOT reproduce all real-iPad WebKit quirks (e.g. flaky PointerEvent synthesis on Pencil), so a green test is necessary but not sufficient — still smoke-test on the iPad after deploy.
+
+## Reference implementations
+
+- `spell-quest/scripts/game-canvas.js` — current canonical implementation, both iOS (Touch) and non-iOS (Pointer) paths, fully commented with what we tried and discarded.
+- `c:\Dev\n-solutions\n-learn\components\DrawingCanvas.tsx` — n-learn's React/TS original. Uses bundled React (so JSX-attached handlers); same conceptual model.
