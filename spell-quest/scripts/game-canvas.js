@@ -290,14 +290,25 @@ const WritingCanvas = React.forwardRef(function WritingCanvas(
     getDataUrl() {
       const canvas = canvasRef.current;
       if (!canvas) return '';
-      // Flatten onto a white background so Claude can read it clearly.
+      // Flatten onto a white background AND downscale to a max longest side
+      // (default 900px) so 25-word grading payloads stay well under Vercel's
+      // 4.5 MB body limit. Claude reads handwriting fine at this resolution
+      // — testing shows no transcription regression vs full-DPR canvas.
+      const MAX_SIDE = 900;
+      const w0 = canvas.width;
+      const h0 = canvas.height;
+      const scale = Math.min(1, MAX_SIDE / Math.max(w0, h0));
+      const w = Math.max(1, Math.round(w0 * scale));
+      const h = Math.max(1, Math.round(h0 * scale));
       const flat = document.createElement('canvas');
-      flat.width = canvas.width;
-      flat.height = canvas.height;
+      flat.width = w;
+      flat.height = h;
       const fctx = flat.getContext('2d');
       fctx.fillStyle = '#ffffff';
-      fctx.fillRect(0, 0, flat.width, flat.height);
-      fctx.drawImage(canvas, 0, 0);
+      fctx.fillRect(0, 0, w, h);
+      fctx.imageSmoothingEnabled = true;
+      fctx.imageSmoothingQuality = 'high';
+      fctx.drawImage(canvas, 0, 0, w0, h0, 0, 0, w, h);
       return flat.toDataURL('image/png');
     },
     isEmpty() {

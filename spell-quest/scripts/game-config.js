@@ -69,8 +69,9 @@ const DEFAULT_LISTS = [
   },
 ];
 
-// Words-per-list tuning.
-const MAX_WORDS_PER_TEST = 20;
+// Words-per-list tuning. Server-side cap (api/grade-spelling.js) is 25 to
+// match — keep the two in sync.
+const MAX_WORDS_PER_TEST = 25;
 const SECONDS_PER_WORD = 15;
 const MAX_TTS_REPLAYS = 2;
 
