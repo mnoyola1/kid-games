@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Spell Quest — voice picker</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: #1c1830; color: #f5f0e1;
+      font: 16px/1.5 ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
+    }
+    .layout { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 22px; margin: 0 0 8px; letter-spacing: .02em; }
+    .lead { opacity: .8; margin: 0 0 28px; }
+    .word-row {
+      background: #2c2147; border: 1px solid #4f3e7a; border-radius: 14px;
+      padding: 16px 14px; margin-bottom: 14px;
+    }
+    .word-title {
+      font-size: 18px; font-weight: 700;
+      color: #f1d68a; letter-spacing: .04em; text-transform: uppercase;
+      margin: 0 0 12px;
+    }
+    .voices { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    @media (min-width: 540px) { .voices { grid-template-columns: 1fr 1fr; } }
+    .voice {
+      display: flex; align-items: center; gap: 10px;
+      background: #1f1738; border: 1px solid #3b2e63; border-radius: 10px;
+      padding: 12px;
+    }
+    .voice .label { flex: 1; font-size: 14px; }
+    .voice .label .name { font-weight: 600; color: #f5f0e1; display: block; }
+    .voice .label .desc { color: #b0a4d0; font-size: 12px; }
+    button.play {
+      background: #4a3784; border: 1px solid #7155b8; color: #f5f0e1;
+      width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+      font-size: 18px; display: inline-flex; align-items: center; justify-content: center;
+    }
+    button.play.playing { background: #7155b8; }
+    .footer { opacity: .7; font-size: 13px; margin-top: 26px; line-height: 1.6; }
+    .pill {
+      display: inline-block; background: #3b2e63; border-radius: 999px;
+      padding: 1px 8px; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+      vertical-align: middle; margin-left: 6px; color: #d2c2ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <h1>Pick the dictation voice</h1>
+    <p class="lead">
+      Tap each ▶ to hear the same word in different voices. Try a few words
+      &mdash; some voices enunciate certain phonemes more clearly than others.
+      Tell me which one you want and I&rsquo;ll swap it in as the new default.
+    </p>
+
+    <div id="rows"></div>
+
+    <p class="footer">
+      All voices use the same Cartesia Sonic-2 settings as in-game (slow speed, English).
+      Carl is what Spell Quest currently uses. Bryce, Kate, Elaine, and Diana are
+      candidates from Cartesia&rsquo;s &ldquo;clear&nbsp;/ instructional&nbsp;/ teacher&rdquo; pool.
+    </p>
+  </div>
+
+  <script>
+    const VOICES = [
+      { id: 'carl',   name: 'Carl',   desc: 'Steady Storyteller', current: true },
+      { id: 'bryce',  name: 'Bryce',  desc: 'Clear Explainer (instructional)' },
+      { id: 'kate',   name: 'Kate',   desc: 'Practical Voice (direct, no-nonsense)' },
+      { id: 'elaine', name: 'Elaine', desc: 'Confident Guide (calm + clear)' },
+      { id: 'diana',  name: 'Diana',  desc: 'Gentle Mom (warm + relatable)' },
+    ];
+    const WORDS = [
+      'necessary',
+      'mischievous',
+      'definitely',
+      'rhythm',
+      'beneficial',
+    ];
+
+    let currentAudio = null;
+    let currentBtn   = null;
+
+    function play(word, voiceId, btn) {
+      if (currentAudio) {
+        try { currentAudio.pause(); } catch {}
+        currentBtn?.classList.remove('playing');
+        currentAudio = null;
+      }
+      const audio = new Audio(`./voice-samples/${word}_${voiceId}.mp3`);
+      audio.volume = 1.0;
+      audio.addEventListener('ended', () => {
+        btn.classList.remove('playing');
+        currentAudio = null;
+      });
+      audio.addEventListener('error', () => {
+        btn.classList.remove('playing');
+        currentAudio = null;
+      });
+      audio.play().then(() => {
+        btn.classList.add('playing');
+        currentAudio = audio;
+        currentBtn = btn;
+      }).catch(() => {});
+    }
+
+    const rows = document.getElementById('rows');
+    for (const word of WORDS) {
+      const row = document.createElement('div');
+      row.className = 'word-row';
+      const title = document.createElement('h3');
+      title.className = 'word-title';
+      title.textContent = word;
+      row.appendChild(title);
+
+      const voicesEl = document.createElement('div');
+      voicesEl.className = 'voices';
+      for (const v of VOICES) {
+        const cell = document.createElement('div');
+        cell.className = 'voice';
+        const lbl = document.createElement('div');
+        lbl.className = 'label';
+        const nm = document.createElement('span');
+        nm.className = 'name';
+        nm.textContent = v.name;
+        if (v.current) {
+          const pill = document.createElement('span');
+          pill.className = 'pill';
+          pill.textContent = 'CURRENT';
+          nm.appendChild(pill);
+        }
+        const ds = document.createElement('span');
+        ds.className = 'desc';
+        ds.textContent = v.desc;
+        lbl.appendChild(nm);
+        lbl.appendChild(ds);
+
+        const btn = document.createElement('button');
+        btn.className = 'play';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', `Play ${word} in ${v.name}`);
+        btn.textContent = '▶';
+        btn.addEventListener('click', () => play(word, v.id, btn));
+
+        cell.appendChild(btn);
+        cell.appendChild(lbl);
+        voicesEl.appendChild(cell);
+      }
+      row.appendChild(voicesEl);
+      rows.appendChild(row);
+    }
+  </script>
+</body>
+</html>
