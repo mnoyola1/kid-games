@@ -80,6 +80,34 @@ function scaleBuffer(buffer, scale) {
   return buffer;
 }
 
+// Allocate a copy of `src` in `ctx` so callers can mutate without affecting
+// the cached normalized AudioBuffer used by other paths.
+function copyBuffer(ctx, src) {
+  const out = ctx.createBuffer(src.numberOfChannels, src.length, src.sampleRate);
+  for (let c = 0; c < src.numberOfChannels; c++) {
+    out.getChannelData(c).set(src.getChannelData(c));
+  }
+  return out;
+}
+
+// Boost-and-tanh saturation: y = tanh(drive * x). Drive >1 lifts quiet/mid
+// samples and asymptotes loud samples toward ±1 with a smooth knee. This is
+// our iOS loudness lift: HTMLAudioElement is locked at volume=1.0 and Web
+// Audio gain doesn't route through iPad's loud "media" channel, so the only
+// way to ship audibly-louder voice on iPad is to bake more level into the
+// PCM samples without producing audible clipping. tanh adds mild even-order
+// harmonics (warmth) but no harsh distortion at drive ≤ 2.5 for speech.
+function ampAndSoftClipBuffer(buffer, drive = 2.0) {
+  if (drive === 1) return buffer;
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = Math.tanh(drive * data[i]);
+    }
+  }
+  return buffer;
+}
+
 // Loudness-normalize: lift every clip to a target RMS so quiet-mastered clips
 // (e.g. "wave") are perceptually as loud as punchy ones (e.g. "trick"), then
 // hard-cap so peaks don't blow past `peakLimit`. RMS is what the ear hears as
@@ -185,14 +213,22 @@ async function getDecodedBuffer(text, voice) {
   return trimmed;
 }
 
-// Get (or build + cache) the WAV blob URL for the iOS playback path.
+// Get (or build + cache) the WAV blob URL for the iOS playback path. We
+// CLONE the normalized buffer first so the iOS-only loudness lift doesn't
+// mutate the buffer the desktop path will play through Web Audio.
 async function getWavUrl(text, voice) {
   const key = voice + '|' + text;
   const cached = wavCache.get(key);
   if (cached) return cached;
   const buffer = await getDecodedBuffer(text, voice);
   if (!buffer) return null;
-  const url = URL.createObjectURL(audioBufferToWavBlob(buffer));
+  const ctx = getAudioCtx();
+  const loud = ctx ? copyBuffer(ctx, buffer) : buffer;
+  // ~+5 dB perceived lift for iPad. Drive 2.0 keeps RMS low enough to
+  // avoid harshness on speech while pushing average level well above the
+  // peak-normalized level the desktop path uses.
+  ampAndSoftClipBuffer(loud, 2.0);
+  const url = URL.createObjectURL(audioBufferToWavBlob(loud));
   wavCache.set(key, url);
   return url;
 }
@@ -203,18 +239,24 @@ function prewarmTts(text, voice = 'keeper') {
   });
 }
 
-// Teacher-style "say it twice" dictation pattern: "necessary. necessary."
-// Cartesia respects sentence punctuation and inserts a natural pause between
-// the two utterances. This (combined with `speed: 'slowest'` on the server)
-// gives kids time to hear the word fully and a second chance to catch tricky
-// phonemes without having to tap the replay button.
+// Teacher-style "say it twice" dictation pattern:
+//   "Necessary. Again, the word is necessary."
+// Cartesia (sonic-2) respects sentence punctuation and gives a real beat at
+// each period, and reads the second sentence with the natural rising-then-
+// settling intonation a teacher uses on the repeat. Combined with the
+// server-side `speed: 'slowest'` this produces the cadence kids hear in a
+// classroom spelling test, with the target word landing twice.
 function dictationTextFor(word) {
   const w = (word || '').toString().trim();
   if (!w) return '';
   // Strip any trailing punctuation the caller may have included so we don't
   // end up with double periods.
   const clean = w.replace(/[.!?…]+$/, '');
-  return `${clean}. ${clean}.`;
+  // Capitalize the first occurrence so Cartesia treats it as a clean
+  // sentence start; lowercase the second so the lead-in "the word is" flows
+  // into it without an artificial restart.
+  const first = clean.charAt(0).toUpperCase() + clean.slice(1);
+  return `${first}. Again, the word is ${clean}.`;
 }
 
 // Shared compressor + post-makeup gain. The compressor evens out per-word
