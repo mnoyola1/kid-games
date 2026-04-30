@@ -475,9 +475,10 @@ function TestScreen({ list, isRetest, onComplete, onExit }) {
     firstAutoplayRef.current = false;
 
     const t = setTimeout(() => {
-      window.SpellQuestTTS.speakWord(current.word).catch(() => {});
-      // Prewarm next word
-      if (idx + 1 < total) window.SpellQuestTTS.prewarmTts(words[idx + 1].word);
+      window.SpellQuestTTS.speakDictation(current.word).catch(() => {});
+      // Prewarm next word in its dictation form so we don't pay the
+      // re-encode latency on transition.
+      if (idx + 1 < total) window.SpellQuestTTS.prewarmDictation(words[idx + 1].word);
     }, delay);
     return () => clearTimeout(t);
   }, [idx]);
@@ -490,7 +491,7 @@ function TestScreen({ list, isRetest, onComplete, onExit }) {
   function replayAudio() {
     if (replaysLeft <= 0) return;
     setReplaysLeft((r) => r - 1);
-    window.SpellQuestTTS.speakWord(current.word).catch(() => {});
+    window.SpellQuestTTS.speakDictation(current.word).catch(() => {});
   }
 
   function readSentence() {
@@ -765,7 +766,7 @@ function PracticeScreen({ words, onDone, onSkipToRetest }) {
 
   useEffect(() => {
     canvasRef.current?.clear();
-    window.SpellQuestTTS.speakWord(current.word).catch(() => {});
+    window.SpellQuestTTS.speakDictation(current.word).catch(() => {});
   }, [wordIdx]);
 
   function nextRow() {
@@ -816,7 +817,7 @@ function PracticeScreen({ words, onDone, onSkipToRetest }) {
           <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
             <button className="sq-btn sq-btn-ghost text-sm" onClick={() => canvasRef.current?.clear()}>✖ Clear</button>
             <div className="flex gap-2">
-              <button className="sq-btn sq-btn-ghost text-sm" onClick={() => window.SpellQuestTTS.speakWord(current.word).catch(()=>{})}>🔊 Hear again</button>
+              <button className="sq-btn sq-btn-ghost text-sm" onClick={() => window.SpellQuestTTS.speakDictation(current.word).catch(()=>{})}>🔊 Hear again</button>
               <button className="sq-btn sq-btn-primary" onClick={nextRow}>
                 {row + 1 === 3 && wordIdx + 1 === words.length ? 'To retest →' : 'Rune etched ✓'}
               </button>

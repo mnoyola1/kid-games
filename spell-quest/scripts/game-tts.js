@@ -203,6 +203,20 @@ function prewarmTts(text, voice = 'keeper') {
   });
 }
 
+// Teacher-style "say it twice" dictation pattern: "necessary. necessary."
+// Cartesia respects sentence punctuation and inserts a natural pause between
+// the two utterances. This (combined with `speed: 'slowest'` on the server)
+// gives kids time to hear the word fully and a second chance to catch tricky
+// phonemes without having to tap the replay button.
+function dictationTextFor(word) {
+  const w = (word || '').toString().trim();
+  if (!w) return '';
+  // Strip any trailing punctuation the caller may have included so we don't
+  // end up with double periods.
+  const clean = w.replace(/[.!?…]+$/, '');
+  return `${clean}. ${clean}.`;
+}
+
 // Shared compressor + post-makeup gain. The compressor evens out per-word
 // loudness; the makeup gain after it pushes the average level higher
 // without re-introducing peak clipping.
@@ -325,4 +339,18 @@ function speakWord(text, { voice = 'keeper', gain = 4.0, duck = true } = {}) {
   });
 }
 
-window.SpellQuestTTS = { speakWord, prewarmTts };
+// Convenience wrappers for the spelling-test dictation pattern. Use these for
+// the actual word the kid is being asked to spell; use speakWord for narrated
+// sentences and feedback.
+function speakDictation(word, opts = {}) {
+  const text = dictationTextFor(word);
+  if (!text) return Promise.resolve();
+  return speakWord(text, opts);
+}
+function prewarmDictation(word, voice = 'keeper') {
+  const text = dictationTextFor(word);
+  if (!text) return;
+  prewarmTts(text, voice);
+}
+
+window.SpellQuestTTS = { speakWord, prewarmTts, speakDictation, prewarmDictation };

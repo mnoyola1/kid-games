@@ -69,7 +69,8 @@
 
   <script>
     const VOICES = [
-      { id: 'carl',   name: 'Carl',   desc: 'Steady Storyteller', current: true },
+      { id: 'carl_slowest_x2', name: 'Carl x2 slowest', desc: 'CURRENT in-game: doubled + slowest', current: true, only: ['necessary','mischievous','rhythm'] },
+      { id: 'carl',   name: 'Carl',   desc: 'Steady Storyteller (single, slow)' },
       { id: 'bryce',  name: 'Bryce',  desc: 'Clear Explainer (instructional)' },
       { id: 'kate',   name: 'Kate',   desc: 'Practical Voice (direct, no-nonsense)' },
       { id: 'elaine', name: 'Elaine', desc: 'Confident Guide (calm + clear)' },
@@ -121,6 +122,8 @@
       const voicesEl = document.createElement('div');
       voicesEl.className = 'voices';
       for (const v of VOICES) {
+        // Some voices only have samples for a subset of words.
+        if (v.only && !v.only.includes(word)) continue;
         const cell = document.createElement('div');
         cell.className = 'voice';
         const lbl = document.createElement('div');

@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
   // Bump this whenever the upstream request shape (model, language, speed, ...) changes,
   // so previously-cached MP3s on iPad / SW are not served as fresh.
-  const RENDER_VERSION = 'v2-slow-en';
+  const RENDER_VERSION = 'v3-slowest-en';
 
   const etag = '"' + crypto.createHash('sha1').update(`${RENDER_VERSION}|${voiceId}|${text}`).digest('hex') + '"';
   if (req.headers['if-none-match'] === etag) {
@@ -67,10 +67,12 @@ export default async function handler(req, res) {
         model_id: 'sonic-2',
         transcript: text,
         voice: { mode: 'id', id: voiceId },
-        // Pin the language and a slow, deliberate dictation speed so every word
-        // sounds like the same teacher reading at the same pace.
+        // Pin language to en and use the slowest dictation speed so words land
+        // crisply for spelling practice. Combined with the client-side
+        // "say it twice with a beat" pattern (see speakDictation in
+        // game-tts.js), this matches the cadence a real teacher uses.
         language: 'en',
-        speed: 'slow',
+        speed: 'slowest',
         output_format: {
           container: 'mp3',
           bit_rate: 128000,
