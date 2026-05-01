@@ -1,6 +1,9 @@
 // ==================== MATH MAGE — API CLIENT ====================
-// Thin wrapper around /api/grade-math. Used by the lock-in mode; the
-// action-arcade path doesn't call any server endpoint.
+// Thin wrapper around /api/grade-spelling (which dispatches to math grading
+// when the body carries a `problem` object — see api/grade-spelling.js).
+// Two endpoints were collapsed into one to stay under Vercel Hobby's 12
+// serverless function cap. Used by the lock-in mode; the action-arcade
+// path doesn't call any server endpoint.
 
 (function () {
   // Friendly per-status messages. The most common one in local dev is 501,
@@ -24,7 +27,7 @@
   async function gradeMath({ problem, imageDataUrl, studentName }) {
     let res;
     try {
-      res = await fetch('/api/grade-math', {
+      res = await fetch('/api/grade-spelling', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
