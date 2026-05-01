@@ -97,6 +97,17 @@ const GAMES = [
     active: true
   },
   {
+    id: 'math-mage',
+    name: 'Math Mage',
+    subtitle: 'Multiplication Action Arcade',
+    icon: '🪄',
+    url: './math-mage/index.html',
+    description: 'Master your times tables by casting multiplication spells against shadowy wraiths. Per-fact mastery tracking + spaced repetition focus your weekly target table.',
+    features: ['🎯 Per-Fact Mastery', '🔁 Spaced Repetition', '🎙️ Voice Narration', '⚡ Action Arcade'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'math-quest',
     name: 'Math Quest',
     subtitle: 'Adventure RPG',

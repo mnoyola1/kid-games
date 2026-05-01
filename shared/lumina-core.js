@@ -170,6 +170,14 @@ const LuminaCore = (function() {
     { id: 'sq_photo_upload', name: 'From the Scroll', desc: 'Add a list by photo', icon: '📸', xpBonus: 20 },
     { id: 'sq_streak_10', name: 'Rune Master', desc: 'Inscribe 10 runes correctly in one test', icon: '✨', xpBonus: 30 },
 
+    // Math Mage
+    { id: 'mm_first_spell', name: 'First Spell', desc: 'Cast your first multiplication spell', icon: '🪄', xpBonus: 15 },
+    { id: 'mm_six_master', name: 'Master of Six', desc: 'Bring every fact in the ×6 spell to gold', icon: '🥇', xpBonus: 100 },
+    { id: 'mm_speed_mage', name: 'Speed Mage', desc: 'Cast 10 spells under 2 seconds in a single tower run', icon: '⚡', xpBonus: 40 },
+    { id: 'mm_combo_storm', name: 'Combo Storm', desc: 'Reach a 10× combo in the Multiplier\'s Tower', icon: '🌪️', xpBonus: 30 },
+    { id: 'mm_boss_slayer', name: 'Wraith King Slayer', desc: 'Defeat the boss wraith of the Multiplier\'s Tower', icon: '👑', xpBonus: 75 },
+    { id: 'mm_lockin_scholar', name: 'Lock-in Scholar', desc: 'Successfully lock in a fact by handwriting', icon: '✒️', xpBonus: 20 },
+
     // Cipher Heist
     { id: 'ch_first_heist', name: 'First Heist', desc: 'Successfully crack a vault', icon: '🔓', xpBonus: 15 },
     { id: 'ch_master_cracker', name: 'Master Cracker', desc: 'Successfully crack 3 vaults', icon: '💎', xpBonus: 50 },
@@ -1394,6 +1402,19 @@ const LuminaCore = (function() {
         if (stats.hintsUsed === 0) checkAchievement(playerId, 'wh_no_hints');
         if (stats.difficulty === 'hard') checkAchievement(playerId, 'wh_word_master');
         // Check if all themes completed (would need theme tracking in stats)
+        break;
+
+      case 'math-mage':
+        // Math Mage uses simple per-session stats. The mm_six_master trophy
+        // requires the WHOLE ×6 table at gold, so the game passes
+        // `targetTableAllGold: true` only when all 13 ordered facts hit gold
+        // (computed from the per-fact mastery snapshot post-victory).
+        if (stats.correct >= 1) checkAchievement(playerId, 'mm_first_spell');
+        if (stats.target === 6 && stats.targetTableAllGold) checkAchievement(playerId, 'mm_six_master');
+        if (stats.fastCorrect >= 10) checkAchievement(playerId, 'mm_speed_mage');
+        if (stats.comboBest >= 10) checkAchievement(playerId, 'mm_combo_storm');
+        if (stats.bossCleared) checkAchievement(playerId, 'mm_boss_slayer');
+        if (stats.lockInsCompleted >= 1) checkAchievement(playerId, 'mm_lockin_scholar');
         break;
 
       case 'cipherHeist':
