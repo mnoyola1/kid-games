@@ -33,15 +33,27 @@ const MathMageWritingCanvas = React.forwardRef(function MathMageWritingCanvas(
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
   useEffect(() => { disabledRef.current = disabled; }, [disabled]);
 
+  // We measure with offsetWidth/offsetHeight (untransformed layout box)
+  // instead of getBoundingClientRect (which is *transform-affected*).
+  // The lock-in card mounts inside a `mm-pop` entrance animation that
+  // runs scale(0.5) → scale(1) over 380ms — measuring with gBCR during
+  // that window would lock the canvas pixel buffer at half-size and the
+  // strokes from the lower half of the visible area would silently fall
+  // off the canvas's internal coordinate space. ResizeObserver doesn't
+  // fire for transform changes, so we'd never recover until the user
+  // tapped Cast Rune (which causes a re-render → re-measurement).
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
 
-    const rect = wrap.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const cssW = Math.max(200, Math.floor(rect.width));
-    const cssH = Math.max(120, Math.floor(rect.height));
+    const cssW = Math.max(200, Math.floor(wrap.offsetWidth));
+    const cssH = Math.max(120, Math.floor(wrap.offsetHeight));
+
+    // No-op if the buffer already matches — avoids stomping on existing
+    // strokes when post-animation re-measures fire and nothing changed.
+    if (canvas.width === cssW * dpr && canvas.height === cssH * dpr) return;
 
     const prev = document.createElement('canvas');
     prev.width = canvas.width;
@@ -80,9 +92,26 @@ const MathMageWritingCanvas = React.forwardRef(function MathMageWritingCanvas(
       : null;
     if (ro && wrapRef.current) ro.observe(wrapRef.current);
     window.addEventListener('orientationchange', resizeCanvas);
+
+    // Defensive re-measures: catch layout settling after the mm-pop
+    // entrance animation (scale 0.5 → 1 over ~380ms) and any font/CSS
+    // load that shifts the box.
+    const t1 = setTimeout(resizeCanvas, 60);
+    const t2 = setTimeout(resizeCanvas, 220);
+    const t3 = setTimeout(resizeCanvas, 450);
+
+    // Listen for any animationend bubbling up from ancestors (mm-pop).
+    const onAnimEnd = () => resizeCanvas();
+    const wrapEl = wrapRef.current;
+    if (wrapEl) wrapEl.addEventListener('animationend', onAnimEnd);
+
     return () => {
       if (ro) ro.disconnect();
       window.removeEventListener('orientationchange', resizeCanvas);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      if (wrapEl) wrapEl.removeEventListener('animationend', onAnimEnd);
     };
   }, [resizeCanvas]);
 

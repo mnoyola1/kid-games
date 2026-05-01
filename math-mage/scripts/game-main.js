@@ -331,7 +331,7 @@ function LockInScreen({ profile, problem, onComplete, onSkip }) {
                 heightClass="h-[220px] sm:h-[260px]"
               />
               {error && (
-                <div className="mt-3 text-center mm-cinzel text-sm text-[#7a1f27]">
+                <div className="mt-3 mm-serif text-base text-[#7a1f27] leading-snug px-2">
                   {error}
                 </div>
               )}
@@ -346,10 +346,20 @@ function LockInScreen({ profile, problem, onComplete, onSkip }) {
                 >Cast Rune</button>
               </div>
               <div className="mt-3 text-center">
-                <button
-                  className="mm-cinzel text-xs uppercase tracking-widest opacity-60 hover:opacity-90"
-                  onClick={onSkip}
-                >Skip lock-in</button>
+                {/* Promote Skip lock-in to a real button after an error so
+                    the kid never gets stuck. Pre-error it's a quiet link
+                    so the lock-in feels mandatory by default. */}
+                {error ? (
+                  <button
+                    className="mm-btn mm-btn-ghost w-full"
+                    onClick={onSkip}
+                  >Skip lock-in →</button>
+                ) : (
+                  <button
+                    className="mm-cinzel text-xs uppercase tracking-widest opacity-60 hover:opacity-90"
+                    onClick={onSkip}
+                  >Skip lock-in</button>
+                )}
               </div>
             </>
           )}
