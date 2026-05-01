@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.9.8';
+const CACHE_VERSION = 'v1.9.9';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -167,6 +167,18 @@ const CRITICAL_ASSETS = [
   '/assets/backgrounds/spell-quest/bg_main.png',
   '/assets/backgrounds/spell-quest/bg_menu.png',
   '/assets/backgrounds/spell-quest/bg_results_scroll.png',
+
+  // === MATH MAGE ===
+  '/math-mage/index.html',
+  '/math-mage/styles/game-base.css',
+  '/math-mage/scripts/game-config.js',
+  '/math-mage/scripts/game-mastery.js',
+  '/math-mage/scripts/game-audio.js',
+  '/math-mage/scripts/game-juice.js',
+  '/math-mage/scripts/game-api.js',
+  '/math-mage/scripts/game-canvas.js',
+  '/math-mage/scripts/game-main.js',
+  '/math-mage/scripts/game-init.js',
 ];
 
 // Audio files (cached on-demand to avoid long initial load)
@@ -183,6 +195,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/canada-adventure/',
   '/assets/audio/china-adventure/',
   '/assets/audio/spell-quest/',
+  '/assets/audio/math-mage/',
 ];
 
 // Image/sprite files (cached on-demand)
