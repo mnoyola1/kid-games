@@ -108,6 +108,13 @@ const LuminaCore = (function() {
     { id: 'cn_all_regions', name: 'Middle Kingdom Master', desc: 'Unlock all 7 China regions', icon: '🏯', xpBonus: 75 },
     { id: 'cn_questions_40', name: 'Scholar of the Scrolls', desc: 'Answer 40 China questions correctly', icon: '📜', xpBonus: 35 },
     { id: 'cn_golden_rule', name: 'Golden Rule', desc: 'Discover China\'s most important lesson', icon: '✨', xpBonus: 25, secret: true },
+
+    // Hudson River Rush
+    { id: 'hr_first_leg', name: 'Set Sail', desc: 'Dock after your first stretch of river', icon: '⚓', xpBonus: 15 },
+    { id: 'hr_combo_5', name: 'Full Steam', desc: 'Get a 5x answer combo in Hudson River Rush', icon: '🔥', xpBonus: 25 },
+    { id: 'hr_niagara', name: 'Niagara Navigator', desc: 'Win the Niagara Falls Showdown', icon: '🏆', xpBonus: 75 },
+    { id: 'hr_questions_50', name: 'River Scholar', desc: 'Answer 50 New York questions correctly', icon: '🗽', xpBonus: 35 },
+    { id: 'hr_practice_90', name: 'Test Ready', desc: 'Score 90% or better on the Practice Test', icon: '📝', xpBonus: 50 },
     
     // Word Forge
     { id: 'wf_first_craft', name: 'Apprentice Smith', desc: 'Craft your first item', icon: '🔨', xpBonus: 15 },
@@ -210,6 +217,12 @@ const LuminaCore = (function() {
       name: 'Dragon Scrolls of China',
       icon: '🐉',
       defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, regionsUnlocked: 1, enemiesDefeated: 0, maxCombo: 0 }
+    },
+    hudsonRiverRush: {
+      id: 'hudsonRiverRush',
+      name: 'Hudson River Rush',
+      icon: '🚤',
+      defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, legsCompleted: 0, bossWins: 0, practiceTests: 0, maxCombo: 0 }
     },
     wordForge: { 
       id: 'wordForge', 
@@ -591,6 +604,13 @@ const LuminaCore = (function() {
           };
           needsSave = true;
         }
+        if (!profile.gameStats) profile.gameStats = {};
+        Object.keys(GAMES).forEach(gameKey => {
+          if (!profile.gameStats[gameKey]) {
+            profile.gameStats[gameKey] = { ...GAMES[gameKey].defaultStats };
+            needsSave = true;
+          }
+        });
       });
     }
     
@@ -1347,6 +1367,14 @@ const LuminaCore = (function() {
         if (stats.regionsUnlocked >= 7) checkAchievement(playerId, 'cn_all_regions');
         if (stats.maxCombo >= 5) checkAchievement(playerId, 'cn_combo_5');
         if (stats.questionsCorrect >= 40) checkAchievement(playerId, 'cn_questions_40');
+        break;
+
+      case 'hudsonRiverRush':
+        if (stats.legsCompleted >= 1) checkAchievement(playerId, 'hr_first_leg');
+        if (stats.maxCombo >= 5) checkAchievement(playerId, 'hr_combo_5');
+        if (stats.bossWins >= 1) checkAchievement(playerId, 'hr_niagara');
+        if (stats.questionsCorrect >= 50) checkAchievement(playerId, 'hr_questions_50');
+        if (stats.highScore >= 90) checkAchievement(playerId, 'hr_practice_90');
         break;
         
       case 'wordForge':

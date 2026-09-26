@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hudson River Rush - New York Social Studies</title>
+  <meta name="description" content="Steer your tugboat across New York from the Harbor to Niagara Falls. Social Studies Chapter 1 study game.">
+  <meta name="theme-color" content="#0c4a6e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚤</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="../shared/lumina-core.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .catch((err) => console.warn('[HudsonRiverRush] Service Worker registration failed:', err));
+    }
+  </script>
+
+  <link rel="stylesheet" href="./styles/game-base.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="./scripts/game-data.js"></script>
+  <script src="./scripts/game-config.js"></script>
+  <script src="./scripts/game-mastery.js"></script>
+  <script src="./scripts/game-audio.js"></script>
+  <script src="./scripts/game-juice.js"></script>
+  <script src="./scripts/game-river.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback, useMemo } = React;
+  </script>
+  <script type="text/babel" src="./scripts/game-components.js"></script>
+  <script type="text/babel" src="./scripts/game-main.js"></script>
+  <script type="text/babel" src="./scripts/game-init.js"></script>
+</body>
+</html>

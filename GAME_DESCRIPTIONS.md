@@ -574,6 +574,27 @@ An intergalactic adventure where players explore alien worlds, solve cosmic puzz
 
 ---
 
+## 12. HUDSON RIVER RUSH 🚤
+
+**Genre:** Top-down River Runner + Social Studies
+**Target Players:** Liam (4th grade, NY Social Studies Chapter 1)
+**Duration:** 2-3 minutes per river stretch, ~15 minutes for the full route
+
+### Core Gameplay
+Steer a tugboat across New York along the real route: NYC Harbor → up the Hudson → Adirondacks → Erie Canal past Syracuse → Lake Erie and Niagara Falls. Questions arrive as rows of answer buoys; steer through the right one. Between questions, dodge logs, rocks, and ice, and grab coins and life rings. Western NY has lake-effect snow patches that slow the boat.
+
+### Key Features
+- **5 river stretches + Niagara Falls boss** that mixes every question
+- **Dock challenges** after each stretch that rehearse the 4 written "Critical Thinking" answers (build NY's address, sort resources, renewable steps, weather vs. climate), ending with the teacher's model answer read aloud and optional "say it in your own words" speech check
+- **Practice Test** mode that mirrors the paper test: vocabulary matching, typed fill-in-the-blank with spelling tolerance, typed or spoken critical-thinking answers graded by key ideas
+- **Test Ready meter**: per-item mastery for all 20 study-guide items, a Weak Spot Run built from low-mastery items, and "missed N×" counts for parents
+- Every question and fact has a Cartesia voice line (browser speech fallback)
+
+### Content Source
+`homework/liam/assignments/social-studies-ch1/study-guide.md` → `hudson-river-rush/scripts/game-data.js`. Swap the content file to reuse the engine for a future chapter.
+
+---
+
 ## CROSS-GAME FEATURES
 
 All games integrate with **LuminaCore** for unified progression:

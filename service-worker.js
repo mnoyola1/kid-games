@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.9.9';
+const CACHE_VERSION = 'v1.10.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -78,6 +78,19 @@ const CRITICAL_ASSETS = [
   '/china-adventure/scripts/game-main.js',
   '/china-adventure/scripts/game-init.js',
   
+  // === HUDSON RIVER RUSH ===
+  '/hudson-river-rush/index.html',
+  '/hudson-river-rush/styles/game-base.css',
+  '/hudson-river-rush/scripts/game-data.js',
+  '/hudson-river-rush/scripts/game-config.js',
+  '/hudson-river-rush/scripts/game-mastery.js',
+  '/hudson-river-rush/scripts/game-audio.js',
+  '/hudson-river-rush/scripts/game-juice.js',
+  '/hudson-river-rush/scripts/game-river.js',
+  '/hudson-river-rush/scripts/game-components.js',
+  '/hudson-river-rush/scripts/game-main.js',
+  '/hudson-river-rush/scripts/game-init.js',
+
   // === LUMINA RACER ===
   '/lumina-racer/index.html',
   '/lumina-racer/styles/game-base.css',
@@ -194,6 +207,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/shadows-in-the-halls/',
   '/assets/audio/canada-adventure/',
   '/assets/audio/china-adventure/',
+  '/assets/audio/hudson-river-rush/',
   '/assets/audio/spell-quest/',
   '/assets/audio/math-mage/',
 ];

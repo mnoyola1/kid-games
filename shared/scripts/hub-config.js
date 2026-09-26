@@ -1,6 +1,17 @@
 // ==================== GAME DATA ====================
 const GAMES = [
   {
+    id: 'hudson-river-rush',
+    name: 'Hudson River Rush',
+    subtitle: 'NY Social Studies Runner',
+    icon: '🚤',
+    url: './hudson-river-rush/index.html',
+    description: 'Steer your tugboat from New York Harbor up the Hudson, through the Adirondacks, and down the Erie Canal to Niagara Falls. Dodge logs, steer through the right answers, and get test-ready for Chapter 1.',
+    features: ['🚤 River Runner', '🗽 NY Chapter 1', '📝 Practice Test', '📊 Test Ready Meter'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'spell-quest',
     name: 'Spell Quest',
     subtitle: 'Spelling Bee RPG',
