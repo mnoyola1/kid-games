@@ -284,7 +284,7 @@ function RiverScreen({ themeId, questions, goal, boss, audio, mastery, onEnd, on
 
   return (
     <div className="fixed inset-0 flex items-stretch justify-center overflow-hidden select-none">
-      <Backdrop bg={boss ? BG_PATHS.niagara : BG_PATHS[themeId]} dim={0.35} blur />
+      <Backdrop bg={boss ? BG_PATHS.niagara : BG_PATHS[themeId]} dim={0.5} />
       <aside className="hidden xl:flex flex-col items-center justify-center gap-4 w-60 shrink-0 p-4">
         <div className="bg-sky-200/90 rounded-2xl p-2 w-full shadow-xl">
           <MiniMap current={themeId} cleared={mastery.data.legsCleared} size="sm" />

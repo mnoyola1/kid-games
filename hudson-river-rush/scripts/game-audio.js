@@ -30,9 +30,27 @@ class AudioManager {
       el.volume = this.musicVolume;
       this.music[key] = el;
     });
+    // Without this, iOS mutes Web Audio when the ringer switch is on silent.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) {
+      this.ctx = new Ctx();
+      this.ctx.resume().catch(() => {});
+      this.sfxBuffers = {};
+      const wake = () => { if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {}); };
+      ['touchend', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+    }
     ['steer', 'correct', 'wrong', 'coin', 'splash', 'horn', 'boost', 'leg_done', 'snow'].forEach(key => {
+      const url = `${AUDIO_BASE}/sfx/${key}.mp3`;
+      if (this.ctx) {
+        fetch(url)
+          .then(r => r.arrayBuffer())
+          .then(data => new Promise((res, rej) => this.ctx.decodeAudioData(data, res, rej)))
+          .then(buf => { this.sfxBuffers[key] = buf; })
+          .catch(() => {});
+      }
       this.sfxPool[key] = [0, 1, 2].map(() => {
-        const el = new Audio(`${AUDIO_BASE}/sfx/${key}.mp3`);
+        const el = new Audio(url);
         el.preload = 'auto';
         return el;
       });
@@ -71,6 +89,18 @@ class AudioManager {
 
   sfx(key, { volume = 1, rate = 1 } = {}) {
     if (!this.sfxEnabled || !this.unlocked) return;
+    const buf = this.sfxBuffers && this.sfxBuffers[key];
+    if (buf) {
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = rate;
+      const gain = this.ctx.createGain();
+      gain.gain.value = Math.min(1, this.sfxVolume * volume);
+      src.connect(gain).connect(this.ctx.destination);
+      src.start();
+      return;
+    }
     const pool = this.sfxPool[key];
     if (!pool) return;
     const el = pool.find(a => a.paused || a.ended) || pool[0];

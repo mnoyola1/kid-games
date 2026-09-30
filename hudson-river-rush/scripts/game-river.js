@@ -127,9 +127,16 @@ class RiverRun {
     this.last = performance.now();
     const loop = (now) => {
       if (!this.running) return;
-      const dt = Math.min(0.05, (now - this.last) / 1000);
+      // Catch up after dropped frames in small steps so collisions can't be skipped.
+      let dt = Math.min(0.1, (now - this.last) / 1000);
       this.last = now;
-      if (!this.paused) this.update(dt);
+      if (!this.paused) {
+        while (dt > 0) {
+          const step = Math.min(dt, 1 / 30);
+          this.update(step);
+          dt -= step;
+        }
+      }
       this.render();
       this.raf = requestAnimationFrame(loop);
     };
@@ -150,7 +157,7 @@ class RiverRun {
   }
 
   fit(container) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(1.5, window.devicePixelRatio || 1);
     const scale = Math.min(container.clientWidth / RIVER_W, container.clientHeight / RIVER_H);
     this.canvas.style.width = `${Math.floor(RIVER_W * scale)}px`;
     this.canvas.style.height = `${Math.floor(RIVER_H * scale)}px`;
