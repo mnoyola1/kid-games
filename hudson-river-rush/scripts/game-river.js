@@ -292,8 +292,9 @@ class RiverRun {
 
   _damage(fromObstacle) {
     const s = this.stats;
-    s.hull = Math.max(0, s.hull - 1);
-    this.boat.invuln = 1.1;
+    // Obstacles can't take the last heart: only wrong answers can sink the boat.
+    s.hull = fromObstacle ? Math.max(1, s.hull - 1) : Math.max(0, s.hull - 1);
+    this.boat.invuln = 1.8;
     this.juice.shake(fromObstacle ? 9 : 11, 0.3);
     this.juice.flash('#f87171', 0.22);
     this.juice.hitstop(0.08);
@@ -309,7 +310,8 @@ class RiverRun {
   _spawnRow() {
     const set = OBSTACLE_SETS[this.themeId] || OBSTACLE_SETS.hudson;
     const hard = this.boss || ['canal', 'niagara'].includes(this.themeId);
-    const blockCount = Math.random() < (hard ? 0.35 : 0.2) ? 2 : 1;
+    const blockCount = !this.lastRowDouble && Math.random() < (hard ? 0.18 : 0.1) ? 2 : 1;
+    this.lastRowDouble = blockCount === 2;
     const lanes = shuffle([0, 1, 2]);
     const blocked = lanes.slice(0, blockCount);
     const free = lanes.slice(blockCount);
@@ -319,10 +321,15 @@ class RiverRun {
       this.objects.push({ type, lane, x: laneX(lane) + (type === 'snow' ? 0 : (Math.random() - 0.5) * 16), y: -size.h, w: size.w, h: size.h, rot: (Math.random() - 0.5) * 0.4, spin: (Math.random() - 0.5) * 0.6 });
     });
     const coinLane = free[Math.floor(Math.random() * free.length)];
-    if (this.stats.hull < RIVER_TUNING.maxHull && Math.random() < 0.2) {
+    if (this.stats.hull < RIVER_TUNING.maxHull && Math.random() < 0.3) {
       this.objects.push({ type: 'ring', lane: coinLane, x: laneX(coinLane), y: -50, w: 50, h: 50 });
     } else if (Math.random() < 0.75) {
       for (let i = 0; i < 3; i++) this.objects.push({ type: 'coin', lane: coinLane, x: laneX(coinLane), y: -40 - i * 52, w: 34, h: 34, phase: Math.random() * 6 });
+    }
+    if (Math.random() < 0.4) {
+      const cloudLane = free.find(l => l !== coinLane) ?? coinLane;
+      const size = OBSTACLE_SIZE.snow;
+      this.objects.push({ type: 'snow', lane: cloudLane, x: laneX(cloudLane), y: -size.h - 60, w: size.w, h: size.h, rot: 0, spin: 0 });
     }
   }
 
@@ -371,7 +378,7 @@ class RiverRun {
       // Stop spawning early so the water in front of the answer buoys is clear.
       if (this.spawnT <= 0 && this.timer > 2.2) {
         this._spawnRow();
-        this.spawnT = Math.max(0.7, 190 / this.speed);
+        this.spawnT = Math.max(1.6, 420 / this.speed);
       }
       if (this.timer <= 0) this._nextQuestion();
     } else if (this.phase === 'reading' && this.timer <= 0) {
@@ -403,8 +410,9 @@ class RiverRun {
         continue;
       }
       if (o.hit) continue;
-      const overlapX = Math.abs(o.x - b.x) < o.w / 2 + 20;
-      const overlapY = Math.abs(o.y - BOAT_Y) < o.h / 2 + 34;
+      const pickup = o.type === 'coin' || o.type === 'ring';
+      const overlapX = Math.abs(o.x - b.x) < o.w / 2 + (pickup ? 20 : 4);
+      const overlapY = Math.abs(o.y - BOAT_Y) < o.h / 2 + (pickup ? 34 : 18);
       if (!overlapX || !overlapY) continue;
       if (o.type === 'coin') {
         o.hit = true;

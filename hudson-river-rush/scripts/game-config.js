@@ -28,7 +28,7 @@ const LANES = 3;
 const BOAT_Y = 700;
 
 const RIVER_TUNING = {
-  cruiseSpeed: 230,        // px/s between questions
+  cruiseSpeed: 200,        // px/s between questions
   questionSpeed: 125,      // px/s while an answer gate approaches (reading time)
   bossQuestionSpeed: 165,
   readDelay: 1.6,          // seconds the question shows before its gate spawns
