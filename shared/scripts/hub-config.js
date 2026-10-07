@@ -1,6 +1,17 @@
 // ==================== GAME DATA ====================
 const GAMES = [
   {
+    id: 'signpost-sleuth',
+    name: 'Signpost Sleuth',
+    subtitle: 'Notice & Note Reading Detective',
+    icon: '🦉',
+    url: './signpost-sleuth/index.html',
+    description: 'Authors hide signposts in their stories. Read short mysteries, hit STOP when you spot one, and crack the case with Sage the owl. Race the clock in Speed Signs and get ready for the Notice & Note quiz.',
+    features: ['🔎 Story Detective', '🛑 6 Signposts', '🏁 Speed Signs', '📝 Practice Quiz'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'hudson-river-rush',
     name: 'Hudson River Rush',
     subtitle: 'NY Social Studies Runner',

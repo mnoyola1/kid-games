@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.10.2';
+const CACHE_VERSION = 'v1.11.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -90,6 +90,24 @@ const CRITICAL_ASSETS = [
   '/hudson-river-rush/scripts/game-components.js',
   '/hudson-river-rush/scripts/game-main.js',
   '/hudson-river-rush/scripts/game-init.js',
+
+  // === SIGNPOST SLEUTH ===
+  '/signpost-sleuth/index.html',
+  '/signpost-sleuth/styles/game-base.css',
+  '/signpost-sleuth/scripts/game-data.js',
+  '/signpost-sleuth/scripts/game-stories.js',
+  '/signpost-sleuth/scripts/game-config.js',
+  '/signpost-sleuth/scripts/game-mastery.js',
+  '/signpost-sleuth/scripts/game-audio.js',
+  '/signpost-sleuth/scripts/game-signs.js',
+  '/signpost-sleuth/scripts/game-ui.js',
+  '/signpost-sleuth/scripts/game-school.js',
+  '/signpost-sleuth/scripts/game-story.js',
+  '/signpost-sleuth/scripts/game-speed.js',
+  '/signpost-sleuth/scripts/game-quiz.js',
+  '/signpost-sleuth/scripts/game-jot.js',
+  '/signpost-sleuth/scripts/game-main.js',
+  '/signpost-sleuth/scripts/game-init.js',
 
   // === LUMINA RACER ===
   '/lumina-racer/index.html',
@@ -208,6 +226,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/canada-adventure/',
   '/assets/audio/china-adventure/',
   '/assets/audio/hudson-river-rush/',
+  '/assets/audio/signpost-sleuth/',
   '/assets/audio/spell-quest/',
   '/assets/audio/math-mage/',
 ];

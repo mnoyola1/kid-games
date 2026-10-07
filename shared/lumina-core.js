@@ -115,6 +115,14 @@ const LuminaCore = (function() {
     { id: 'hr_niagara', name: 'Niagara Navigator', desc: 'Win the Niagara Falls Showdown', icon: '🏆', xpBonus: 75 },
     { id: 'hr_questions_50', name: 'River Scholar', desc: 'Answer 50 New York questions correctly', icon: '🗽', xpBonus: 35 },
     { id: 'hr_practice_90', name: 'Test Ready', desc: 'Score 90% or better on the Practice Test', icon: '📝', xpBonus: 50 },
+
+    // Signpost Sleuth
+    { id: 'ps_first_case', name: 'Rookie Sleuth', desc: 'Solve your first Signpost Sleuth case', icon: '🔎', xpBonus: 15 },
+    { id: 'ps_all_badges', name: 'Sign Scholar', desc: 'Earn all 6 signpost badges in Sign School', icon: '🏫', xpBonus: 40 },
+    { id: 'ps_all_cases', name: 'Case Closed', desc: 'Solve all 4 Signpost Sleuth stories', icon: '🦉', xpBonus: 75 },
+    { id: 'ps_combo_10', name: 'Speed Reader', desc: 'Get a 10x combo in Speed Signs', icon: '🏁', xpBonus: 30 },
+    { id: 'ps_quiz_90', name: 'Quiz Ready', desc: 'Score 90% or better on the Notice & Note practice quiz', icon: '📝', xpBonus: 50 },
+    { id: 'ps_jot_3', name: 'Stop & Jot', desc: 'Write 3 sticky notes about your own reading book', icon: '📌', xpBonus: 30 },
     
     // Word Forge
     { id: 'wf_first_craft', name: 'Apprentice Smith', desc: 'Craft your first item', icon: '🔨', xpBonus: 15 },
@@ -223,6 +231,12 @@ const LuminaCore = (function() {
       name: 'Hudson River Rush',
       icon: '🚤',
       defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, legsCompleted: 0, bossWins: 0, practiceTests: 0, maxCombo: 0 }
+    },
+    signpostSleuth: {
+      id: 'signpostSleuth',
+      name: 'Signpost Sleuth',
+      icon: '🦉',
+      defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, badges: 0, casesSolved: 0, speedRuns: 0, practiceQuizzes: 0, jots: 0, maxCombo: 0 }
     },
     wordForge: { 
       id: 'wordForge', 
@@ -1375,6 +1389,15 @@ const LuminaCore = (function() {
         if (stats.bossWins >= 1) checkAchievement(playerId, 'hr_niagara');
         if (stats.questionsCorrect >= 50) checkAchievement(playerId, 'hr_questions_50');
         if (stats.highScore >= 90) checkAchievement(playerId, 'hr_practice_90');
+        break;
+
+      case 'signpostSleuth':
+        if (stats.casesSolved >= 1) checkAchievement(playerId, 'ps_first_case');
+        if (stats.casesSolved >= 4) checkAchievement(playerId, 'ps_all_cases');
+        if (stats.badges >= 6) checkAchievement(playerId, 'ps_all_badges');
+        if (stats.maxCombo >= 10) checkAchievement(playerId, 'ps_combo_10');
+        if (stats.highScore >= 90) checkAchievement(playerId, 'ps_quiz_90');
+        if (stats.jots >= 3) checkAchievement(playerId, 'ps_jot_3');
         break;
         
       case 'wordForge':

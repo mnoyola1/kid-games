@@ -595,6 +595,29 @@ Steer a tugboat across New York along the real route: NYC Harbor → up the Huds
 
 ---
 
+## 13. SIGNPOST SLEUTH 🦉
+
+**Genre:** Reading Detective + ELA (Notice & Note signposts)
+**Target Players:** Emma (6th grade ELA, Mrs. Burda's Notice & Note lesson, quiz Fri 10/9/26)
+**Duration:** 5-8 minutes per case story, 75 seconds per Speed Signs run
+
+### Core Gameplay
+Read original short stories one paragraph at a time. When an author drops a signpost, tap that sentence to STOP, then name the signpost, pick the question to ask, and choose the best sticky-note answer. False alarms cost points and missed signposts get revealed, so you have to really read.
+
+### Key Features
+- **Sign School:** lesson card per signpost (when it appears, the anchor question, what it tells you, a movie example) and a 4-question badge check
+- **Case Files:** 4 stories (band tryouts, a lighthouse, a new kid, a photo contest), each hiding all 6 signposts
+- **Speed Signs:** timed arcade round with combos and speed bonuses
+- **Practice Quiz:** definitions, anchor questions, identify-the-signpost passages, "what it tells you," and a short answer checked for key ideas
+- **Quiz Ready meter:** 25 skills (6 signposts × 4 facets + "why stop and note") with a Weak Spot Drill
+- **Stop & Jot notebook:** Emma's real homework; she jots signposts from her own reading book and shows them in Share mode
+- Road-sign icons match the teacher's slides (puzzle, light bulb, ?, lips, plus, camera)
+
+### Content Source
+`homework/emma/assignments/ela-notice-and-note/source/` (Notice & Note 2023.pptx) → `signpost-sleuth/scripts/game-data.js` and `game-stories.js`.
+
+---
+
 ## CROSS-GAME FEATURES
 
 All games integrate with **LuminaCore** for unified progression:

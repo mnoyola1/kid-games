@@ -1,0 +1,178 @@
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+html { background: #2a1d12; }
+
+body { font-family: 'Quicksand', sans-serif; color: #1f2937; }
+
+.font-title { font-family: 'Fredoka', sans-serif; }
+.font-story { font-family: 'Literata', Georgia, serif; }
+.font-hand { font-family: 'Caveat', cursive; }
+
+.ps-title-shadow {
+  text-shadow: 0 3px 0 rgba(59, 42, 26, 0.9), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.ps-paper {
+  background:
+    repeating-linear-gradient(transparent 0 31px, rgba(56, 120, 200, 0.12) 31px 32px),
+    linear-gradient(#fffdf6, #fbf5e6);
+}
+
+.ps-sticky {
+  background: linear-gradient(160deg, #fff59d, #fde047);
+  box-shadow: 0 10px 18px -8px rgba(0, 0, 0, 0.45);
+}
+
+.ps-btn {
+  transition: transform 0.12s cubic-bezier(.34, 1.56, .64, 1), filter 0.12s;
+  touch-action: manipulation;
+}
+.ps-btn:not(:disabled):hover { filter: brightness(1.07); transform: translateY(-2px); }
+.ps-btn:not(:disabled):active { transform: scale(0.94); }
+
+/* Story sentences are tappable */
+.ps-sentence {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 1px 2px;
+  transition: background-color 0.2s;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.ps-sentence:hover { background: rgba(253, 224, 71, 0.35); }
+.ps-sentence.found { background: rgba(253, 224, 71, 0.75); cursor: default; }
+.ps-sentence.missed { background: rgba(248, 113, 113, 0.35); cursor: default; }
+.ps-sentence.echo { text-decoration: underline wavy rgba(16, 185, 129, 0.8); text-underline-offset: 4px; }
+.ps-sentence.false { animation: ps-false 0.5s ease-out; }
+
+@keyframes ps-false {
+  0%, 100% { background: transparent; }
+  30% { background: rgba(248, 113, 113, 0.5); }
+}
+
+@keyframes ps-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.ps-pop { animation: ps-pop 0.38s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes ps-drop {
+  0% { transform: translateY(-24px); opacity: 0; }
+  70% { transform: translateY(4px); opacity: 1; }
+  100% { transform: translateY(0); }
+}
+.ps-drop { animation: ps-drop 0.35s ease-out both; }
+
+@keyframes ps-rise {
+  0% { transform: translateY(16px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.ps-rise { animation: ps-rise 0.45s ease-out both; }
+
+@keyframes ps-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+.ps-float { animation: ps-float 3s ease-in-out infinite; }
+
+@keyframes ps-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px) rotate(-1deg); }
+  40% { transform: translateX(10px) rotate(1deg); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.ps-shake { animation: ps-shake 0.4s ease-in-out; }
+
+@keyframes ps-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+}
+.ps-glow { animation: ps-glow 1.6s ease-in-out infinite; }
+
+@keyframes ps-stamp {
+  0% { transform: scale(2.4) rotate(-18deg); opacity: 0; }
+  60% { transform: scale(0.92) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+.ps-stamp { animation: ps-stamp 0.45s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes ps-star {
+  0% { transform: scale(0) rotate(-180deg); }
+  70% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.ps-star { display: inline-block; animation: ps-star 0.6s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes ps-trophy {
+  0% { transform: translateY(40px) scale(0.4); opacity: 0; }
+  60% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+.ps-trophy { animation: ps-trophy 0.8s cubic-bezier(.34, 1.56, .64, 1) both, ps-float 3s ease-in-out 0.8s infinite; }
+
+/* Floating score text and confetti */
+@keyframes ps-floattext {
+  0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+  15% { transform: translate(-50%, -6px) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -70px) scale(1); opacity: 0; }
+}
+.ps-floattext {
+  position: fixed;
+  pointer-events: none;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  -webkit-text-stroke: 1.5px rgba(30, 20, 10, 0.7);
+  animation: ps-floattext 0.95s ease-out forwards;
+  z-index: 60;
+}
+
+@keyframes ps-confetti {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+.ps-confetti {
+  position: fixed;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: ps-confetti var(--life) cubic-bezier(.2, .7, .4, 1) forwards;
+  z-index: 59;
+}
+
+/* Speed round road stripes */
+@keyframes ps-road {
+  from { background-position-y: 0; }
+  to { background-position-y: 120px; }
+}
+.ps-road {
+  background-image: linear-gradient(#fde68a 0 60px, transparent 60px 120px);
+  background-size: 8px 120px;
+  background-repeat: repeat-y;
+  background-position-x: center;
+  animation: ps-road 0.5s linear infinite;
+}
+
+@keyframes ps-card-in {
+  0% { transform: translateY(-60px) scale(0.7) rotate(-4deg); opacity: 0; }
+  70% { transform: translateY(6px) scale(1.03) rotate(1deg); opacity: 1; }
+  100% { transform: translateY(0) scale(1) rotate(0); }
+}
+.ps-card-in { animation: ps-card-in 0.4s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes ps-card-out {
+  to { transform: translateX(120%) rotate(12deg); opacity: 0; }
+}
+.ps-card-out { animation: ps-card-out 0.3s ease-in forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-float, .ps-glow, .ps-road { animation: none; }
+}
