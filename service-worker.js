@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NOYOLA HUB - Service Worker
  * Enables offline play and auto-updates
  * 
@@ -243,20 +243,20 @@ const ASSET_PREFIXES = [
  * Install Event: Cache critical assets
  */
 self.addEventListener('install', (event) => {
-  console.log('ðŸ”§ Service Worker: Installing v' + CACHE_VERSION);
+  console.log('🔧 Service Worker: Installing v' + CACHE_VERSION);
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('ðŸ“¦ Service Worker: Caching critical assets');
+        console.log('📦 Service Worker: Caching critical assets');
         return cache.addAll(CRITICAL_ASSETS);
       })
       .then(() => {
-        console.log('âœ… Service Worker: Installation complete');
+        console.log('✅ Service Worker: Installation complete');
         return self.skipWaiting(); // Activate immediately
       })
       .catch((error) => {
-        console.error('âŒ Service Worker: Installation failed', error);
+        console.error('❌ Service Worker: Installation failed', error);
       })
   );
 });
@@ -265,7 +265,7 @@ self.addEventListener('install', (event) => {
  * Activate Event: Clean up old caches
  */
 self.addEventListener('activate', (event) => {
-  console.log('ðŸ”§ Service Worker: Activating v' + CACHE_VERSION);
+  console.log('🔧 Service Worker: Activating v' + CACHE_VERSION);
   
   event.waitUntil(
     caches.keys()
@@ -277,13 +277,13 @@ self.addEventListener('activate', (event) => {
               return cacheName.startsWith('noyola-games-') && cacheName !== CACHE_NAME;
             })
             .map((cacheName) => {
-              console.log('ðŸ—‘ï¸ Service Worker: Deleting old cache', cacheName);
+              console.log('🗑️ Service Worker: Deleting old cache', cacheName);
               return caches.delete(cacheName);
             })
         );
       })
       .then(() => {
-        console.log('âœ… Service Worker: Activation complete');
+        console.log('✅ Service Worker: Activation complete');
         return self.clients.claim(); // Take control immediately
       })
   );
@@ -309,7 +309,7 @@ self.addEventListener('fetch', (event) => {
   // === Spell Quest API routing ===
   // /api/tts: stable per (voice, text). Stale-while-revalidate caches the MP3
   //          so replays during a test and across sessions are instant.
-  // /api/extract-words & /api/grade-spelling: NEVER cache â€” each request is unique.
+  // /api/extract-words & /api/grade-spelling: NEVER cache — each request is unique.
   if (url.pathname === '/api/tts') {
     event.respondWith(
       caches.open(`${CACHE_NAME}-tts`).then(async (cache) => {
@@ -369,7 +369,7 @@ self.addEventListener('fetch', (event) => {
 
   // === Network-first for the app shell ===
   // HTML, JS, CSS (and explicit versioned requests like ?v=16) change on
-  // every deploy, so we MUST hit the network when online â€” otherwise users
+  // every deploy, so we MUST hit the network when online — otherwise users
   // see stale UI until they hard-refresh (Ctrl+Shift+R). The cache is still
   // populated on success so offline play continues to work.
   const isAppShell =
@@ -413,7 +413,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for static game assets (sprites, audio, fonts, images) â€”
+  // Cache-first for static game assets (sprites, audio, fonts, images) —
   // these are large and stable, so cache wins for performance + offline.
   event.respondWith(
     caches.match(event.request)
@@ -452,7 +452,7 @@ function fetchAndCache(request, url) {
       return response;
     })
     .catch((error) => {
-      console.error('âŒ Service Worker: Fetch failed', url.pathname, error);
+      console.error('❌ Service Worker: Fetch failed', url.pathname, error);
 
       // Fallback for HTML pages
       if (url.pathname.endsWith('.html') || url.pathname === '/') {
@@ -486,4 +486,4 @@ self.addEventListener('message', (event) => {
   }
 });
 
-console.log('ðŸš€ Service Worker: Loaded v' + CACHE_VERSION);
+console.log('🚀 Service Worker: Loaded v' + CACHE_VERSION);
