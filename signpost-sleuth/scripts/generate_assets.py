@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Asset generation for "Signpost Sleuth" (signpost-sleuth).
 
@@ -7,7 +7,7 @@ Runs:
   - 8 Gemini backgrounds (title, one per case story, speed round, quiz)
   - 5 Lyria 3 music tracks
   - 9 ElevenLabs SFX clips
-  - Cartesia voice lines for narration, every signpost card, every story paragraph,
+  - ElevenLabs voice lines for narration, every signpost card, every story paragraph,
     every signpost explanation, and the quiz model answer (from game-data.js + game-stories.js)
 
 Usage (from n-games root):
@@ -82,8 +82,8 @@ SFX = [
     ("fanfare", 1.8, "short cheerful fanfare jingle, level complete, kids game"),
 ]
 
-VOICE_PRESET = "cheerful_female"
-VOICE_SPEED = "0.9"
+ELEVEN_VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # ElevenLabs premade "Jessica"
+ELEVEN_MODEL = "eleven_multilingual_v2"
 
 
 def load_js_json(name: str, var: str) -> dict:
@@ -219,12 +219,13 @@ def main() -> int:
         stories = load_js_json("game-stories.js", "window.PS_STORIES")
         for name, text in voice_lines(content, stories):
             out = VOICE_DIR / f"{name}.mp3"
-            go(f"voice:{name}", out, [py, str(SHARED_TOOLS / "audio" / "generate_voice.py"),
-                                      "-v", VOICE_PRESET, "-s", VOICE_SPEED, "-o", str(out), "-t", text], "voice")
+            go(f"voice:{name}", out, [py, str(SHARED_TOOLS / "audio" / "generate_voice_elevenlabs.py"),
+                                      "-v", ELEVEN_VOICE_ID, "-m", ELEVEN_MODEL, "--stability", "0.45", "--style", "0.25",
+                                      "-o", str(out), "-t", text], "voice")
             if not args.dry_run and want(f"voice:{name}"):
                 time.sleep(0.3)
 
-    est = counts["sprites"] * 0.04 + counts["bg"] * 0.04 + counts["music"] * 0.10 + counts["sfx"] * 0.02 + counts["voice"] * 0.008
+    est = counts["sprites"] * 0.04 + counts["bg"] * 0.04 + counts["music"] * 0.10 + counts["sfx"] * 0.02 + counts["voice"] * 0.03
     print(f"\n[summary] to generate: {counts}  est. cost ~${est:.2f}")
     if failures:
         print(f"[summary] FAILED ({len(failures)}): {', '.join(failures)}")
