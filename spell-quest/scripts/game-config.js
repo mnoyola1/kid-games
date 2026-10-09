@@ -69,6 +69,51 @@ const DEFAULT_LISTS = [
   },
 ];
 
+// Teacher lists from Google Classroom. Always shown at the top of the picker on
+// every device (saved lists live in localStorage per device). Newest first.
+const CLASS_LISTS = [
+  {
+    id: 'class-liam-wk4',
+    name: 'Liam — Spelling Week 4 (10/5–10/9)',
+    grade: 4,
+    words: [
+      { word: 'wrote', sentence: 'Liam wrote a letter to his grandma.' },
+      { word: 'coast', sentence: 'We drove along the coast to see the ocean.' },
+      { word: 'rocket', sentence: 'The rocket blasted off into space.' },
+      { word: 'globe', sentence: 'Spin the globe and find New York.' },
+      { word: 'remote', sentence: 'Pass me the TV remote, please.' },
+      { word: 'shock', sentence: 'It was a shock when the lights went out.' },
+      { word: 'throat', sentence: 'My throat hurts when I have a cold.' },
+      { word: 'odd', sentence: 'Three is an odd number.' },
+      { word: 'shown', sentence: 'The teacher has shown us how to solve it.' },
+      { word: 'doctor', sentence: 'The doctor checked my heartbeat.' },
+      { word: 'borrow', sentence: 'Can I borrow your pencil?' },
+      { word: 'stock', sentence: 'The store has lots of toys in stock.' },
+      { word: 'solve', sentence: 'Can you solve this riddle?' },
+      { word: 'host', sentence: 'We will host a party at our house.' },
+      { word: 'hope', sentence: 'I hope it snows this winter.' },
+    ],
+  },
+  {
+    id: 'class-liam-wk3',
+    name: 'Liam — Spelling Week 3 (9/28–10/2)',
+    grade: 4,
+    words: ['light', 'inch', 'live', 'brick', 'wind', 'remind', 'ticket', 'skill', 'tonight', 'crime', 'grind', 'chill', 'fright', 'surprise', 'decide'].map(word => ({ word })),
+  },
+  {
+    id: 'class-liam-wk2',
+    name: 'Liam — Spelling Week 2 (9/22–9/25)',
+    grade: 4,
+    words: ['west', 'fresh', 'shelf', 'reason', 'speed', 'steep', 'steam', 'least', 'engine', 'member', 'freedom', 'beast', 'kept', 'complete', 'defend'].map(word => ({ word })),
+  },
+  {
+    id: 'class-liam-wk1',
+    name: 'Liam — Spelling Week 1 (9/14–9/18)',
+    grade: 4,
+    words: ['gray', 'past', 'fact', 'sale', 'jail', 'maybe', 'hang', 'raft', 'crayon', 'glass', 'break', 'blade', 'drain', 'magic', 'steak'].map(word => ({ word })),
+  },
+];
+
 // Words-per-list tuning. Server-side cap (api/grade-spelling.js) is 25 to
 // match — keep the two in sync.
 const MAX_WORDS_PER_TEST = 25;
@@ -120,7 +165,7 @@ function uid() {
 // Expose on window for other modules (scripts load into same global scope via Babel).
 window.SpellQuestConfig = {
   ASSETS, MUSIC, SFX, KEEPER_LINES,
-  DEFAULT_LISTS, MAX_WORDS_PER_TEST, SECONDS_PER_WORD, MAX_TTS_REPLAYS,
+  DEFAULT_LISTS, CLASS_LISTS, MAX_WORDS_PER_TEST, SECONDS_PER_WORD, MAX_TTS_REPLAYS,
   ENCOURAGE_OK, ENCOURAGE_MISS,
   computeRewards, loadLists, saveLists, uid,
 };

@@ -137,10 +137,8 @@ function HowScreen({ onBack }) {
 // LIST PICKER
 // =====================================================================
 function ListPickerScreen({ onPick, onUpload, onTypeManually, onBack }) {
-  const [lists, setLists] = useState(() => {
-    const saved = CFG.loadLists();
-    return saved.length ? saved : CFG.DEFAULT_LISTS.map((l) => ({ ...l, id: l.id })); // show starters but don't persist
-  });
+  const withBuiltIns = (saved) => [...CFG.CLASS_LISTS, ...(saved.length ? saved : CFG.DEFAULT_LISTS)];
+  const [lists, setLists] = useState(() => withBuiltIns(CFG.loadLists()));
 
   useEffect(() => { A.playMusic('menu'); }, []);
 
@@ -148,8 +146,7 @@ function ListPickerScreen({ onPick, onUpload, onTypeManually, onBack }) {
     const saved = CFG.loadLists();
     const next = saved.filter((l) => l.id !== id);
     CFG.saveLists(next);
-    const combined = next.length ? next : CFG.DEFAULT_LISTS;
-    setLists(combined);
+    setLists(withBuiltIns(next));
   }
 
   return (
@@ -188,7 +185,7 @@ function ListPickerScreen({ onPick, onUpload, onTypeManually, onBack }) {
               </div>
               <div className="flex gap-2 shrink-0">
                 <button className="sq-btn sq-btn-primary text-sm" onClick={() => onPick(list)}>Begin</button>
-                {!list.id.startsWith('starter-') && (
+                {!list.id.startsWith('starter-') && !list.id.startsWith('class-') && (
                   <button
                     className="sq-btn sq-btn-ghost text-sm"
                     style={{ color: '#6b1d1d' }}
