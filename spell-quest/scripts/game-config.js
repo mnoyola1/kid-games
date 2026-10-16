@@ -73,6 +73,29 @@ const DEFAULT_LISTS = [
 // every device (saved lists live in localStorage per device). Newest first.
 const CLASS_LISTS = [
   {
+    id: 'class-liam-wk5',
+    name: 'Liam — Spelling Week 5 (10/13–10/16)',
+    grade: 4,
+    autoSentence: true,
+    words: [
+      { word: 'days', sentence: 'There are seven days in a week.' },
+      { word: 'daze', sentence: 'After he bumped his head, he was in a daze and felt confused.' },
+      { word: 'heel', sentence: 'The heel is the back part of your foot.' },
+      { word: 'heal', sentence: 'The cut on my knee will heal in a few days.' },
+      { word: 'sent', sentence: 'I sent a letter in the mail.' },
+      { word: 'scent', sentence: 'The flowers have a sweet scent, so they smell nice.' },
+      { word: 'cent', sentence: 'A penny is worth one cent.' },
+      { word: 'peek', sentence: 'Close your eyes and do not peek at your present.' },
+      { word: 'peak', sentence: 'We climbed to the peak, the very top of the mountain.' },
+      { word: 'wait', sentence: 'Please wait in line for your turn.' },
+      { word: 'weight', sentence: 'The doctor checked my weight on the scale.' },
+      { word: 'herd', sentence: 'A herd of cows walked across the field.' },
+      { word: 'heard', sentence: 'I heard the thunder with my ears.' },
+      { word: 'miner', sentence: 'The miner dug for coal deep underground.' },
+      { word: 'minor', sentence: 'It was only a minor problem, not a big one.' },
+    ],
+  },
+  {
     id: 'class-liam-wk4',
     name: 'Liam — Spelling Week 4 (10/5–10/9)',
     grade: 4,

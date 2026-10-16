@@ -471,14 +471,32 @@ function TestScreen({ list, isRetest, onComplete, onExit }) {
     const delay = firstAutoplayRef.current ? 1800 : 500;
     firstAutoplayRef.current = false;
 
+    let cancelled = false;
     const t = setTimeout(() => {
-      window.SpellQuestTTS.speakDictation(current.word).catch(() => {});
+      speakPrompt(() => cancelled);
       // Prewarm next word in its dictation form so we don't pay the
       // re-encode latency on transition.
-      if (idx + 1 < total) window.SpellQuestTTS.prewarmDictation(words[idx + 1].word);
+      if (idx + 1 < total) {
+        window.SpellQuestTTS.prewarmDictation(words[idx + 1].word);
+        if (list.autoSentence && words[idx + 1].sentence) window.SpellQuestTTS.prewarmTts(words[idx + 1].sentence);
+      }
     }, delay);
-    return () => clearTimeout(t);
+    return () => { cancelled = true; clearTimeout(t); };
   }, [idx]);
+
+  // Homophone lists need the sentence to know which spelling is wanted, so
+  // read them like a classroom test: word, sentence, word.
+  function speakPrompt(isCancelled = () => false) {
+    const tts = window.SpellQuestTTS;
+    if (!list.autoSentence || !current.sentence) {
+      tts.speakDictation(current.word).catch(() => {});
+      return;
+    }
+    tts.speakDictation(current.word)
+      .then(() => !isCancelled() && tts.speakWord(current.sentence))
+      .then(() => !isCancelled() && tts.speakDictation(current.word))
+      .catch(() => {});
+  }
 
   // Countdown tick
   useInterval(() => {
@@ -488,7 +506,7 @@ function TestScreen({ list, isRetest, onComplete, onExit }) {
   function replayAudio() {
     if (replaysLeft <= 0) return;
     setReplaysLeft((r) => r - 1);
-    window.SpellQuestTTS.speakDictation(current.word).catch(() => {});
+    speakPrompt();
   }
 
   function readSentence() {
@@ -963,7 +981,7 @@ function SpellQuest() {
           list={list}
           isRetest={false}
           onPractice={(misses) => {
-            setRetestMisses(misses.map((m) => ({ word: m.word })));
+            setRetestMisses(misses.map((m) => list.words.find((w) => w.word.toLowerCase() === String(m.word).toLowerCase()) || { word: m.word }));
             setScreen('practice');
           }}
           onDone={() => setScreen('menu')}
@@ -980,7 +998,7 @@ function SpellQuest() {
 
       {screen === 'retest' && retestMisses && (
         <TestScreen
-          list={{ name: `${list.name} — misses only`, words: retestMisses, id: list.id + '_retest' }}
+          list={{ name: `${list.name} — misses only`, words: retestMisses, id: list.id + '_retest', autoSentence: list.autoSentence }}
           isRetest={true}
           onComplete={(subs) => { setSubmissions(subs); setScreen('grading2'); }}
           onExit={() => setScreen('menu')}
@@ -1006,7 +1024,7 @@ function SpellQuest() {
           list={{ ...list, name: `${list.name} — retest` }}
           isRetest={true}
           onPractice={(misses) => {
-            setRetestMisses(misses.map((m) => ({ word: m.word })));
+            setRetestMisses(misses.map((m) => list.words.find((w) => w.word.toLowerCase() === String(m.word).toLowerCase()) || { word: m.word }));
             setScreen('practice');
           }}
           onDone={() => setScreen('menu')}
