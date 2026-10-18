@@ -618,6 +618,27 @@ Read original short stories one paragraph at a time. When an author drops a sign
 
 ---
 
+## 14. BEAKER BLITZ 🧪
+
+**Genre:** Arcade Catcher + Science (How Scientists Work)
+**Target Players:** Liam (4th grade Science Chapter 1, test Thu 10/22/26)
+**Duration:** 2-3 minutes per lab room, ~15 minutes for the full lab
+
+### Core Gameplay
+Drag Bolt the robot (or use ← →) along the lab floor carrying a giant beaker. Each question drops 2-3 answer bubbles; catch the right one and dodge the wrong ones. Between questions, slime drops fall (dodge) along with atoms (coins) and heart potions. Tap ⏬ Drop to speed the bubbles up once you're in position.
+
+### Key Features
+- **4 lab rooms + The Big Experiment boss** (rocket launch) that mixes every question: Observation Deck (observe, infer, evidence), Idea Lab (hypothesis, model, investigation), Test Chamber (experiment, variable), True or False Lab
+- **Lab Bench challenges** after each room: Observe-or-Infer sort, put the investigation steps in order, match all 8 vocabulary words, and Spot the Trick Word in the false statements
+- **Practice Test** that mirrors the paper test: typed fill-in-the-blank vocabulary (spelling slips flagged) and the 7 true/false statements
+- **Test Ready meter**: per-item mastery for all 15 study-guide items, a Weak Spot Run, and "missed N×" counts for parents
+- Every question, fact, and prompt has an ElevenLabs voice line (browser speech fallback)
+
+### Content Source
+`homework/liam/assignments/science-ch1/study-guide.md` → `beaker-blitz/scripts/game-data.js`.
+
+---
+
 ## CROSS-GAME FEATURES
 
 All games integrate with **LuminaCore** for unified progression:

@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.11.1';
+const CACHE_VERSION = 'v1.12.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -108,6 +108,19 @@ const CRITICAL_ASSETS = [
   '/signpost-sleuth/scripts/game-jot.js',
   '/signpost-sleuth/scripts/game-main.js',
   '/signpost-sleuth/scripts/game-init.js',
+
+  // === BEAKER BLITZ ===
+  '/beaker-blitz/index.html',
+  '/beaker-blitz/styles/game-base.css',
+  '/beaker-blitz/scripts/game-data.js',
+  '/beaker-blitz/scripts/game-config.js',
+  '/beaker-blitz/scripts/game-mastery.js',
+  '/beaker-blitz/scripts/game-audio.js',
+  '/beaker-blitz/scripts/game-juice.js',
+  '/beaker-blitz/scripts/game-lab.js',
+  '/beaker-blitz/scripts/game-components.js',
+  '/beaker-blitz/scripts/game-main.js',
+  '/beaker-blitz/scripts/game-init.js',
 
   // === LUMINA RACER ===
   '/lumina-racer/index.html',
@@ -227,6 +240,7 @@ const AUDIO_PREFIXES = [
   '/assets/audio/china-adventure/',
   '/assets/audio/hudson-river-rush/',
   '/assets/audio/signpost-sleuth/',
+  '/assets/audio/beaker-blitz/',
   '/assets/audio/spell-quest/',
   '/assets/audio/math-mage/',
 ];

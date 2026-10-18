@@ -123,6 +123,13 @@ const LuminaCore = (function() {
     { id: 'ps_combo_10', name: 'Speed Reader', desc: 'Get a 10x combo in Speed Signs', icon: '🏁', xpBonus: 30 },
     { id: 'ps_quiz_90', name: 'Quiz Ready', desc: 'Score 90% or better on the Notice & Note practice quiz', icon: '📝', xpBonus: 50 },
     { id: 'ps_jot_3', name: 'Stop & Jot', desc: 'Write 3 sticky notes about your own reading book', icon: '📌', xpBonus: 30 },
+
+    // Beaker Blitz
+    { id: 'bb_first_stage', name: 'Lab Assistant', desc: 'Fill your first beaker in Beaker Blitz', icon: '🧪', xpBonus: 15 },
+    { id: 'bb_combo_5', name: 'Chain Reaction', desc: 'Get a 5x answer combo in Beaker Blitz', icon: '🔥', xpBonus: 25 },
+    { id: 'bb_launch', name: 'Rocket Scientist', desc: 'Win The Big Experiment and launch the rocket', icon: '🚀', xpBonus: 75 },
+    { id: 'bb_questions_50', name: 'Curious Mind', desc: 'Answer 50 science questions correctly', icon: '🔬', xpBonus: 35 },
+    { id: 'bb_practice_90', name: 'Science Test Ready', desc: 'Score 90% or better on the Beaker Blitz Practice Test', icon: '📝', xpBonus: 50 },
     
     // Word Forge
     { id: 'wf_first_craft', name: 'Apprentice Smith', desc: 'Craft your first item', icon: '🔨', xpBonus: 15 },
@@ -237,6 +244,12 @@ const LuminaCore = (function() {
       name: 'Signpost Sleuth',
       icon: '🦉',
       defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, badges: 0, casesSolved: 0, speedRuns: 0, practiceQuizzes: 0, jots: 0, maxCombo: 0 }
+    },
+    beakerBlitz: {
+      id: 'beakerBlitz',
+      name: 'Beaker Blitz',
+      icon: '🧪',
+      defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, stagesCompleted: 0, bossWins: 0, practiceTests: 0, maxCombo: 0 }
     },
     wordForge: { 
       id: 'wordForge', 
@@ -1398,6 +1411,14 @@ const LuminaCore = (function() {
         if (stats.maxCombo >= 10) checkAchievement(playerId, 'ps_combo_10');
         if (stats.highScore >= 90) checkAchievement(playerId, 'ps_quiz_90');
         if (stats.jots >= 3) checkAchievement(playerId, 'ps_jot_3');
+        break;
+
+      case 'beakerBlitz':
+        if (stats.stagesCompleted >= 1) checkAchievement(playerId, 'bb_first_stage');
+        if (stats.maxCombo >= 5) checkAchievement(playerId, 'bb_combo_5');
+        if (stats.bossWins >= 1) checkAchievement(playerId, 'bb_launch');
+        if (stats.questionsCorrect >= 50) checkAchievement(playerId, 'bb_questions_50');
+        if (stats.highScore >= 90) checkAchievement(playerId, 'bb_practice_90');
         break;
         
       case 'wordForge':

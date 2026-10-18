@@ -1,6 +1,17 @@
 // ==================== GAME DATA ====================
 const GAMES = [
   {
+    id: 'beaker-blitz',
+    name: 'Beaker Blitz',
+    subtitle: 'Science Chapter 1 Lab Catcher',
+    icon: '🧪',
+    url: './beaker-blitz/index.html',
+    description: 'Slide Bolt the robot around the science lab and catch the bubble with the right answer. Dodge slime, sort Observe vs. Infer, spot the trick word in True or False, and fuel the rocket in The Big Experiment.',
+    features: ['🧪 Bubble Catcher', '🔬 How Scientists Work', '📝 Practice Test', '📊 Test Ready Meter'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'signpost-sleuth',
     name: 'Signpost Sleuth',
     subtitle: 'Notice & Note Reading Detective',
