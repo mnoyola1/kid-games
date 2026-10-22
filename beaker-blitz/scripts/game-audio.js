@@ -10,7 +10,7 @@ class AudioManager {
   constructor() {
     this.music = {};
     this.currentMusic = null;
-    this.musicVolume = 0.32;
+    this.musicVolume = 0.2;
     this.sfxVolume = 0.7;
     this.voiceVolume = 1.0;
     this.musicEnabled = true;
@@ -114,14 +114,26 @@ class AudioManager {
     } catch (_) {}
   }
 
-  _duckedVolume() {
-    const speaking = this.voiceEl && !this.voiceEl.paused;
-    return speaking ? this.musicVolume * 0.35 : this.musicVolume;
+  isSpeaking() {
+    return !!(this.voiceEl && !this.voiceEl.paused && !this.voiceEl.ended)
+      || !!(window.speechSynthesis && window.speechSynthesis.speaking);
   }
 
+  _duckedVolume() {
+    return this.isSpeaking() ? this.musicVolume * 0.25 : this.musicVolume;
+  }
+
+  // Fades rather than jumps; the fallback speech has no reliable end event, so poll while ducked.
   _applyDuck() {
-    const el = this.currentMusic && this.music[this.currentMusic];
-    if (el) el.volume = this._duckedVolume();
+    clearInterval(this.duckTimer);
+    this.duckTimer = setInterval(() => {
+      const el = this.currentMusic && this.music[this.currentMusic];
+      if (!el) { clearInterval(this.duckTimer); return; }
+      const target = this._duckedVolume();
+      const step = target < el.volume ? 0.04 : 0.015;
+      el.volume = Math.abs(target - el.volume) <= step ? target : el.volume + Math.sign(target - el.volume) * step;
+      if (el.volume === target && target === this.musicVolume) clearInterval(this.duckTimer);
+    }, 50);
   }
 
   stopVoice() {
@@ -155,5 +167,6 @@ class AudioManager {
     u.rate = 0.95;
     u.pitch = 1.05;
     window.speechSynthesis.speak(u);
+    this._applyDuck();
   }
 }

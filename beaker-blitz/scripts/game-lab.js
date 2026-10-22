@@ -238,6 +238,7 @@ class LabRun {
       this.objects.push({ type: 'bubble', text, correct: text === q.a, x: lay.xs[i], y: BUBBLE_SPAWN_Y + offsets[i], w: lay.w, h: lay.h, wob: Math.random() * 6, age: 0 });
     });
     this.audio && this.audio.sfx('pop', { volume: 0.4, rate: 0.8 });
+    this.hoverT = LAB_TUNING.hoverTime + q.q.length * LAB_TUNING.hoverPerChar;
     this.fastDrop = false;
     this.phase = 'drop';
     this.emit();
@@ -396,12 +397,15 @@ class LabRun {
     }
 
     // objects
-    const bubbleSpeed = (this.boss ? LAB_TUNING.bossBubbleSpeed : LAB_TUNING.bubbleSpeed) * (this.fastDrop ? 3.2 : 1);
+    // Bubbles float in place until the question has been read aloud and Liam has had time to read the choices.
+    if (this.phase === 'drop' && this.hoverT > 0 && !(this.audio && this.audio.isSpeaking())) this.hoverT -= dt;
+    const hovering = this.phase === 'drop' && this.hoverT > 0 && !this.fastDrop;
+    const bubbleSpeed = (this.boss ? LAB_TUNING.bossBubbleSpeed : LAB_TUNING.bubbleSpeed) * (this.fastDrop ? 4.5 : 1);
     for (const o of this.objects) {
       if (o.type === 'bubble') {
         o.age += dt;
         if (o.done) { o.fade -= dt * (o.reveal === 'right' ? 0.8 : 1.6); o.y += 30 * dt; continue; }
-        o.y += bubbleSpeed * dt;
+        if (!hovering) o.y += bubbleSpeed * dt;
       } else {
         o.y += o.vy * dt;
         if (o.type === 'slime') o.rot = Math.sin(this.time * 6 + o.x) * 0.15;

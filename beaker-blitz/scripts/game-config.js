@@ -28,9 +28,11 @@ const CATCH_Y = BOT_Y - 70; // beaker mouth
 
 const LAB_TUNING = {
   botSpeed: 620,            // px/s with keyboard
-  bubbleSpeed: 70,          // px/s while answer bubbles fall (reading time)
-  bossBubbleSpeed: 92,
-  readDelay: 1.8,           // seconds the question shows before bubbles drop
+  bubbleSpeed: 48,          // px/s while answer bubbles fall (reading time)
+  bossBubbleSpeed: 62,
+  readDelay: 1.0,           // seconds the question shows before bubbles appear
+  hoverTime: 3.0,           // seconds bubbles float in place after the voice finishes
+  hoverPerChar: 0.03,       // extra hover seconds per question character
   betweenTime: [4.2, 5.4],  // seconds of slime + atoms between questions
   hazardSpeed: [240, 320],
   maxHearts: 4,
