@@ -1,0 +1,153 @@
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+html {
+  background: radial-gradient(ellipse at top, #312e81 0%, #1e1b4b 45%, #0f0a2e 100%) fixed;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  color: #fff;
+}
+
+.font-title { font-family: 'Fredoka', sans-serif; font-weight: 600; }
+.font-game { font-family: 'Quicksand', sans-serif; }
+
+.fq-title-shadow {
+  text-shadow: 0 3px 0 rgba(76, 29, 149, 0.9), 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- buttons ---------- */
+.fq-btn {
+  border-radius: 1rem;
+  font-weight: 700;
+  color: #fff;
+  transition: transform 0.12s cubic-bezier(.34, 1.56, .64, 1), filter 0.12s, opacity 0.2s;
+  touch-action: manipulation;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+.fq-btn:not(:disabled):hover { filter: brightness(1.08); transform: translateY(-2px); }
+.fq-btn:not(:disabled):active { transform: scale(0.95); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); }
+.fq-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.fq-btn-primary { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #451a03; }
+.fq-btn-ghost { background: rgba(255, 255, 255, 0.12); box-shadow: none; }
+
+.fq-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.fq-input::placeholder { color: rgba(199, 210, 254, 0.55); }
+.fq-input:focus, .fq-input:focus-within { border-color: #fbbf24; }
+.fq-input input[type="date"] { color-scheme: dark; outline: none; }
+
+/* ---------- deck + mode tiles ---------- */
+.fq-deck, .fq-mode {
+  border-radius: 1.4rem;
+  padding: 1.1rem 1.2rem;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.15s cubic-bezier(.34, 1.56, .64, 1);
+  touch-action: manipulation;
+}
+.fq-deck:hover, .fq-mode:hover { transform: translateY(-4px) rotate(-0.5deg); }
+.fq-deck:active, .fq-mode:active { transform: scale(0.97); }
+.fq-mode { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; text-align: center; padding: 1.4rem 1rem; }
+
+/* ---------- flip card ---------- */
+.fq-card-flip { perspective: 1400px; height: min(52vh, 380px); background: none; border: 0; padding: 0; touch-action: manipulation; }
+.fq-card-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.34, 1.3, .64, 1);
+}
+.fq-card-flip.is-flipped .fq-card-inner { transform: rotateY(180deg); }
+.fq-card-face {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 2rem 1.75rem;
+  border-radius: 1.75rem;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+.fq-card-front { background: linear-gradient(160deg, #ffffff, #e0e7ff); color: #1e1b4b; }
+.fq-card-back { background: linear-gradient(160deg, #fde68a, #fbbf24); color: #451a03; transform: rotateY(180deg); }
+.fq-card-hint { position: absolute; top: 1rem; left: 1.25rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
+.fq-card-tap { position: absolute; bottom: 1rem; font-size: 0.8rem; font-weight: 700; opacity: 0.45; }
+
+/* ---------- quiz choices ---------- */
+.fq-choice {
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1.1rem;
+  padding: 1rem 1.1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: left;
+  color: #fff;
+  min-height: 4.5rem;
+  transition: transform 0.12s, background 0.2s, border-color 0.2s, opacity 0.2s;
+  touch-action: manipulation;
+}
+.fq-choice:not(:disabled):hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+.fq-choice-right { background: #10b981 !important; border-color: #6ee7b7 !important; animation: fq-pop 0.35s cubic-bezier(.34, 1.56, .64, 1); }
+.fq-choice-wrong { background: #e11d48 !important; border-color: #fda4af !important; animation: fq-shake 0.4s ease-in-out; }
+
+/* ---------- match tiles ---------- */
+.fq-tile {
+  min-height: 6.5rem;
+  border-radius: 1.1rem;
+  padding: 0.75rem;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-weight: 600;
+  transition: transform 0.15s, opacity 0.35s, box-shadow 0.15s;
+  touch-action: manipulation;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+.fq-tile-term { background: linear-gradient(160deg, #ffffff, #e0e7ff); color: #1e1b4b; }
+.fq-tile-def { background: linear-gradient(160deg, #c4b5fd, #8b5cf6); color: #fff; }
+.fq-tile-selected { transform: translateY(-4px) scale(1.03); box-shadow: 0 0 0 4px #fbbf24, 0 10px 20px rgba(0, 0, 0, 0.35); }
+.fq-tile-gone { opacity: 0; transform: scale(0.6) rotate(6deg); pointer-events: none; }
+
+/* ---------- motion ---------- */
+@keyframes fq-pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.fq-pop { animation: fq-pop 0.4s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes fq-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px) rotate(-1.5deg); }
+  40% { transform: translateX(9px) rotate(1.5deg); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+.fq-shake { animation: fq-shake 0.4s ease-in-out; box-shadow: 0 0 0 4px #f43f5e; }
+
+@keyframes fq-float {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+.fq-float { animation: fq-float 3.2s ease-in-out infinite; }
+
+@keyframes fq-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.7); }
+  50% { box-shadow: 0 0 0 7px rgba(252, 211, 77, 0); }
+}
+.fq-pulse { animation: fq-pulse 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fq-float, .fq-pulse { animation: none; }
+  .fq-card-inner { transition: none; }
+}

@@ -639,6 +639,26 @@ Drag Bolt the robot (or use ← →) along the lab floor carrying a giant beaker
 
 ---
 
+## 15. FLASH QUEST 🃏
+
+**Genre:** Flashcards + Quiz + Match race (any subject)
+**Target Players:** Emma and Liam, for whatever test is coming up
+**Duration:** 2-5 minutes per round
+
+### Core Gameplay
+Pick a deck, then play one of three modes. **Flip Cards**: tap to flip, then sort each card into Got it or Still learning (missed cards come back later in the round). **Quiz**: four answer choices per card, streaks earn bonus stars, and missed cards get a second-chance pass at the end. **Match**: clear a board of 6 terms and 6 definitions against the clock; wrong pairs add 2 seconds; best time is saved per deck.
+
+### Key Features
+- **Decks from school, automatically**: when a teacher posts study material for an upcoming test, the homework job on the family PC turns it into a deck (terms, definitions, and three believable wrong answers per card) and publishes it to the `study_sets` table. Decks show "Test tomorrow" badges and sort by test date.
+- **Make your own** decks (Emma's flashcards) or **import from Quizlet** (paste the Export text; tab, " - ", ":" and "," separators all work). Own decks save with the player profile, so they sync to other devices.
+- **Mastery** per card (Leitner boxes 1-5); rounds pull the weakest cards first.
+- "Show the definition first" flips every mode to answer with the term.
+
+### Content Source
+`study_sets` (kind `deck`) in the Noyola Hub Supabase project, written by `C:\Dev\personal\Emma & Liam\homework\scripts\study.mjs`. Schema: `supabase/study_sets.sql`. Spell Quest reads the same table (kind `spelling`) for new weekly spelling lists.
+
+---
+
 ## CROSS-GAME FEATURES
 
 All games integrate with **LuminaCore** for unified progression:

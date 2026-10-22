@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.12.2';
+const CACHE_VERSION = 'v1.13.0';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -24,6 +24,7 @@ const CRITICAL_ASSETS = [
   '/shared/lumina-core.js',
   '/shared/lumina-cloud.js',
   '/shared/supabase-config.js',
+  '/shared/study-sets.js',
   
   // Shared Hub Scripts
   '/shared/scripts/hub-config.js',
@@ -108,6 +109,16 @@ const CRITICAL_ASSETS = [
   '/signpost-sleuth/scripts/game-jot.js',
   '/signpost-sleuth/scripts/game-main.js',
   '/signpost-sleuth/scripts/game-init.js',
+
+  // === FLASH QUEST ===
+  '/flash-quest/index.html',
+  '/flash-quest/styles/game-base.css',
+  '/flash-quest/scripts/game-config.js',
+  '/flash-quest/scripts/game-audio.js',
+  '/flash-quest/scripts/game-modes.js',
+  '/flash-quest/scripts/game-components.js',
+  '/flash-quest/scripts/game-main.js',
+  '/flash-quest/scripts/game-init.js',
 
   // === BEAKER BLITZ ===
   '/beaker-blitz/index.html',

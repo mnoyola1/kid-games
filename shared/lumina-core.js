@@ -251,6 +251,12 @@ const LuminaCore = (function() {
       icon: '🧪',
       defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, stagesCompleted: 0, bossWins: 0, practiceTests: 0, maxCombo: 0 }
     },
+    flashQuest: {
+      id: 'flashQuest',
+      name: 'Flash Quest',
+      icon: '🃏',
+      defaultStats: { highScore: 0, gamesPlayed: 0, questionsCorrect: 0, questionsTotal: 0, cardsMastered: 0, matchWins: 0, decksMade: 0, maxCombo: 0 }
+    },
     wordForge: { 
       id: 'wordForge', 
       name: 'Word Forge', 

@@ -1,6 +1,17 @@
 // ==================== GAME DATA ====================
 const GAMES = [
   {
+    id: 'flash-quest',
+    name: 'Flash Quest',
+    subtitle: 'Study Decks from School',
+    icon: '🃏',
+    url: './flash-quest/index.html',
+    description: 'Flashcards that build themselves from your teachers\' study guides. Flip cards, take a quiz, and race the clock in Match. Make your own decks or bring in a Quizlet set.',
+    features: ['📬 Auto Decks from School', '🃏 Flip Cards', '❓ Quiz', '⚡ Match Race'],
+    active: true,
+    tags: ['new']
+  },
+  {
     id: 'beaker-blitz',
     name: 'Beaker Blitz',
     subtitle: 'Science Chapter 1 Lab Catcher',

@@ -136,11 +136,33 @@ function HowScreen({ onBack }) {
 // =====================================================================
 // LIST PICKER
 // =====================================================================
+// Lists the homework job publishes from Google Classroom (shared/study-sets.js), shaped like CLASS_LISTS.
+function classroomLists(sets) {
+  const kid = window.LuminaCore?.getActiveProfile?.()?.id;
+  const mine = sets.filter((s) => s.data?.words?.length && (kid !== 'emma' && kid !== 'liam' ? true : s.kid === kid));
+  return mine
+    .map((s) => ({ id: `class-${s.id}`, name: s.name, grade: s.data.grade, autoSentence: true, words: s.data.words }))
+    .filter((l) => !CFG.CLASS_LISTS.some((c) => c.name === l.name));
+}
+
 function ListPickerScreen({ onPick, onUpload, onTypeManually, onBack }) {
-  const withBuiltIns = (saved) => [...CFG.CLASS_LISTS, ...(saved.length ? saved : CFG.DEFAULT_LISTS)];
+  const [cloud, setCloud] = useState(() => classroomLists(window.StudySets?.cached({ kind: 'spelling' }) ?? []));
+  const withBuiltIns = (saved, fromClassroom = cloud) => [...fromClassroom, ...CFG.CLASS_LISTS, ...(saved.length ? saved : CFG.DEFAULT_LISTS)];
   const [lists, setLists] = useState(() => withBuiltIns(CFG.loadLists()));
 
   useEffect(() => { A.playMusic('menu'); }, []);
+
+  useEffect(() => {
+    if (!window.StudySets) return;
+    let alive = true;
+    window.StudySets.load({ kind: 'spelling' }).then((sets) => {
+      if (!alive) return;
+      const next = classroomLists(sets);
+      setCloud(next);
+      setLists(withBuiltIns(CFG.loadLists(), next));
+    });
+    return () => { alive = false; };
+  }, []);
 
   function deleteList(id) {
     const saved = CFG.loadLists();
