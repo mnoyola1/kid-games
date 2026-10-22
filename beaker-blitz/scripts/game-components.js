@@ -272,15 +272,11 @@ function LabScreen({ stageId, questions, goal, boss, audio, mastery, onEnd, onQu
   return (
     <div className="fixed inset-0 flex items-stretch justify-center overflow-hidden select-none">
       <Backdrop bg={boss ? BG_PATHS.boss : BG_PATHS[stageId]} dim={0.55} />
-      <aside className="hidden xl:flex flex-col items-center justify-center gap-4 w-60 shrink-0 p-4">
-        <img src={boss ? SPRITE_PATHS.rocket : SPRITE_PATHS.fizz} alt="" className="w-36 bb-float drop-shadow-2xl" />
-        <div className="font-title text-white text-2xl text-center bb-title-shadow">{title}</div>
-      </aside>
-      <div ref={wrapRef} className="relative flex-1 min-w-0 max-w-[620px] flex items-center justify-center">
+      <div ref={wrapRef} className="relative flex-1 min-w-0 flex items-center justify-center">
         <div ref={hurtRef} className="relative">
           <canvas ref={canvasRef} className="block rounded-2xl shadow-2xl touch-none" />
 
-          <div className="absolute top-0 inset-x-0 p-2 flex flex-col gap-2 pointer-events-none">
+          <div className="absolute top-0 inset-x-0 mx-auto max-w-3xl p-2 flex flex-col gap-2 pointer-events-none">
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1 bg-slate-900/60 rounded-full px-3 py-1">
                 {hearts.map((on, i) => <span key={i} className={cx('text-2xl transition-all', on ? '' : 'grayscale opacity-30 scale-75')}>❤️</span>)}

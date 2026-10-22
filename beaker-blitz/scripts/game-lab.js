@@ -2,10 +2,13 @@
 // Bolt the robot slides along the lab floor carrying a beaker. Each question drops a few
 // answer bubbles; catch the right one. Between questions: dodge slime, grab atoms and potions.
 
-const BUBBLE_LAYOUT = {
-  2: { xs: [150, 390], w: 205, h: 104 },
-  3: { xs: [95, 270, 445], w: 168, h: 112 },
-};
+// The field is always LAB_H tall; its width stretches with the screen (LAB_W portrait up to LAB_MAX_W landscape).
+const LAB_MAX_W = 1040;
+function bubbleLayout(n, W) {
+  const lane = W / n;
+  const w = Math.min(lane * 0.84, n === 2 ? 340 : 270);
+  return { xs: Array.from({ length: n }, (_, i) => lane * (i + 0.5)), w, h: n === 2 ? 104 : 112 };
+}
 const BOT_HALF_W = 46;
 const FLOOR_Y = 800;
 // Bubbles appear below the HUD + question card so their answers are readable right away.
@@ -81,11 +84,12 @@ class LabRun {
     this.goal = opts.goal;
     this.juice = new JuiceSystem();
     this.images = LabImages();
+    this.W = LAB_W;
 
-    this.bot = { x: LAB_W / 2, targetX: LAB_W / 2, tilt: 0, invuln: 0, squash: 0 };
+    this.bot = { x: this.W / 2, targetX: this.W / 2, tilt: 0, invuln: 0, squash: 0 };
     this.keys = new Set();
     this.objects = [];
-    this.motes = Array.from({ length: 18 }, () => ({ x: Math.random() * LAB_W, y: Math.random() * LAB_H, r: 2 + Math.random() * 4, s: 10 + Math.random() * 20 }));
+    this.motes = Array.from({ length: 18 }, () => ({ x: Math.random() * this.W, y: Math.random() * LAB_H, r: 2 + Math.random() * 4, s: 10 + Math.random() * 20 }));
 
     this.queue = orderByNeed(opts.questions, this.mastery);
     this.phase = 'intro';
@@ -151,11 +155,19 @@ class LabRun {
 
   fit(container) {
     const dpr = Math.min(1.5, window.devicePixelRatio || 1);
-    const scale = Math.min(container.clientWidth / LAB_W, container.clientHeight / LAB_H);
-    this.canvas.style.width = `${Math.floor(LAB_W * scale)}px`;
+    const aspect = container.clientWidth / Math.max(1, container.clientHeight);
+    this.W = Math.round(Math.max(LAB_W, Math.min(LAB_MAX_W, LAB_H * aspect)));
+    const scale = Math.min(container.clientWidth / this.W, container.clientHeight / LAB_H);
+    this.canvas.style.width = `${Math.floor(this.W * scale)}px`;
     this.canvas.style.height = `${Math.floor(LAB_H * scale)}px`;
-    this.canvas.width = LAB_W * dpr;
+    this.canvas.width = this.W * dpr;
     this.canvas.height = LAB_H * dpr;
+    if (this.phase === 'intro') {
+      this.bot.x = this.bot.targetX = this.W / 2;
+      this.motes.forEach(m => { m.x = Math.random() * this.W; });
+    } else {
+      this.bot.targetX = Math.min(this.bot.targetX, this.W - BOT_HALF_W);
+    }
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
@@ -177,7 +189,7 @@ class LabRun {
     else if (k === 'arrowright' || k === 'd') { this.keys.add('r'); e.preventDefault(); }
     else if (k === 'arrowdown' || k === 's' || k === ' ') { this.drop(); e.preventDefault(); }
     else if (['1', '2', '3'].includes(k) && this.round) {
-      const xs = BUBBLE_LAYOUT[this.round.choices.length].xs;
+      const xs = bubbleLayout(this.round.choices.length, this.W).xs;
       const i = Number(k) - 1;
       if (xs[i] != null) this.bot.targetX = xs[i];
     }
@@ -191,7 +203,7 @@ class LabRun {
 
   _logicalX(e) {
     const r = this.canvas.getBoundingClientRect();
-    return (e.clientX - r.left) * (LAB_W / r.width);
+    return (e.clientX - r.left) * (this.W / r.width);
   }
 
   _onDown(e) {
@@ -214,7 +226,7 @@ class LabRun {
     if (this.stats.correct >= this.goal) {
       this.phase = 'finish';
       this.timer = this.boss ? 2.4 : 1.4;
-      this.juice.text(LAB_W / 2, 300, this.boss ? 'BLAST OFF!' : 'BEAKER FULL!', { color: '#fde047', size: 44, life: 1.6, rise: 30 });
+      this.juice.text(this.W / 2, 300, this.boss ? 'BLAST OFF!' : 'BEAKER FULL!', { color: '#fde047', size: 44, life: 1.6, rise: 30 });
       this.juice.burst(this.bot.x, CATCH_Y, { count: 50, speed: [200, 520], colors: ['#fde047', '#f472b6', '#60a5fa', '#4ade80'] });
       this.audio && this.audio.sfx(this.boss ? 'launch' : 'stage_done', { volume: 0.8 });
       if (this.boss) this.rocket = { y: LAB_H + 120, t: 0 };
@@ -232,7 +244,7 @@ class LabRun {
 
   _dropBubbles() {
     const { q, choices } = this.round;
-    const lay = BUBBLE_LAYOUT[choices.length];
+    const lay = bubbleLayout(choices.length, this.W);
     const offsets = shuffle([0, 45, 90].slice(0, choices.length));
     choices.forEach((text, i) => {
       this.objects.push({ type: 'bubble', text, correct: text === q.a, x: lay.xs[i], y: BUBBLE_SPAWN_Y + offsets[i], w: lay.w, h: lay.h, wob: Math.random() * 6, age: 0 });
@@ -320,7 +332,7 @@ class LabRun {
   _spawnBetween() {
     const hard = this.boss || this.stageId === 'truefalse';
     const r = Math.random();
-    const x = 50 + Math.random() * (LAB_W - 100);
+    const x = 50 + Math.random() * (this.W - 100);
     const [lo, hi] = LAB_TUNING.hazardSpeed;
     const speed = (lo + Math.random() * (hi - lo)) * (hard ? 1.15 : 1);
     if (this.stats.hearts < LAB_TUNING.maxHearts && r < 0.1) {
@@ -328,12 +340,12 @@ class LabRun {
     } else if (r < (hard ? 0.62 : 0.52)) {
       this.objects.push({ type: 'slime', x, y: -50, w: 56, h: 66, vy: speed, rot: 0 });
       if (hard && Math.random() < 0.25) {
-        const x2 = x < LAB_W / 2 ? x + 170 + Math.random() * 80 : x - 170 - Math.random() * 80;
-        this.objects.push({ type: 'slime', x: Math.max(50, Math.min(LAB_W - 50, x2)), y: -120, w: 56, h: 66, vy: speed, rot: 0 });
+        const x2 = x < this.W / 2 ? x + 170 + Math.random() * 80 : x - 170 - Math.random() * 80;
+        this.objects.push({ type: 'slime', x: Math.max(50, Math.min(this.W - 50, x2)), y: -120, w: 56, h: 66, vy: speed, rot: 0 });
       }
     } else {
       const n = 2 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < n; i++) this.objects.push({ type: 'atom', x: Math.max(40, Math.min(LAB_W - 40, x + (i - n / 2) * 30)), y: -30 - i * 46, w: 32, h: 32, vy: speed * 0.75, phase: Math.random() * 6 });
+      for (let i = 0; i < n; i++) this.objects.push({ type: 'atom', x: Math.max(40, Math.min(this.W - 40, x + (i - n / 2) * 30)), y: -30 - i * 46, w: 32, h: 32, vy: speed * 0.75, phase: Math.random() * 6 });
     }
   }
 
@@ -349,7 +361,7 @@ class LabRun {
     const b = this.bot;
     if (this.keys.has('l')) b.targetX = b.x - LAB_TUNING.botSpeed * 0.12;
     if (this.keys.has('r')) b.targetX = b.x + LAB_TUNING.botSpeed * 0.12;
-    b.targetX = Math.max(BOT_HALF_W, Math.min(LAB_W - BOT_HALF_W, b.targetX));
+    b.targetX = Math.max(BOT_HALF_W, Math.min(this.W - BOT_HALF_W, b.targetX));
     const prevX = b.x;
     const maxStep = (this.keys.size ? LAB_TUNING.botSpeed : 1100) * dt;
     const diff = b.targetX - b.x;
@@ -361,7 +373,7 @@ class LabRun {
 
     this.motes.forEach(m => {
       m.y -= m.s * dt;
-      if (m.y < -10) { m.y = LAB_H + 10; m.x = Math.random() * LAB_W; }
+      if (m.y < -10) { m.y = LAB_H + 10; m.x = Math.random() * this.W; }
     });
     if (Math.random() < dt * 4) this.juice.fizz(b.x, CATCH_Y + 10, 1);
 
@@ -388,7 +400,7 @@ class LabRun {
       if (this.rocket) {
         this.rocket.t += dt;
         this.rocket.y -= (200 + this.rocket.t * 900) * dt;
-        this.juice.burst(LAB_W / 2, this.rocket.y + 90, { count: 3, colors: ['#fdba74', '#fde047', '#f8fafc'], speed: [40, 140], angle: Math.PI / 2, spread: 0.8, gravity: 60, life: [0.4, 0.8], size: [5, 10] });
+        this.juice.burst(this.W / 2, this.rocket.y + 90, { count: 3, colors: ['#fdba74', '#fde047', '#f8fafc'], speed: [40, 140], angle: Math.PI / 2, spread: 0.8, gravity: 60, life: [0.4, 0.8], size: [5, 10] });
       }
       if (this.timer <= 0) {
         this.phase = 'done';
@@ -474,29 +486,29 @@ class LabRun {
     const ctx = this.ctx;
     const sh = this.juice.shakeOffset();
     ctx.save();
-    ctx.clearRect(0, 0, LAB_W, LAB_H);
+    ctx.clearRect(0, 0, this.W, LAB_H);
     ctx.translate(sh.x, sh.y);
 
     const bg = this.images[this.bg];
-    if (imgReady(bg)) drawCover(ctx, bg, LAB_W, LAB_H);
+    if (imgReady(bg)) drawCover(ctx, bg, this.W, LAB_H);
     else {
       const g = ctx.createLinearGradient(0, 0, 0, LAB_H);
       g.addColorStop(0, '#1e3a8a');
       g.addColorStop(1, '#0f172a');
       ctx.fillStyle = g;
-      ctx.fillRect(-20, -20, LAB_W + 40, LAB_H + 40);
+      ctx.fillRect(-20, -20, this.W + 40, LAB_H + 40);
     }
     ctx.fillStyle = this.theme.tint;
-    ctx.fillRect(-20, -20, LAB_W + 40, LAB_H + 40);
+    ctx.fillRect(-20, -20, this.W + 40, LAB_H + 40);
 
     ctx.fillStyle = 'rgba(255,255,255,0.12)';
     this.motes.forEach(m => { ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill(); });
 
     // lab counter floor
     ctx.fillStyle = this.theme.floor;
-    ctx.fillRect(-20, FLOOR_Y, LAB_W + 40, LAB_H - FLOOR_Y + 20);
+    ctx.fillRect(-20, FLOOR_Y, this.W + 40, LAB_H - FLOOR_Y + 20);
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.fillRect(-20, FLOOR_Y, LAB_W + 40, 6);
+    ctx.fillRect(-20, FLOOR_Y, this.W + 40, 6);
 
     const order = { atom: 1, potion: 1, slime: 2, bubble: 3 };
     this.objects.slice().sort((a, b) => (order[a.type] || 0) - (order[b.type] || 0)).forEach(o => this._drawObject(ctx, o));
@@ -506,7 +518,7 @@ class LabRun {
     this.juice.renderParticles(ctx);
     this.juice.renderTexts(ctx);
     ctx.restore();
-    this.juice.renderFlash(ctx, LAB_W, LAB_H);
+    this.juice.renderFlash(ctx, this.W, LAB_H);
   }
 
   _drawObject(ctx, o) {
@@ -583,7 +595,7 @@ class LabRun {
     ctx.beginPath(); ctx.ellipse(-o.w / 2 + 26, -o.h / 2 + 20, 14, 7, -0.5, 0, Math.PI * 2); ctx.fill();
 
     const tf = o.text === 'True' || o.text === 'False';
-    let size = tf ? 34 : 22;
+    let size = tf ? 34 : (o.w > 220 ? 27 : 22);
     let lines;
     do {
       ctx.font = `700 ${size}px Fredoka, sans-serif`;
@@ -641,10 +653,10 @@ class LabRun {
   _drawRocket(ctx) {
     const img = this.images.rocket;
     const y = this.rocket.y;
-    if (imgReady(img)) drawContain(ctx, img, LAB_W / 2, y, 150, 220);
+    if (imgReady(img)) drawContain(ctx, img, this.W / 2, y, 150, 220);
     else {
       ctx.fillStyle = '#ef4444';
-      ctx.beginPath(); ctx.moveTo(LAB_W / 2, y - 100); ctx.lineTo(LAB_W / 2 + 40, y + 60); ctx.lineTo(LAB_W / 2 - 40, y + 60); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(this.W / 2, y - 100); ctx.lineTo(this.W / 2 + 40, y + 60); ctx.lineTo(this.W / 2 - 40, y + 60); ctx.fill();
     }
   }
 }
