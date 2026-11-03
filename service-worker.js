@@ -9,7 +9,7 @@
  * - Auto-updates when new version is deployed
  */
 
-const CACHE_VERSION = 'v1.13.0';
+const CACHE_VERSION = 'v1.13.1';
 const CACHE_NAME = `noyola-games-${CACHE_VERSION}`;
 const DEV_BYPASS_CACHE = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
@@ -332,20 +332,17 @@ self.addEventListener('fetch', (event) => {
   }
   
   // === Spell Quest API routing ===
-  // /api/tts: stable per (voice, text). Stale-while-revalidate caches the MP3
-  //          so replays during a test and across sessions are instant.
+  // /api/tts: clips are immutable per (voice, text), so cache-first with no
+  //          background revalidation (extra requests trip Vercel's bot checkpoint).
   // /api/extract-words & /api/grade-spelling: NEVER cache — each request is unique.
   if (url.pathname === '/api/tts') {
     event.respondWith(
       caches.open(`${CACHE_NAME}-tts`).then(async (cache) => {
         const cached = await cache.match(event.request);
-        const networkFetch = fetch(event.request)
-          .then((res) => {
-            if (res && res.status === 200) cache.put(event.request, res.clone());
-            return res;
-          })
-          .catch(() => cached);
-        return cached || networkFetch;
+        if (cached) return cached;
+        const res = await fetch(event.request);
+        if (res && res.status === 200) cache.put(event.request, res.clone());
+        return res;
       })
     );
     return;

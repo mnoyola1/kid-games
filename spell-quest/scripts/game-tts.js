@@ -180,17 +180,43 @@ function trimTrailingSilence(ctx, buffer, { threshold = 0.012, tailMs = 40 } = {
   return out;
 }
 
+// Vercel's bot protection challenges bursts of requests from one device (403
+// "Security Checkpoint"), which used to leave the rest of a test silent. So:
+// one request per phrase (shared in-flight promise), clips persisted in Cache
+// Storage across sessions, and a cool-down after a 403/429 instead of retrying.
+const TTS_CACHE = 'sq-tts-v1';
+const fetchPromises = new Map(); // key -> Promise<ArrayBuffer>
+let ttsBlockedUntil = 0;
+
 async function fetchTtsArrayBuffer(text, voice) {
   const key = voice + '|' + text;
-  const res = await fetch('/api/tts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, voice }),
-  });
-  if (!res.ok) throw new Error(`TTS failed (${res.status})`);
-  const ab = await res.arrayBuffer();
-  blobCache.set(key, URL.createObjectURL(new Blob([ab], { type: 'audio/mpeg' })));
-  return ab;
+  if (fetchPromises.has(key)) return (await fetchPromises.get(key)).slice(0);
+  const p = (async () => {
+    const url = `/api/tts?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(text)}`;
+    const cache = window.caches ? await caches.open(TTS_CACHE).catch(() => null) : null;
+    const hit = cache && await cache.match(url).catch(() => null);
+    if (hit) return hit.arrayBuffer();
+    if (Date.now() < ttsBlockedUntil) throw new Error('TTS cooling down');
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (res.status === 403 || res.status === 429) {
+        const wait = Number(res.headers.get('retry-after')) || 30;
+        ttsBlockedUntil = Date.now() + wait * 1000;
+      }
+      throw new Error(`TTS failed (${res.status})`);
+    }
+    if (cache) cache.put(url, res.clone()).catch(() => {});
+    return res.arrayBuffer();
+  })();
+  fetchPromises.set(key, p);
+  try {
+    const ab = await p;
+    if (!blobCache.has(key)) blobCache.set(key, URL.createObjectURL(new Blob([ab], { type: 'audio/mpeg' })));
+    return ab.slice(0);
+  } catch (e) {
+    fetchPromises.delete(key);
+    throw e;
+  }
 }
 
 async function getDecodedBuffer(text, voice) {
@@ -234,9 +260,7 @@ async function getWavUrl(text, voice) {
 }
 
 function prewarmTts(text, voice = 'keeper') {
-  getDecodedBuffer(text, voice).catch(() => {
-    fetchTtsArrayBuffer(text, voice).catch(() => {});
-  });
+  getDecodedBuffer(text, voice).catch(() => {});
 }
 
 // Teacher-style "say it twice" dictation pattern:
@@ -375,10 +399,39 @@ function speakWord(text, { voice = 'keeper', gain = 4.0, duck = true } = {}) {
       unduck();
       resolve();
     } catch (e) {
+      console.warn('[SpellQuestTTS] Keeper voice unavailable, using device voice:', e.message);
+      const spoke = await speakWithDeviceVoice(text);
       unduck();
-      reject(e);
+      if (spoke) resolve(); else reject(e);
     }
   });
+}
+
+// Built-in speech so a word is never silent when the Keeper clip can't load.
+function speakWithDeviceVoice(text) {
+  return new Promise((resolve) => {
+    const synth = window.speechSynthesis;
+    if (!synth || typeof SpeechSynthesisUtterance === 'undefined') { resolve(false); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.8;
+    const done = (ok) => { clearTimeout(guard); resolve(ok); };
+    const guard = setTimeout(() => done(true), 4000 + text.length * 120);
+    u.onend = () => done(true);
+    u.onerror = () => done(false);
+    synth.cancel();
+    synth.speak(u);
+  });
+}
+
+// iOS only allows speechSynthesis after it has been used inside a tap, so prime
+// it on the first touch.
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  const prime = () => {
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } catch (e) {}
+    window.removeEventListener('pointerdown', prime);
+  };
+  window.addEventListener('pointerdown', prime);
 }
 
 // Convenience wrappers for the spelling-test dictation pattern. Use these for

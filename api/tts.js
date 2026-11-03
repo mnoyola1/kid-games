@@ -1,5 +1,5 @@
-// POST /api/tts
-// Body: { text: string, voice?: 'keeper' | 'cheerful' | 'excited' }
+// GET /api/tts?text=...&voice=...   (cacheable; preferred)
+// POST /api/tts  Body: { text: string, voice?: 'keeper' | 'cheerful' | 'excited' }
 // Returns: audio/mpeg MP3 bytes (Cartesia Sonic-2).
 //
 // Used by Spell Quest for runtime dictation of each word in "The Keeper's" voice.
@@ -27,15 +27,21 @@ function resolveVoiceId(preset) {
 export default async function handler(req, res) {
   applyCors(res);
   if (req.method === 'OPTIONS') { res.status(204).end(); return; }
-  if (req.method !== 'POST') { sendError(res, 405, 'Method not allowed'); return; }
+  if (req.method !== 'POST' && req.method !== 'GET') { sendError(res, 405, 'Method not allowed'); return; }
 
   if (!process.env.CARTESIA_API_KEY) {
     sendError(res, 500, 'CARTESIA_API_KEY not configured');
     return;
   }
 
+  // GET ?text=&voice= is the preferred form: the Vercel CDN and the browser can
+  // cache it, so a repeated phrase never re-runs this function.
   let body;
-  try { body = await readJsonBody(req); } catch { sendError(res, 400, 'Invalid JSON body'); return; }
+  if (req.method === 'GET') {
+    body = { text: req.query?.text, voice: req.query?.voice };
+  } else {
+    try { body = await readJsonBody(req); } catch { sendError(res, 400, 'Invalid JSON body'); return; }
+  }
 
   const text = (body?.text || '').toString().trim();
   const voice = (body?.voice || 'keeper').toString();
@@ -96,6 +102,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Length', audio.length);
     res.setHeader('ETag', etag);
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('CDN-Cache-Control', 'public, max-age=31536000, immutable');
     res.send(audio);
   } catch (err) {
     sendError(res, 500, 'TTS request failed', { detail: String(err?.message || err) });
